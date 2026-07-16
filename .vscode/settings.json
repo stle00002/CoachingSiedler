@@ -1,0 +1,8 @@
+{
+    "files.watcherExclude": {
+        "**/target": true
+    },
+    "python.analysis.extraPaths": [
+        "./venv/src/S"
+    ]
+}
