@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Catan Web</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <section id="lobby" class="screen">
+        <div class="panel lobby-panel">
+          <h1>CATAN</h1>
+          <p class="sub">Multiplayer</p>
+          <div id="join-row" class="join-row">
+            <input id="name" placeholder="Dein Name" maxlength="20" /><button
+              id="joinBtn"
+            >
+              Beitreten
+            </button>
+          </div>
+          <div id="connection" class="status">Nicht verbunden</div>
+          <div id="players" class="players"></div>
+          <div id="lobby-actions" class="lobby-actions" style="display: none">
+            <button id="readyBtn">READY</button
+            ><button id="botAddBtn">BOT +</button
+            ><button id="botRemoveBtn">BOT −</button
+            ><button id="startBtn" class="primary">START GAME</button>
+          </div>
+          <div id="colors" class="colors" style="display: none"></div>
+        </div>
+      </section>
+
+      <section id="game" class="game-screen hidden">
+        <header class="topbar">
+          <div><b>CATAN</b><span id="turnText"></span></div>
+          <div id="phaseText"></div>
+          <div id="diceText">–</div>
+        </header>
+       <main class="layout">
+
+  <aside class="sidebar left">
+    <h3>Spieler</h3>
+    <div id="playerList"></div>
+    <div id="log" class="log"></div>
+  </aside>
+
+  <div class="board-wrap">
+
+    <canvas id="board"></canvas>
+
+    <!-- HANDELSFENSTER MUSS HIER DRIN SEIN -->
+    <div id="tradeOffer" class="trade-offer hidden">
+      <div id="tradeTitle" class="trade-title"></div>
+
+      <div class="trade-content">
+
+        <div>
+          <span class="trade-label">Gibt:</span>
+          <span id="tradeOfferResources"></span>
+        </div>
+
+        <div class="trade-arrow">→</div>
+
+        <div>
+          <span class="trade-label">Möchte:</span>
+          <span id="tradeRequestResources"></span>
+        </div>
+
+      </div>
+
+      <div class="trade-buttons">
+        <button id="acceptTradeBtn">✓ Annehmen</button>
+        <button id="declineTradeBtn">✕ Ablehnen</button>
+      </div>
+    </div>
+
+    <div id="prompt" class="prompt hidden"></div>
+
+  </div>
+
+  <aside class="sidebar right">
+    <div id="resources"></div>
+
+    <div class="actions">
+      <button data-action="roll_dice">Würfeln</button>
+      <button data-action="buildSettlement">Siedlung</button>
+      <button data-action="buildRoad">Straße</button>
+      <button data-action="buildCity">Stadt</button>
+      <button data-action="buyDevelopmentCard">Entwicklung</button>
+      <button data-action="endTurn">Zug beenden</button>
+    </div>
+
+    <div class="cards">
+      <h3>Entwicklungskarten</h3>
+      <div id="devCards"></div>
+    </div>
+
+    <div class="trade">
+      <h3>Handel</h3>
+      <button id="bankTrade">Mit Bank handeln</button>
+      <button id="playerTrade">Spielerhandel</button>
+    </div>
+  </aside>
+
+</main>
+      </section>
+    </div>
+    <div id="modal" class="modal hidden">
+      <div class="modal-card">
+        <button class="close" onclick="closeModal()">×</button>
+        <h2 id="modalTitle"></h2>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>
