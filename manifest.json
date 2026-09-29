@@ -1,0 +1,10 @@
+{
+  "name": "Siedler Multiplayer",
+  "short_name": "Siedler",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#17130f",
+  "theme_color": "#17130f"
+}
