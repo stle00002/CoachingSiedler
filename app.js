@@ -654,6 +654,12 @@ function startAction(a) {
     send("roll_dice", { playerName: me });
     return;
   }
+  if (a === "buyDevelopmentCard") {
+    send("buyDevelopmentCard", {
+        playerName: me
+    });
+    return;
+}
 
   if (a === "endTurn") {
     send("endTurn", { playerName: me });
