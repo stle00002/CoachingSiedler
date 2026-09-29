@@ -210,14 +210,38 @@ function resourceBox(resource, amount) {
     const color = RESOURCE_COLORS[resource] || "#888";
 
     return `
-        <div
-            class="resource-box"
-            style="background:${color}"
+        <div 
+            class="resource-box" 
+            style="background:${color}" 
             title="${resource}"
+            onclick="resourceClicked('${resource}')"
         >
             ${amount}
         </div>
     `;
+}
+function resourceClicked(resource) {
+    if (!lastState) return;
+
+    const mep = (lastState.players || [])
+        .find((p) => p.name === me);
+
+    if (!mep) return;
+
+    // Nur wenn dieser Spieler Ressourcen abwerfen muss
+    if (!mep.hasToDiscard || mep.hasToDiscard <= 0) {
+        return;
+    }
+
+    // Nur Ressourcen anklicken können, die man tatsächlich besitzt
+    if ((mep.resources?.[resource] || 0) <= 0) {
+        return;
+    }
+
+    send("discardResource", {
+        playerName: me,
+        res: resource
+    });
 }
 function renderLobby(players) {
   $("players").innerHTML = players
@@ -454,6 +478,28 @@ function drawBoard(s) {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(t.number ?? "", p.x, p.y);
+
+  if (t.hasRobber) {
+    ctx.fillStyle = "#222";
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x,
+        p.y - size * 0.35,
+        size * 0.22,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.fillStyle = "#111";
+    ctx.fillRect(
+        p.x - size * 0.12,
+        p.y - size * 0.15,
+        size * 0.24,
+        size * 0.5
+    );
+}
 }
 const edges = b.edges || [];
 for (const e of edges) {
@@ -769,26 +815,107 @@ $("tradeBankBtn").onclick = () => {
     closeTradeBar();
 };
 $("board").addEventListener("click", (ev) => {
-  if (!lastState || !mode) return;
-  const c = $("board"),
-    rect = c.getBoundingClientRect(),
-    x = ev.clientX - rect.left,
-    y = ev.clientY - rect.top;
-  const b = getBoard(lastState),
-    verts = b.vertices || [],
-    edges = b.edges || [];
-  const p = findVertex(verts, b, x, y, rect),
-    e = findEdge(edges, b, x, y, rect);
-  if (mode === "settlement" && p)
-    send("buildSettlement", { playerName: me, vertexId: p.id });
-  if (mode === "city" && p)
-    send("buildCity", { playerName: me, vertexId: p.id });
-  if (mode === "road" && e) send("buildRoad", { playerName: me, edgeId: e.id });
-  if (lastState.moveRobberMode) {
-    const t = findTile(b.tiles || [], b, x, y, rect);
-    if (t) send("moveRobber", { playerName: me, tileId: t.id });
-  }
-  mode = null;
+    if (!lastState) return;
+
+    const c = $("board");
+    const rect = c.getBoundingClientRect();
+
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+
+    const b = getBoard(lastState);
+    const verts = b.vertices || [];
+    const edges = b.edges || [];
+
+    // ==========================================
+    // 1. RÄUBER BEWEGEN
+    // ==========================================
+
+    if (lastState.moveRobberMode) {
+        const tile = findTile(b.tiles || [], b, x, y, rect);
+
+        if (tile) {
+            send("moveRobber", {
+                playerName: me,
+                tileId: tile.id
+            });
+        }
+
+        return;
+    }
+
+    // ==========================================
+    // 2. SPIELER FÜR RÄUBER AUSWÄHLEN
+    // ==========================================
+
+    if (lastState.stealMode) {
+        const vertex = findVertex(verts, b, x, y, rect);
+
+        if (!vertex) return;
+
+        // Nur Siedlungen/Städte auf dem angeklickten
+        // Vertex berücksichtigen
+        if (vertex.owner === null || vertex.owner === undefined) {
+            return;
+        }
+
+        const victim = (lastState.players || [])
+            .find((p) => p.id === vertex.owner);
+
+        if (!victim) return;
+
+        // Man darf nicht sich selbst bestehlen
+        if (victim.name === me) {
+            return;
+        }
+
+        // Prüfen, ob der Spieler überhaupt Ressourcen besitzt
+        const resources = victim.resources || {};
+        const totalResources = Object.values(resources)
+            .reduce((sum, amount) => sum + (amount || 0), 0);
+
+        if (totalResources <= 0) {
+            return;
+        }
+
+        send("steal", {
+            playerName: victim.name
+        });
+
+        return;
+    }
+
+    // ==========================================
+    // 3. NORMALE BAUAKTIONEN
+    // ==========================================
+
+    if (!mode) return;
+
+    const p = findVertex(verts, b, x, y, rect);
+    const e = findEdge(edges, b, x, y, rect);
+
+    if (mode === "settlement" && p) {
+        send("buildSettlement", {
+            playerName: me,
+            vertexId: p.id
+        });
+    }
+
+    if (mode === "city" && p) {
+        send("buildCity", {
+            playerName: me,
+            vertexId: p.id
+        });
+    }
+
+    if (mode === "road" && e) {
+        send("buildRoad", {
+            playerName: me,
+            edgeId: e.id
+        });
+    }
+
+    mode = null;
 });
 function boardGeom(b, r) {
   const tiles = b.tiles || [];
@@ -864,8 +991,15 @@ function findTile(ts, b, x, y, r) {
 }
 function updatePrompt(s) {
   let t = "";
-  if (s.moveRobberMode) t = "Klicke auf ein Feld, um den Räuber zu bewegen";
-  else if (s.discardResourcesMode) t = "Du musst Ressourcen abwerfen";
+  if (s.moveRobberMode) {
+    t = "Klicke auf ein Feld, um den Räuber zu bewegen";
+}
+else if (s.stealMode) {
+    t = "Klicke auf eine gegnerische Siedlung, um zu stehlen";
+}
+else if (s.discardResourcesMode) {
+    t = "Du musst Ressourcen abwerfen";
+}
   else if (mode)
     t =
       mode === "settlement"
