@@ -215,7 +215,7 @@ function resourceBox(resource, amount) {
             style="background:${color}"
             title="${resource}"
         >
-            ${amount > 1 ? amount : ""}
+            ${amount}
         </div>
     `;
 }
@@ -711,26 +711,10 @@ function renderTradeBar() {
                     class="resource-square"
                     style="background:${RESOURCE_COLORS[resource]}"
                 >
-                    ${resource}
                 </div>
             `;
         });
 }
-document
-    .querySelectorAll('.trade-resource[data-trade-side="request"]')
-    .forEach((box) => {
-
-        const resource = box.dataset.resource;
-
-        box.innerHTML = `
-            <div
-                class="resource-square"
-                style="background:${RESOURCE_COLORS[resource]}"
-            >
-                ${resource}
-            </div>
-        `;
-    });
 document.querySelectorAll(".trade-resource").forEach((box) => {
 
     box.addEventListener("click", () => {
@@ -768,8 +752,7 @@ document.querySelectorAll(".trade-resource").forEach((box) => {
 });
 $("tradePlayerBtn").onclick = () => {
 
-    send("tradeWithPlayer", {
-        playerName: me,
+    send("openPlayerTrade", {
         offer: tradeOffer,
         request: tradeRequest
     });
@@ -779,7 +762,6 @@ $("tradePlayerBtn").onclick = () => {
 $("tradeBankBtn").onclick = () => {
 
     send("tradeWithBank", {
-        playerName: me,
         offer: tradeOffer,
         request: tradeRequest
     });
