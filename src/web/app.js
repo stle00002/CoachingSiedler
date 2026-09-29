@@ -23,7 +23,10 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "ws://192.168.178.27:8765";
+const WS_URL =
+  (location.protocol === "https:" ? "wss://" : "ws://") +
+  (location.hostname || "localhost") +
+  ":8765";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
