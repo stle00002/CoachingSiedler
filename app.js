@@ -353,10 +353,27 @@ function renderState(s) {
   ).join("") +
   "</div>";
     $("devCards").innerHTML = Object.entries(mep.developmentCards || {})
-      .map(
-        ([k, v]) => `<div class="cardline"><span>${k}</span><b>${v}</b></div>`,
-      )
-      .join("");
+  .map(
+    ([k, v]) => `
+      <div class="cardline">
+        <span
+          class="dev-card-name"
+          data-card="${k}"
+          style="cursor:${v > 0 ? "pointer" : "default"}"
+        >
+          ${k}
+        </span>
+        <b>${v}</b>
+      </div>
+    `
+  )
+  .join("");
+
+$("devCards").querySelectorAll(".dev-card-name").forEach((card) => {
+  card.addEventListener("click", () => {
+    playDevelopmentCard(card.dataset.card);
+  });
+});
   }
   if (s.board || s.tiles || s.vertices) {
     $("lobby").classList.add("hidden");
@@ -1063,5 +1080,193 @@ function closeModal() {
 function getPlayerById(id) {
   if (id === null || id === undefined) return null;
   return (lastState?.players || []).find(p => p.id === id) || null;
+}
+function playDevelopmentCard(type) {
+    const mep = (lastState.players || [])
+        .find((p) => p.name === me);
+
+    if (!mep) return;
+
+    const amount = mep.developmentCards?.[type] || 0;
+
+    // Keine Karte vorhanden
+    if (amount <= 0) {
+        return;
+    }
+
+    // ==========================================
+    // RITTER
+    // ==========================================
+
+    if (type === "RITTER") {
+        send("playDevelopmentCard", {
+            type: "RITTER",
+            res1: null,
+            res2: null
+        });
+
+        return;
+    }
+
+    // ==========================================
+    // SIEGPUNKT
+    // ==========================================
+
+    if (type === "1SIEGPUNKT") {
+        send("playDevelopmentCard", {
+            type: "1SIEGPUNKT",
+            res1: null,
+            res2: null
+        });
+
+        return;
+    }
+
+    // ==========================================
+    // MONOPOL
+    // ==========================================
+
+    if (type === "MONOPOL") {
+        openDevelopmentResourceModal(
+            "MONOPOL",
+            "Wähle eine Ressource für dein Monopol",
+            (resource) => {
+                send("playDevelopmentCard", {
+                    type: "MONOPOL",
+                    res1: resource,
+                    res2: null
+                });
+            }
+        );
+
+        return;
+    }
+
+    // ==========================================
+    // ERFINDUNG
+    // ==========================================
+
+    if (type === "ERFINDUNG") {
+        openInventionModal();
+        return;
+    }
+
+    // ==========================================
+    // STRAßENBAU
+    // ==========================================
+
+    if (type === "STRAßENBAU") {
+    send("playDevelopmentCard", {
+        type: "STRAßENBAU",
+        res1: null,
+        res2: null
+    });
+
+    mode = "road";
+
+    updatePrompt(lastState);
+
+    return;
+}
+}
+function openDevelopmentResourceModal(title, text, callback) {
+    const resources = [
+        "HOLZ",
+        "LEHM",
+        "SCHAF",
+        "WEIZEN",
+        "ERZ"
+    ];
+
+    openModal(
+        title,
+        `
+            <p>${text}</p>
+
+            <div class="dev-resource-grid">
+                ${resources.map(resource => `
+                    <button
+                        class="dev-resource-button"
+                        data-resource="${resource}"
+                    >
+                        ${resource}
+                    </button>
+                `).join("")}
+            </div>
+        `
+    );
+
+    $("modalBody")
+        .querySelectorAll(".dev-resource-button")
+        .forEach((button) => {
+            button.addEventListener("click", () => {
+                const resource = button.dataset.resource;
+
+                closeModal();
+
+                callback(resource);
+            });
+        });
+}
+function openInventionModal() {
+    const resources = [
+        "HOLZ",
+        "LEHM",
+        "SCHAF",
+        "WEIZEN",
+        "ERZ"
+    ];
+
+    let firstResource = null;
+
+    openModal(
+        "ERFINDUNG",
+        `
+            <p id="inventionText">
+                Wähle die erste Ressource.
+            </p>
+
+            <div class="dev-resource-grid">
+                ${resources.map(resource => `
+                    <button
+                        class="dev-resource-button"
+                        data-resource="${resource}"
+                    >
+                        ${resource}
+                    </button>
+                `).join("")}
+            </div>
+        `
+    );
+
+    $("modalBody")
+        .querySelectorAll(".dev-resource-button")
+        .forEach((button) => {
+
+            button.addEventListener("click", () => {
+
+                const resource = button.dataset.resource;
+
+                if (firstResource === null) {
+
+                    firstResource = resource;
+
+                    $("inventionText").textContent =
+                        `Erste Ressource: ${resource} – wähle die zweite Ressource.`;
+
+                    return;
+                }
+
+                const secondResource = resource;
+
+                closeModal();
+
+                send("playDevelopmentCard", {
+                    type: "ERFINDUNG",
+                    res1: firstResource,
+                    res2: secondResource
+                });
+            });
+        });
 }
 connect();
