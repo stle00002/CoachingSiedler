@@ -1014,7 +1014,7 @@ async def broadcast_lobby():
     for conn, player in client_players.items():
         lobby_data.append({
             "name": player.name,
-            "ready": client_ready[conn],
+            "ready": client_ready.get(conn, False),
             "color": player.color
         })
     for bot in bots:
