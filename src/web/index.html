@@ -41,6 +41,98 @@
           <div id="phaseText"></div>
           <div id="diceText">–</div>
         </header>
+        <!-- HANDELSLEISTE -->
+<div id="tradeBar" class="trade-bar hidden">
+
+  <!-- Was ich bekommen möchte -->
+  <div class="trade-row trade-want-row">
+    <div
+      class="trade-resource"
+      data-trade-side="request"
+      data-resource="HOLZ"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="request"
+      data-resource="LEHM"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="request"
+      data-resource="SCHAF"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="request"
+      data-resource="WEIZEN"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="request"
+      data-resource="ERZ"
+    ></div>
+  </div>
+
+  <!-- Das aktuelle Handelsangebot -->
+  <div class="trade-middle">
+
+    <div class="trade-middle-side">
+      <span class="trade-middle-label">Gibt</span>
+      <div id="tradeGiveDisplay" class="trade-display"></div>
+    </div>
+
+    <div class="trade-arrow">→</div>
+
+    <div class="trade-middle-side">
+      <span class="trade-middle-label">Möchte</span>
+      <div id="tradeGetDisplay" class="trade-display"></div>
+    </div>
+
+    <div class="trade-action-buttons">
+      <button id="tradePlayerBtn">P</button>
+      <button id="tradeBankBtn">B</button>
+    </div>
+
+  </div>
+
+  <!-- Was ich geben kann -->
+  <div class="trade-row trade-give-row">
+    <div
+      class="trade-resource"
+      data-trade-side="offer"
+      data-resource="HOLZ"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="offer"
+      data-resource="LEHM"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="offer"
+      data-resource="SCHAF"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="offer"
+      data-resource="WEIZEN"
+    ></div>
+
+    <div
+      class="trade-resource"
+      data-trade-side="offer"
+      data-resource="ERZ"
+    ></div>
+  </div>
+
+</div>
        <main class="layout">
 
   <aside class="sidebar left">
@@ -100,12 +192,11 @@
       <div id="devCards"></div>
     </div>
 
-    <div class="trade">
-      <h3>Handel</h3>
-      <button id="bankTrade">Mit Bank handeln</button>
-      <button id="playerTrade">Spielerhandel</button>
-    </div>
+<div class="trade">
+  <button id="tradeButton">Handel</button>
+</div>
   </aside>
+
 
 </main>
       </section>

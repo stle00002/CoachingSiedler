@@ -15,6 +15,24 @@ const RESOURCE_COLORS = {
     ERZ: "#8e9294"
 };
 
+let tradeOpen = false;
+
+let tradeOffer = {
+  HOLZ: 0,
+  LEHM: 0,
+  SCHAF: 0,
+  WEIZEN: 0,
+  ERZ: 0
+};
+
+let tradeRequest = {
+  HOLZ: 0,
+  LEHM: 0,
+  SCHAF: 0,
+  WEIZEN: 0,
+  ERZ: 0
+};
+
 TILE_IMAGES.HOLZ.src = "images/forestBright.png";
 TILE_IMAGES.LEHM.src = "images/hillBright.png";
 TILE_IMAGES.SCHAF.src = "images/pastureBright.png";
@@ -175,11 +193,19 @@ COLORS.forEach(([n, c]) => {
 document
   .querySelectorAll(".actions button")
   .forEach((b) => (b.onclick = () => startAction(b.dataset.action)));
-$("bankTrade").onclick = bankTrade;
-$("playerTrade").onclick = playerTrade;
+
 function normalize(s) {
   return s || {};
 }
+$("tradeButton").onclick = () => {
+
+    if (tradeOpen) {
+        closeTradeBar();
+    } else {
+        openTradeBar();
+    }
+
+};
 function resourceBox(resource, amount) {
     const color = RESOURCE_COLORS[resource] || "#888";
 
@@ -297,12 +323,11 @@ function renderState(s) {
   const mep = players.find((p) => p.name === me);
   if (mep) {
     $("resources").innerHTML =
-      '<h3>Ressourcen</h3><div class="resources">' +
-      RES.map(
-        (r) =>
-          `<div class="res">${r}<b style="float:right">${mep.resources?.[r] || 0}</b></div>`,
-      ).join("") +
-      "</div>";
+  '<h3>Ressourcen</h3><div class="resources">' +
+  RES.map(
+    (r) => resourceBox(r, mep.resources?.[r] || 0)
+  ).join("") +
+  "</div>";
     $("devCards").innerHTML = Object.entries(mep.developmentCards || {})
       .map(
         ([k, v]) => `<div class="cardline"><span>${k}</span><b>${v}</b></div>`,
@@ -583,6 +608,184 @@ function startAction(a) {
 
   updatePrompt(lastState);
 }
+function openTradeBar() {
+    if (!lastState) return;
+
+    tradeOpen = true;
+
+    tradeOffer = {
+        HOLZ: 0,
+        LEHM: 0,
+        SCHAF: 0,
+        WEIZEN: 0,
+        ERZ: 0
+    };
+
+    tradeRequest = {
+        HOLZ: 0,
+        LEHM: 0,
+        SCHAF: 0,
+        WEIZEN: 0,
+        ERZ: 0
+    };
+
+    $("tradeBar").classList.remove("hidden");
+
+    renderTradeBar();
+}
+function closeTradeBar() {
+    tradeOpen = false;
+    $("tradeBar").classList.add("hidden");
+
+    tradeOffer = {
+        HOLZ: 0,
+        LEHM: 0,
+        SCHAF: 0,
+        WEIZEN: 0,
+        ERZ: 0
+    };
+
+    tradeRequest = {
+        HOLZ: 0,
+        LEHM: 0,
+        SCHAF: 0,
+        WEIZEN: 0,
+        ERZ: 0
+    };
+}
+function renderTradeBar() {
+
+    if (!tradeOpen) return;
+
+    const give = Object.entries(tradeOffer)
+        .filter(([_, amount]) => amount > 0)
+        .map(([resource, amount]) =>
+            resourceBox(resource, amount)
+        )
+        .join("");
+
+    const get = Object.entries(tradeRequest)
+        .filter(([_, amount]) => amount > 0)
+        .map(([resource, amount]) =>
+            resourceBox(resource, amount)
+        )
+        .join("");
+
+    $("tradeGiveDisplay").innerHTML =
+        give || '<span class="empty-trade">–</span>';
+
+    $("tradeGetDisplay").innerHTML =
+        get || '<span class="empty-trade">–</span>';
+
+    // Rohstoffzahlen in den Auswahlreihen aktualisieren
+    const mep = (lastState.players || [])
+        .find((p) => p.name === me);
+
+    if (!mep) return;
+
+    document
+        .querySelectorAll('.trade-resource[data-trade-side="offer"]')
+        .forEach((box) => {
+
+            const resource = box.dataset.resource;
+            const amount = mep.resources?.[resource] || 0;
+
+            box.innerHTML = `
+                <div
+                    class="resource-square"
+                    style="background:${RESOURCE_COLORS[resource]}"
+                >
+                    ${amount}
+                </div>
+            `;
+        });
+
+    document
+        .querySelectorAll('.trade-resource[data-trade-side="request"]')
+        .forEach((box) => {
+
+            const resource = box.dataset.resource;
+
+            box.innerHTML = `
+                <div
+                    class="resource-square"
+                    style="background:${RESOURCE_COLORS[resource]}"
+                >
+                    ${resource}
+                </div>
+            `;
+        });
+}
+document
+    .querySelectorAll('.trade-resource[data-trade-side="request"]')
+    .forEach((box) => {
+
+        const resource = box.dataset.resource;
+
+        box.innerHTML = `
+            <div
+                class="resource-square"
+                style="background:${RESOURCE_COLORS[resource]}"
+            >
+                ${resource}
+            </div>
+        `;
+    });
+document.querySelectorAll(".trade-resource").forEach((box) => {
+
+    box.addEventListener("click", () => {
+
+        if (!tradeOpen || !lastState) return;
+
+        const resource = box.dataset.resource;
+        const side = box.dataset.tradeSide;
+
+        const mep = (lastState.players || [])
+            .find((p) => p.name === me);
+
+        if (!mep) return;
+
+        if (side === "offer") {
+
+            const available = mep.resources?.[resource] || 0;
+
+            // Nicht mehr anbieten können als man besitzt
+            if (tradeOffer[resource] >= available) {
+                return;
+            }
+
+            tradeOffer[resource]++;
+
+        } else if (side === "request") {
+
+            tradeRequest[resource]++;
+
+        }
+
+        renderTradeBar();
+    });
+
+});
+$("tradePlayerBtn").onclick = () => {
+
+    send("tradeWithPlayer", {
+        playerName: me,
+        offer: tradeOffer,
+        request: tradeRequest
+    });
+
+    closeTradeBar();
+};
+$("tradeBankBtn").onclick = () => {
+
+    send("tradeWithBank", {
+        playerName: me,
+        offer: tradeOffer,
+        request: tradeRequest
+    });
+
+    closeTradeBar();
+};
 $("board").addEventListener("click", (ev) => {
   if (!lastState || !mode) return;
   const c = $("board"),
