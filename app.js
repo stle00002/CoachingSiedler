@@ -317,6 +317,7 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+  updateActionButtons(s);
   const endTurnBtn = document.querySelector(
     '[data-action="endTurn"]'
 );
@@ -1328,11 +1329,118 @@ function mustFinishAction(s) {
         return true;
     }
 
-    // Setup: notwendige Siedlung/Straße
-    if (s.setUpSettlement || s.setUpRoad) {
-        return true;
+    if (s.setupPhase){
+        // Setup: notwendige Siedlung/Straße
+      if (s.setUpSettlement || s.setUpRoad) {
+          return true;
+      } 
     }
 
     return false;
+}
+function updateActionButtons(s) {
+    const mep = (s.players || []).find(p => p.name === me);
+
+    if (!mep) return;
+
+    const myTurn = mep.id === s.currentPlayer;
+
+    const buttons = {
+        roll_dice: document.querySelector('[data-action="roll_dice"]'),
+        buildSettlement: document.querySelector('[data-action="buildSettlement"]'),
+        buildRoad: document.querySelector('[data-action="buildRoad"]'),
+        buildCity: document.querySelector('[data-action="buildCity"]'),
+        buyDevelopmentCard: document.querySelector('[data-action="buyDevelopmentCard"]'),
+        endTurn: document.querySelector('[data-action="endTurn"]')
+    };
+
+    // =========================
+    // RESSOURCEN
+    // =========================
+
+    const resources = mep.resources || {};
+
+    const hasSettlementResources =
+        (resources.HOLZ || 0) >= 1 &&
+        (resources.LEHM || 0) >= 1 &&
+        (resources.SCHAF || 0) >= 1 &&
+        (resources.WEIZEN || 0) >= 1;
+
+    const hasRoadResources =
+        (resources.HOLZ || 0) >= 1 &&
+        (resources.LEHM || 0) >= 1;
+
+    const hasCityResources =
+        (resources.WEIZEN || 0) >= 2 &&
+        (resources.ERZ || 0) >= 3;
+
+    const hasDevelopmentResources =
+        (resources.SCHAF || 0) >= 1 &&
+        (resources.WEIZEN || 0) >= 1 &&
+        (resources.ERZ || 0) >= 1;
+
+
+    // =========================
+    // WÜRFELN
+    // =========================
+
+    if (buttons.roll_dice) {
+        buttons.roll_dice.disabled =
+            !myTurn || !s.würfelMode;
+    }
+
+
+    // =========================
+    // SIEDLUNG
+    // =========================
+
+    if (buttons.buildSettlement) {
+        buttons.buildSettlement.disabled =
+            !myTurn || !hasSettlementResources;
+    }
+
+
+    // =========================
+    // STRASSE
+    // =========================
+
+    if (buttons.buildRoad) {
+        const canBuildFreeRoad =
+            myTurn && (s.freeRoads || 0) > 0;
+
+        buttons.buildRoad.disabled =
+            !myTurn ||
+            (!hasRoadResources && !canBuildFreeRoad);
+    }
+
+
+    // =========================
+    // STADT
+    // =========================
+
+    if (buttons.buildCity) {
+        buttons.buildCity.disabled =
+            !myTurn || !hasCityResources;
+    }
+
+
+    // =========================
+    // ENTWICKLUNG
+    // =========================
+
+    if (buttons.buyDevelopmentCard) {
+        buttons.buyDevelopmentCard.disabled =
+            !myTurn || !hasDevelopmentResources;
+    }
+
+
+    // =========================
+    // ZUG BEENDEN
+    // =========================
+
+    if (buttons.endTurn) {
+        buttons.endTurn.disabled =
+            !myTurn || mustFinishAction(s);
+    }
 }
 connect();

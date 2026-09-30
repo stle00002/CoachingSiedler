@@ -596,6 +596,7 @@ async def handle_client(websocket):
 async def handle_message(conn, message):
     if message == None:
         return
+    print("Nachricht:", message)
     action = message.get("type") or message.get("action")
     if action == "join":
         name = message["name"]
@@ -889,12 +890,13 @@ async def handle_message(conn, message):
 
         if logic.freeRoads > 0:
             return
+        # Setup-Aktionen nur während der Setup-Phase blockieren
+        if logic.setupPhase:
+            if logic.setUpSettlement:
+                return
 
-        if logic.setUpSettlement:
-            return
-
-        if logic.setUpRoad:
-            return
+            if logic.setUpRoad:
+                return
 
         if len(logic.players) <= 4:
             logic.next_turn()
