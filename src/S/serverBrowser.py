@@ -598,6 +598,9 @@ async def handle_message(conn, message):
         return
     print("Nachricht:", message)
     action = message.get("type") or message.get("action")
+    if logic.discardResourcesMode:
+        if action != "discardResource":
+            return
     if action == "join":
         name = message["name"]
 
@@ -880,6 +883,9 @@ async def handle_message(conn, message):
 
         # Pflichtaktionen müssen zuerst abgeschlossen werden
         if logic.discardResourcesMode:
+            return
+
+        if logic.würfelMode:
             return
 
         if logic.moveRobberMode:

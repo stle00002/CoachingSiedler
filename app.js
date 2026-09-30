@@ -1330,6 +1330,10 @@ function mustFinishAction(s) {
       } 
     }
 
+    if (s.würfelMode) {
+      return true;
+    }
+
     return false;
 }
 function updateActionButtons(s) {
@@ -1351,6 +1355,7 @@ function updateActionButtons(s) {
 
     const resources = mep.resources || {};
 
+    const discarding = s.discardResourcesMode === true;
     const hasSettlementResources =
         (resources.HOLZ || 0) >= 1 &&
         (resources.LEHM || 0) >= 1 &&
@@ -1382,7 +1387,7 @@ function updateActionButtons(s) {
     // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            !myTurn ||
+            !myTurn || discarding||
             (!inSetup && !hasSettlementResources);
     }
 
@@ -1393,12 +1398,12 @@ function updateActionButtons(s) {
         const canBuildFreeRoad =
             myTurn &&
             (
-                inSetup ||
+                inSetup || discarding||
                 (s.freeRoads || 0) > 0
             );
 
         buttons.buildRoad.disabled =
-            !myTurn ||
+            !myTurn || discarding||
             (!hasRoadResources && !canBuildFreeRoad);
     }
 
@@ -1407,7 +1412,7 @@ function updateActionButtons(s) {
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
             !myTurn ||
-            inSetup ||
+            inSetup || discarding||
             !hasCityResources;
     }
 
@@ -1416,19 +1421,20 @@ function updateActionButtons(s) {
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
             !myTurn ||
-            inSetup ||
+            inSetup || discarding||
             !hasDevelopmentResources;
     }
 
-        // Handel
-    if (buttons.trade) {
-        buttons.trade.disabled = !myTurn;
-    }
+   const tradeButton = document.getElementById("tradeButton");
+
+if (tradeButton) {
+    tradeButton.disabled = !myTurn || discarding;
+} 
 
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
-            !myTurn ||
+            !myTurn || discarding||
             mustFinishAction(s);
     }
 }
