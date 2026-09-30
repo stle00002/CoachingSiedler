@@ -317,14 +317,8 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+  checkVictory(s);
   updateActionButtons(s);
-  const endTurnBtn = document.querySelector(
-    '[data-action="endTurn"]'
-);
-
-if (endTurnBtn) {
-    endTurnBtn.disabled = mustFinishAction(s);
-}
   console.log("PLAYER TRADE:", s.playerTrade);
   if (s.playerTrade) {
     renderPlayerTrade(s.playerTrade);
@@ -1426,12 +1420,33 @@ function updateActionButtons(s) {
             !hasDevelopmentResources;
     }
 
+        // Handel
+    if (buttons.trade) {
+        buttons.trade.disabled = !myTurn;
+    }
 
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
             !myTurn ||
             mustFinishAction(s);
+    }
+}
+function checkVictory(s) {
+    const winner = (s.players || []).find(
+        p => (p.victoryPoints || 0) >= 10
+    );
+
+    const overlay = $("victoryOverlay");
+    const text = $("victoryText");
+
+    if (!overlay || !text) return;
+
+    if (winner) {
+        text.textContent = `${winner.name} hat gewonnen!`;
+        overlay.classList.remove("hidden");
+    } else {
+        overlay.classList.add("hidden");
     }
 }
 connect();
