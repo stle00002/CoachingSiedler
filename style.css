@@ -201,8 +201,10 @@ input {
   display: grid;
   gap: 7px;
 }
-.actions button:disabled {
+.actions button:disabled,
+.trade button:disabled {
   opacity: 0.35;
+  cursor: not-allowed;
 }
 .cards {
   margin-top: 18px;
@@ -664,8 +666,8 @@ input {
 }
 
 .victory-trophy-large {
-    width: 220px;
-    height: 220px;
+    width: 440px;
+    height: 440px;
     object-fit: contain;
 
     filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.7));
