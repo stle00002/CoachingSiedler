@@ -159,7 +159,7 @@ class Bot(Player):
         if self.developmentCards["RITTER"]> 0:
             return{
                 "action": "playDevelopmentCard",
-                "type": "RITTER",
+                "card": "RITTER",
                 "res1": None,
                 "res2": None
             }
@@ -167,7 +167,7 @@ class Bot(Player):
             print("straßenbau ausgeführt")
             return{
                 "action": "playDevelopmentCard",
-                "type": "STRAßENBAU",
+                "card": "STRAßENBAU",
                 "res1": None,
                 "res2": None               
             }
@@ -640,7 +640,7 @@ class Bot(Player):
         print(res2)
         return {
             "action": "playDevelopmentCard",
-            "type": "ERFINDUNG",
+            "card": "ERFINDUNG",
             "res1": res1,
             "res2": res2
         }
@@ -724,7 +724,7 @@ class Bot(Player):
         if count > 8:
             return {
                 "action": "playDevelopmentCard",
-                "type": "MONOPOL",
+                "card": "MONOPOL",
                 "res1": res,
                 "res2": None
             }

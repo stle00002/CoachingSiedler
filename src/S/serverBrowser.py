@@ -925,8 +925,8 @@ async def handle_message(conn, message):
             logic.stealFromPlayer(player)
         logic.stealMode = False
     elif action == "playDevelopmentCard":
-        type = message["type"]
-        logic.playDevelopmentCard(type, message["res1"], message["res2"],logic.current_player)
+        card = message["card"]
+        logic.playDevelopmentCard(card, message["res1"], message["res2"],logic.current_player)
     elif action == "buyDevelopmentCard":
         name = message["playerName"]
         for p in logic.players:

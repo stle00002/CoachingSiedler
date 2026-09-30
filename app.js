@@ -41,7 +41,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://passing-basic-basically-robertson.trycloudflare.com ";
+const WS_URL = "wss://developers-liquid-tel-custody.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -1106,7 +1106,7 @@ function playDevelopmentCard(type) {
 
     if (type === "RITTER") {
         send("playDevelopmentCard", {
-            type: "RITTER",
+            card: "RITTER",
             res1: null,
             res2: null
         });
@@ -1120,7 +1120,7 @@ function playDevelopmentCard(type) {
 
     if (type === "1SIEGPUNKT") {
         send("playDevelopmentCard", {
-            type: "1SIEGPUNKT",
+            card: "1SIEGPUNKT",
             res1: null,
             res2: null
         });
@@ -1138,7 +1138,7 @@ function playDevelopmentCard(type) {
             "Wähle eine Ressource für dein Monopol",
             (resource) => {
                 send("playDevelopmentCard", {
-                    type: "MONOPOL",
+                    card:"MONOPOL",
                     res1: resource,
                     res2: null
                 });
@@ -1163,7 +1163,7 @@ function playDevelopmentCard(type) {
 
     if (type === "STRAßENBAU") {
     send("playDevelopmentCard", {
-        type: "STRAßENBAU",
+        card: "STRAßENBAU",
         res1: null,
         res2: null
     });
@@ -1268,7 +1268,7 @@ function openInventionModal() {
                 closeModal();
 
                 send("playDevelopmentCard", {
-                    type: "ERFINDUNG",
+                    card: "ERFINDUNG",
                     res1: firstResource,
                     res2: secondResource
                 });
