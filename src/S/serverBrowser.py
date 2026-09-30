@@ -876,12 +876,32 @@ async def handle_message(conn, message):
         logic.board.buildCity(player, vertex)
 
     elif action == "endTurn":
+
+        # Pflichtaktionen müssen zuerst abgeschlossen werden
+        if logic.discardResourcesMode:
+            return
+
+        if logic.moveRobberMode:
+            return
+
+        if logic.stealMode:
+            return
+
+        if logic.freeRoads > 0:
+            return
+
+        if logic.setUpSettlement:
+            return
+
+        if logic.setUpRoad:
+            return
+
         if len(logic.players) <= 4:
             logic.next_turn()
         else:
             logic.specialBuildPhase()
             logic.checkFinishedSpecialBuildPhase()
-        
+            
     elif action == "raiseHand":
         name = message["playerName"]
         for p in logic.players:

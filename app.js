@@ -317,6 +317,13 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+  const endTurnBtn = document.querySelector(
+    '[data-action="endTurn"]'
+);
+
+if (endTurnBtn) {
+    endTurnBtn.disabled = mustFinishAction(s);
+}
   console.log("PLAYER TRADE:", s.playerTrade);
   if (s.playerTrade) {
     renderPlayerTrade(s.playerTrade);
@@ -661,10 +668,16 @@ function startAction(a) {
     return;
 }
 
-  if (a === "endTurn") {
-    send("endTurn", { playerName: me });
+if (a === "endTurn") {
+    mode = null;
+    updatePrompt(lastState);
+
+    send("endTurn", {
+        playerName: me
+    });
+
     return;
-  }
+}
   
   mode =
     a === "buildSettlement"
@@ -917,28 +930,51 @@ $("board").addEventListener("click", (ev) => {
     const p = findVertex(verts, b, x, y, rect);
     const e = findEdge(edges, b, x, y, rect);
 
-    if (mode === "settlement" && p) {
-        send("buildSettlement", {
-            playerName: me,
-            vertexId: p.id
-        });
-    }
-
-    if (mode === "city" && p) {
-        send("buildCity", {
-            playerName: me,
-            vertexId: p.id
-        });
-    }
-
-    if (mode === "road" && e) {
-        send("buildRoad", {
-            playerName: me,
-            edgeId: e.id
-        });
-    }
+if (mode === "settlement" && p) {
+    send("buildSettlement", {
+        playerName: me,
+        vertexId: p.id
+    });
 
     mode = null;
+}
+
+if (mode === "city" && p) {
+    send("buildCity", {
+        playerName: me,
+        vertexId: p.id
+    });
+
+    mode = null;
+}
+
+if (mode === "road" && e) {
+    send("buildRoad", {
+        playerName: me,
+        edgeId: e.id
+    });
+
+    // Straßenbau weiter aktiv lassen,
+    // solange noch kostenlose Straßen vorhanden sind.
+    if (lastState.freeRoads > 0) {
+        mode = "road";
+    } else {
+        mode = null;
+    }
+}
+
+if (lastState.moveRobberMode) {
+    const t = findTile(b.tiles || [], b, x, y, rect);
+
+    if (t) {
+        send("moveRobber", {
+            playerName: me,
+            tileId: t.id
+        });
+
+        mode = null;
+    }
+}
 });
 function boardGeom(b, r) {
   const tiles = b.tiles || [];
@@ -1119,12 +1155,6 @@ function playDevelopmentCard(type) {
     // ==========================================
 
     if (type === "1SIEGPUNKT") {
-        send("playDevelopmentCard", {
-            card: "1SIEGPUNKT",
-            res1: null,
-            res2: null
-        });
-
         return;
     }
 
@@ -1274,5 +1304,35 @@ function openInventionModal() {
                 });
             });
         });
+}
+function mustFinishAction(s) {
+    if (!s) return false;
+
+    // Nach einer 7 müssen alle Ressourcen abgegeben werden
+    if (s.discardResourcesMode) {
+        return true;
+    }
+
+    // Räuber muss bewegt werden
+    if (s.moveRobberMode) {
+        return true;
+    }
+
+    // Ein Opfer für den Räuber muss ausgewählt werden
+    if (s.stealMode) {
+        return true;
+    }
+
+    // Straßenbau-Karte: alle kostenlosen Straßen müssen gebaut werden
+    if ((s.freeRoads || 0) > 0) {
+        return true;
+    }
+
+    // Setup: notwendige Siedlung/Straße
+    if (s.setUpSettlement || s.setUpRoad) {
+        return true;
+    }
+
+    return false;
 }
 connect();
