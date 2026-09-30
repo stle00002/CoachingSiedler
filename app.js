@@ -1344,6 +1344,7 @@ function updateActionButtons(s) {
     if (!mep) return;
 
     const myTurn = mep.id === s.currentPlayer;
+    const inSetup = s.setupPhase === true;
 
     const buttons = {
         roll_dice: document.querySelector('[data-action="roll_dice"]'),
@@ -1353,10 +1354,6 @@ function updateActionButtons(s) {
         buyDevelopmentCard: document.querySelector('[data-action="buyDevelopmentCard"]'),
         endTurn: document.querySelector('[data-action="endTurn"]')
     };
-
-    // =========================
-    // RESSOURCEN
-    // =========================
 
     const resources = mep.resources || {};
 
@@ -1380,33 +1377,31 @@ function updateActionButtons(s) {
         (resources.ERZ || 0) >= 1;
 
 
-    // =========================
-    // WÜRFELN
-    // =========================
-
+    // Würfeln nur wenn man selbst dran ist
     if (buttons.roll_dice) {
         buttons.roll_dice.disabled =
             !myTurn || !s.würfelMode;
     }
 
 
-    // =========================
-    // SIEDLUNG
-    // =========================
-
+    // SETTLEMENT
+    // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            !myTurn || !hasSettlementResources;
+            !myTurn ||
+            (!inSetup && !hasSettlementResources);
     }
 
 
-    // =========================
-    // STRASSE
-    // =========================
-
+    // ROAD
+    // In der Setup-Phase kostenlos
     if (buttons.buildRoad) {
         const canBuildFreeRoad =
-            myTurn && (s.freeRoads || 0) > 0;
+            myTurn &&
+            (
+                inSetup ||
+                (s.freeRoads || 0) > 0
+            );
 
         buttons.buildRoad.disabled =
             !myTurn ||
@@ -1414,33 +1409,29 @@ function updateActionButtons(s) {
     }
 
 
-    // =========================
-    // STADT
-    // =========================
-
+    // CITY gibt es in der Setup-Phase nicht
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
-            !myTurn || !hasCityResources;
+            !myTurn ||
+            inSetup ||
+            !hasCityResources;
     }
 
 
-    // =========================
-    // ENTWICKLUNG
-    // =========================
-
+    // Entwicklungskarte gibt es in der Setup-Phase nicht
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
-            !myTurn || !hasDevelopmentResources;
+            !myTurn ||
+            inSetup ||
+            !hasDevelopmentResources;
     }
 
 
-    // =========================
-    // ZUG BEENDEN
-    // =========================
-
+    // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
-            !myTurn || mustFinishAction(s);
+            !myTurn ||
+            mustFinishAction(s);
     }
 }
 connect();
