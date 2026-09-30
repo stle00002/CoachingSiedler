@@ -598,6 +598,16 @@ async def handle_message(conn, message):
         return
     print("Nachricht:", message)
     action = message.get("type") or message.get("action")
+    # Während der Würfelphase darf noch keine normale Aktion
+    # ausgeführt werden.
+    if logic.würfelMode and not logic.setupPhase:
+        allowed_actions = {
+            "roll_dice",
+            "playDevelopmentCard"
+        }
+
+        if action not in allowed_actions:
+            return
     if logic.discardResourcesMode:
         if action != "discardResource":
             return

@@ -1356,6 +1356,7 @@ function updateActionButtons(s) {
     const resources = mep.resources || {};
 
     const discarding = s.discardResourcesMode === true;
+    const mustRoll = s.würfelMode === true;
     const hasSettlementResources =
         (resources.HOLZ || 0) >= 1 &&
         (resources.LEHM || 0) >= 1 &&
@@ -1387,7 +1388,7 @@ function updateActionButtons(s) {
     // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            !myTurn || discarding||
+            !myTurn || discarding|| mustRoll ||
             (!inSetup && !hasSettlementResources);
     }
 
@@ -1398,12 +1399,12 @@ function updateActionButtons(s) {
         const canBuildFreeRoad =
             myTurn &&
             (
-                inSetup || discarding||
+                inSetup ||
                 (s.freeRoads || 0) > 0
             );
 
         buttons.buildRoad.disabled =
-            !myTurn || discarding||
+            !myTurn || discarding|| mustRoll||
             (!hasRoadResources && !canBuildFreeRoad);
     }
 
@@ -1412,7 +1413,7 @@ function updateActionButtons(s) {
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
             !myTurn ||
-            inSetup || discarding||
+            inSetup || discarding|| mustRoll ||
             !hasCityResources;
     }
 
@@ -1421,14 +1422,14 @@ function updateActionButtons(s) {
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
             !myTurn ||
-            inSetup || discarding||
+            inSetup || discarding|| mustRoll||
             !hasDevelopmentResources;
     }
 
    const tradeButton = document.getElementById("tradeButton");
 
 if (tradeButton) {
-    tradeButton.disabled = !myTurn || discarding;
+    tradeButton.disabled = !myTurn || mustFinishAction(s);
 } 
 
     // Zug beenden
