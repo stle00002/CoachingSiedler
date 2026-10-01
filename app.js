@@ -46,6 +46,15 @@ let dragStartOffsetY = 0;
 const MIN_BOARD_ZOOM = 0.6;
 const MAX_BOARD_ZOOM = 2.5;
 
+let touchStartDistance = 0;
+let touchStartZoom = 1;
+let touchStartOffsetX = 0;
+let touchStartOffsetY = 0;
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchMoved = false;
+
 TILE_IMAGES.HOLZ.src = "images/forestBright.png";
 TILE_IMAGES.LEHM.src = "images/hillBright.png";
 TILE_IMAGES.SCHAF.src = "images/pastureBright.png";
@@ -948,28 +957,19 @@ $("tradeBankBtn").onclick = () => {
 
     closeTradeBar();
 };
-$("board").addEventListener("click", (ev) => {
+function handleBoardClick(x, y, rect) {
     if (!lastState) return;
-
-    const c = $("board");
-    const rect = c.getBoundingClientRect();
-
-    const x = ev.clientX - rect.left;
-    const y = ev.clientY - rect.top;
 
     const b = getBoard(lastState);
     const verts = b.vertices || [];
     const edges = b.edges || [];
 
-    s = lastState;
+    const s = lastState;
     const mep = (s.players || []).find(p => p.name === me);
 
     if (!mep) return;
 
     const myTurn = mep.id === s.currentPlayer;
-    // ==========================================
-    // 1. RÄUBER BEWEGEN
-    // ==========================================
 
     if (lastState.moveRobberMode && myTurn) {
         const tile = findTile(b.tiles || [], b, x, y, rect);
@@ -984,39 +984,27 @@ $("board").addEventListener("click", (ev) => {
         return;
     }
 
-    // ==========================================
-    // 2. SPIELER FÜR RÄUBER AUSWÄHLEN
-    // ==========================================
-
     if (lastState.stealMode) {
         const vertex = findVertex(verts, b, x, y, rect);
 
         if (!vertex) return;
 
-        // Nur Siedlungen/Städte auf dem angeklickten
-        // Vertex berücksichtigen
         if (vertex.owner === null || vertex.owner === undefined) {
             return;
         }
 
         const victim = (lastState.players || [])
-            .find((p) => p.id === vertex.owner);
+            .find(p => p.id === vertex.owner);
 
         if (!victim) return;
+        if (victim.name === me) return;
 
-        // Man darf nicht sich selbst bestehlen
-        if (victim.name === me) {
-            return;
-        }
-
-        // Prüfen, ob der Spieler überhaupt Ressourcen besitzt
         const resources = victim.resources || {};
+
         const totalResources = Object.values(resources)
             .reduce((sum, amount) => sum + (amount || 0), 0);
 
-        if (totalResources <= 0) {
-            return;
-        }
+        if (totalResources <= 0) return;
 
         send("steal", {
             playerName: victim.name
@@ -1025,60 +1013,49 @@ $("board").addEventListener("click", (ev) => {
         return;
     }
 
-    // ==========================================
-    // 3. NORMALE BAUAKTIONEN
-    // ==========================================
-
     if (!mode) return;
 
     const p = findVertex(verts, b, x, y, rect);
     const e = findEdge(edges, b, x, y, rect);
 
-if (mode === "settlement" && p) {
-    send("buildSettlement", {
-        playerName: me,
-        vertexId: p.id
-    });
-
-    mode = null;
-}
-
-if (mode === "city" && p) {
-    send("buildCity", {
-        playerName: me,
-        vertexId: p.id
-    });
-
-    mode = null;
-}
-
-if (mode === "road" && e) {
-    send("buildRoad", {
-        playerName: me,
-        edgeId: e.id
-    });
-
-    // Straßenbau weiter aktiv lassen,
-    // solange noch kostenlose Straßen vorhanden sind.
-    if (lastState.freeRoads > 0) {
-        mode = "road";
-    } else {
-        mode = null;
-    }
-}
-
-if (lastState.moveRobberMode) {
-    const t = findTile(b.tiles || [], b, x, y, rect);
-
-    if (t) {
-        send("moveRobber", {
+    if (mode === "settlement" && p) {
+        send("buildSettlement", {
             playerName: me,
-            tileId: t.id
+            vertexId: p.id
         });
 
         mode = null;
     }
+
+    if (mode === "city" && p) {
+        send("buildCity", {
+            playerName: me,
+            vertexId: p.id
+        });
+
+        mode = null;
+    }
+
+    if (mode === "road" && e) {
+        send("buildRoad", {
+            playerName: me,
+            edgeId: e.id
+        });
+
+        if (lastState.freeRoads > 0) {
+            mode = "road";
+        } else {
+            mode = null;
+        }
+    }
 }
+$("board").addEventListener("click", (ev) => {
+    const rect = $("board").getBoundingClientRect();
+
+    const x = ev.clientX - rect.left;
+    const y = ev.clientY - rect.top;
+
+    handleBoardClick(x, y, rect);
 });
 function boardGeom(b, r) {
   const tiles = b.tiles || [];
@@ -1591,18 +1568,22 @@ $("board").addEventListener("touchstart", (ev) => {
 
     const rect = $("board").getBoundingClientRect();
 
-    // ------------------------------------------
-    // 1 Finger -> Verschieben
-    // ------------------------------------------
+    // ==========================================
+    // 1 FINGER
+    // ==========================================
 
     if (ev.touches.length === 1) {
 
         const touch = ev.touches[0];
 
         isDraggingBoard = true;
+        touchMoved = false;
 
         dragStartX = touch.clientX;
         dragStartY = touch.clientY;
+
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
 
         dragStartOffsetX = boardOffsetX;
         dragStartOffsetY = boardOffsetY;
@@ -1610,13 +1591,14 @@ $("board").addEventListener("touchstart", (ev) => {
         return;
     }
 
-    // ------------------------------------------
-    // 2 Finger -> Zoom
-    // ------------------------------------------
+    // ==========================================
+    // 2 FINGER -> ZOOM
+    // ==========================================
 
     if (ev.touches.length === 2) {
 
         isDraggingBoard = false;
+        touchMoved = true;
 
         const t1 = ev.touches[0];
         const t2 = ev.touches[1];
@@ -1648,30 +1630,40 @@ $("board").addEventListener("touchmove", (ev) => {
 
     const rect = $("board").getBoundingClientRect();
 
-    // ------------------------------------------
-    // 1 Finger -> Verschieben
-    // ------------------------------------------
+    // ==========================================
+    // 1 FINGER -> VERSCHIEBEN
+    // ==========================================
 
     if (ev.touches.length === 1 && isDraggingBoard) {
 
         const touch = ev.touches[0];
 
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+
+        // Erst ab 8 Pixel gilt es als Bewegung
+        if (Math.hypot(dx, dy) > 8) {
+            touchMoved = true;
+        }
+
+        if (!touchMoved) return;
+
         boardOffsetX =
             dragStartOffsetX +
-            (touch.clientX - dragStartX);
+            dx;
 
         boardOffsetY =
             dragStartOffsetY +
-            (touch.clientY - dragStartY);
+            dy;
 
         drawBoard(lastState);
 
         return;
     }
 
-    // ------------------------------------------
-    // 2 Finger -> Zoom
-    // ------------------------------------------
+    // ==========================================
+    // 2 FINGER -> ZOOM
+    // ==========================================
 
     if (ev.touches.length === 2) {
 
@@ -1698,14 +1690,12 @@ $("board").addEventListener("touchmove", (ev) => {
             Math.min(MAX_BOARD_ZOOM, boardZoom)
         );
 
-        // Mittelpunkt der beiden Finger
         const centerX =
             ((t1.clientX + t2.clientX) / 2) - rect.left;
 
         const centerY =
             ((t1.clientY + t2.clientY) / 2) - rect.top;
 
-        // Mittelpunkt beim Zoomen beibehalten
         const actualZoomFactor =
             boardZoom / oldZoom;
 
@@ -1727,8 +1717,28 @@ $("board").addEventListener("touchmove", (ev) => {
 
 $("board").addEventListener("touchend", (ev) => {
 
-    if (ev.touches.length === 0) {
-        isDraggingBoard = false;
+    // ==========================================
+    // 1-FINGER-TAP
+    // ==========================================
+
+    if (
+        ev.touches.length === 0 &&
+        !touchMoved
+    ) {
+
+        const touch = ev.changedTouches[0];
+
+        const rect = $("board").getBoundingClientRect();
+
+        const x = touch.clientX - rect.left;
+        const y = touch.clientY - rect.top;
+
+        handleBoardClick(x, y, rect);
+    }
+
+    isDraggingBoard = false;
+
+    if (ev.touches.length < 2) {
         touchStartDistance = 0;
     }
 
@@ -1738,7 +1748,9 @@ $("board").addEventListener("touchend", (ev) => {
 $("board").addEventListener("touchcancel", () => {
 
     isDraggingBoard = false;
+    touchMoved = false;
     touchStartDistance = 0;
 
 }, { passive: false });
+
 connect();
