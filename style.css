@@ -336,69 +336,72 @@ input {
     }
 
     .layout {
-        height: auto;
-        min-height: calc(100vh - 45px);
-
-        display: flex;
-        flex-direction: column;
-
-        overflow: visible;
+        position: relative;
+        width: 100%;
+        height: calc(100vh - 45px);
+        min-height: 0;
+        display: block;
+        overflow: hidden;
     }
 
     /* SPIELFELD */
     .board-wrap {
-        order: 1;
-
+        position: absolute;
+        inset: 0;
         width: 100%;
-        height: 65vh;
-        min-height: 400px;
-
-        flex: none;
-
-        position: relative;
+        height: 100%;
+        min-height: 0;
         overflow: hidden;
+        z-index: 1;
     }
 
     #board {
         width: 100%;
         height: 100%;
         display: block;
-
         touch-action: none;
         -webkit-user-select: none;
         user-select: none;
     }
 
-    /* LINKES PANEL */
+    /* LINKE SIDEBAR */
     .left {
-        order: 2;
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
 
-        width: 100%;
+        width: 80px;
         height: auto;
-
-        max-height: 250px;
 
         overflow-y: auto;
 
-        border-right: 0;
-        border-top: 1px solid #5d4128;
-
         padding: 10px;
+
+        border-right: 1px solid #5d4128;
+        border-top: 0;
+
+        z-index: 10;
     }
 
-    /* RECHTES PANEL */
+    /* RECHTE SIDEBAR */
     .right {
-        order: 3;
+        position: absolute;
+        right: 0;
+        top: 0;
+        bottom: 0;
 
-        width: 100%;
+        width: 135px;
         height: auto;
 
-        overflow: visible;
-
-        border-left: 0;
-        border-top: 1px solid #5d4128;
+        overflow-y: auto;
 
         padding: 10px;
+
+        border-left: 1px solid #5d4128;
+        border-top: 0;
+
+        z-index: 10;
     }
 
     .sidebar {
