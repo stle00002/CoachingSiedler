@@ -338,7 +338,7 @@ input {
     .layout {
         position: relative;
         width: 100%;
-        height: calc(100vh - 45px);
+        height: calc(100dvh - 45px);
         min-height: 0;
         display: block;
         overflow: hidden;
