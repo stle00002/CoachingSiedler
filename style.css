@@ -696,4 +696,7 @@ input {
         opacity: 1;
     }
 }
+#board {
+    touch-action: none;
+}
 

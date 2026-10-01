@@ -1580,4 +1580,165 @@ function checkVictory(s) {
         overlay.classList.add("hidden");
     }
 }
+// ======================================================
+// TOUCH: HANDY
+// ======================================================
+
+$("board").addEventListener("touchstart", (ev) => {
+    if (!lastState) return;
+
+    ev.preventDefault();
+
+    const rect = $("board").getBoundingClientRect();
+
+    // ------------------------------------------
+    // 1 Finger -> Verschieben
+    // ------------------------------------------
+
+    if (ev.touches.length === 1) {
+
+        const touch = ev.touches[0];
+
+        isDraggingBoard = true;
+
+        dragStartX = touch.clientX;
+        dragStartY = touch.clientY;
+
+        dragStartOffsetX = boardOffsetX;
+        dragStartOffsetY = boardOffsetY;
+
+        return;
+    }
+
+    // ------------------------------------------
+    // 2 Finger -> Zoom
+    // ------------------------------------------
+
+    if (ev.touches.length === 2) {
+
+        isDraggingBoard = false;
+
+        const t1 = ev.touches[0];
+        const t2 = ev.touches[1];
+
+        touchStartDistance = Math.hypot(
+            t2.clientX - t1.clientX,
+            t2.clientY - t1.clientY
+        );
+
+        touchStartZoom = boardZoom;
+
+        touchStartOffsetX = boardOffsetX;
+        touchStartOffsetY = boardOffsetY;
+
+        touchStartCenterX =
+            ((t1.clientX + t2.clientX) / 2) - rect.left;
+
+        touchStartCenterY =
+            ((t1.clientY + t2.clientY) / 2) - rect.top;
+    }
+
+}, { passive: false });
+
+
+$("board").addEventListener("touchmove", (ev) => {
+    if (!lastState) return;
+
+    ev.preventDefault();
+
+    const rect = $("board").getBoundingClientRect();
+
+    // ------------------------------------------
+    // 1 Finger -> Verschieben
+    // ------------------------------------------
+
+    if (ev.touches.length === 1 && isDraggingBoard) {
+
+        const touch = ev.touches[0];
+
+        boardOffsetX =
+            dragStartOffsetX +
+            (touch.clientX - dragStartX);
+
+        boardOffsetY =
+            dragStartOffsetY +
+            (touch.clientY - dragStartY);
+
+        drawBoard(lastState);
+
+        return;
+    }
+
+    // ------------------------------------------
+    // 2 Finger -> Zoom
+    // ------------------------------------------
+
+    if (ev.touches.length === 2) {
+
+        const t1 = ev.touches[0];
+        const t2 = ev.touches[1];
+
+        const distance = Math.hypot(
+            t2.clientX - t1.clientX,
+            t2.clientY - t1.clientY
+        );
+
+        if (touchStartDistance <= 0) return;
+
+        const zoomFactor =
+            distance / touchStartDistance;
+
+        const oldZoom = boardZoom;
+
+        boardZoom =
+            touchStartZoom * zoomFactor;
+
+        boardZoom = Math.max(
+            MIN_BOARD_ZOOM,
+            Math.min(MAX_BOARD_ZOOM, boardZoom)
+        );
+
+        // Mittelpunkt der beiden Finger
+        const centerX =
+            ((t1.clientX + t2.clientX) / 2) - rect.left;
+
+        const centerY =
+            ((t1.clientY + t2.clientY) / 2) - rect.top;
+
+        // Mittelpunkt beim Zoomen beibehalten
+        const actualZoomFactor =
+            boardZoom / oldZoom;
+
+        boardOffsetX =
+            centerX -
+            (centerX - touchStartOffsetX) *
+            actualZoomFactor;
+
+        boardOffsetY =
+            centerY -
+            (centerY - touchStartOffsetY) *
+            actualZoomFactor;
+
+        drawBoard(lastState);
+    }
+
+}, { passive: false });
+
+
+$("board").addEventListener("touchend", (ev) => {
+
+    if (ev.touches.length === 0) {
+        isDraggingBoard = false;
+        touchStartDistance = 0;
+    }
+
+}, { passive: false });
+
+
+$("board").addEventListener("touchcancel", () => {
+
+    isDraggingBoard = false;
+    touchStartDistance = 0;
+
+}, { passive: false });
 connect();
