@@ -33,6 +33,19 @@ let tradeRequest = {
   ERZ: 0
 };
 
+let boardZoom = 1.0;
+let boardOffsetX = 0;
+let boardOffsetY = 0;
+
+let isDraggingBoard = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragStartOffsetX = 0;
+let dragStartOffsetY = 0;
+
+const MIN_BOARD_ZOOM = 0.6;
+const MAX_BOARD_ZOOM = 2.5;
+
 TILE_IMAGES.HOLZ.src = "images/forestBright.png";
 TILE_IMAGES.LEHM.src = "images/hillBright.png";
 TILE_IMAGES.SCHAF.src = "images/pastureBright.png";
@@ -445,10 +458,20 @@ function drawBoard(s) {
     3,
   );
   const size = Math.min(W / (radius * 3.1 + 2), H / (radius * 2.8 + 2), 70);
-  const center = { x: W * 0.5, y: H * 0.5 };
+  const center = {
+      x: W * 0.5 + boardOffsetX,
+      y: H * 0.5 + boardOffsetY
+  };
+
+  const zoomedSize = size * boardZoom;
+
   const pos = (q, r) => ({
-    x: center.x + size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r),
-    y: center.y + size * 1.5 * r,
+      x: center.x +
+        zoomedSize *
+        (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r),
+
+      y: center.y +
+        zoomedSize * 1.5 * r
   });
   for (const t of tiles) {
   const p = pos(+t.q, +t.r);
@@ -457,22 +480,22 @@ function drawBoard(s) {
   const img = TILE_IMAGES[resource];
 
   if (img && img.complete && img.naturalWidth > 0) {
-    if (resource.includes("WASSER")) {
-  ctx.drawImage(
-    img,
-    p.x - size * 1.1,
-    p.y - size * 1.1,
-    size * 2.2,
-    size * 2.2
-  );
+if (resource.includes("WASSER")) {
+    ctx.drawImage(
+        img,
+        p.x - zoomedSize * 1.1,
+        p.y - zoomedSize * 1.1,
+        zoomedSize * 2.2,
+        zoomedSize * 2.2
+    );
 } else {
-  ctx.drawImage(
-    img,
-    p.x - size*0.9,
-    p.y - size,
-    size * 1.8,
-    size * 2
-  );
+    ctx.drawImage(
+        img,
+        p.x - zoomedSize * 0.9,
+        p.y - zoomedSize,
+        zoomedSize * 1.8,
+        zoomedSize * 2
+    );
 }
   }
 
@@ -504,22 +527,20 @@ function drawBoard(s) {
     ctx.fillStyle = "#222";
 
     ctx.beginPath();
-    ctx.arc(
-        p.x,
-        p.y - size * 0.35,
-        size * 0.22,
-        0,
-        Math.PI * 2
-    );
-    ctx.fill();
+ctx.arc(
+    p.x,
+    p.y - zoomedSize * 0.35,
+    zoomedSize * 0.22,
+    0,
+    Math.PI * 2
+);
 
-    ctx.fillStyle = "#111";
-    ctx.fillRect(
-        p.x - size * 0.12,
-        p.y - size * 0.15,
-        size * 0.24,
-        size * 0.5
-    );
+ctx.fillRect(
+    p.x - zoomedSize * 0.12,
+    p.y - zoomedSize * 0.15,
+    zoomedSize * 0.24,
+    zoomedSize * 0.5
+);
 }
 }
 const edges = b.edges || [];
@@ -535,8 +556,7 @@ for (const e of edges) {
     ? colorCss(owner.color)
     : "#8b704e";
 
-  ctx.lineWidth = owner ? 9 : 3;
-
+ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
   ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(z.x, z.y);
@@ -555,7 +575,14 @@ for (const v of vs) {
 
     if (v.isCity) {
       ctx.beginPath();
-      ctx.rect(p.x - 10, p.y - 10, 20, 20);
+      const buildingSize = 10 * boardZoom;
+
+      ctx.rect(
+          p.x - buildingSize,
+          p.y - buildingSize,
+          buildingSize * 2,
+          buildingSize * 2
+      ); 
       ctx.fill();
 
       ctx.fillStyle = "#fff";
@@ -563,9 +590,11 @@ for (const v of vs) {
 
     } else {
       ctx.beginPath();
-      ctx.moveTo(p.x, p.y - 12);
-      ctx.lineTo(p.x + 12, p.y + 10);
-      ctx.lineTo(p.x - 12, p.y + 10);
+      const settlementSize = 12 * boardZoom;
+
+      ctx.moveTo(p.x, p.y - settlementSize);
+      ctx.lineTo(p.x + settlementSize, p.y + settlementSize * 0.83);
+      ctx.lineTo(p.x - settlementSize, p.y + settlementSize * 0.83);
       ctx.closePath();
       ctx.fill();
     }
@@ -579,6 +608,72 @@ for (const v of vs) {
   }
 }
 }
+$("board").addEventListener("wheel", (ev) => {
+    ev.preventDefault();
+
+    const rect = $("board").getBoundingClientRect();
+
+    const mouseX = ev.clientX - rect.left;
+    const mouseY = ev.clientY - rect.top;
+
+    const oldZoom = boardZoom;
+
+    if (ev.deltaY < 0) {
+        boardZoom *= 1.1;
+    } else {
+        boardZoom /= 1.1;
+    }
+
+    boardZoom = Math.max(
+        MIN_BOARD_ZOOM,
+        Math.min(MAX_BOARD_ZOOM, boardZoom)
+    );
+
+    // Unter dem Mauszeiger zoomen
+    const zoomFactor = boardZoom / oldZoom;
+
+    boardOffsetX =
+        mouseX - (mouseX - boardOffsetX) * zoomFactor;
+
+    boardOffsetY =
+        mouseY - (mouseY - boardOffsetY) * zoomFactor;
+
+    drawBoard(lastState);
+}, { passive: false });
+
+$("board").addEventListener("mousedown", (ev) => {
+    if (ev.button !== 0) return;
+
+    isDraggingBoard = true;
+
+    dragStartX = ev.clientX;
+    dragStartY = ev.clientY;
+
+    dragStartOffsetX = boardOffsetX;
+    dragStartOffsetY = boardOffsetY;
+
+    $("board").style.cursor = "grabbing";
+});
+
+window.addEventListener("mousemove", (ev) => {
+    if (!isDraggingBoard) return;
+
+    boardOffsetX =
+        dragStartOffsetX + (ev.clientX - dragStartX);
+
+    boardOffsetY =
+        dragStartOffsetY + (ev.clientY - dragStartY);
+
+    if (lastState) {
+        drawBoard(lastState);
+    }
+});
+
+window.addEventListener("mouseup", () => {
+    isDraggingBoard = false;
+    $("board").style.cursor = "grab";
+});
+$("board").style.cursor = "grab";
 function poly(ctx, x, y, s) {
   ctx.beginPath();
   for (let i = 0; i < 6; i++) {
@@ -997,14 +1092,24 @@ function boardGeom(b, r) {
       ),
     ),
   );
-  const size = Math.min(
-    r.width / (radius * 3.1 + 2),
-    r.height / (radius * 2.8 + 2),
-    70,
+  const baseSize = Math.min(
+      r.width / (radius * 3.1 + 2),
+      r.height / (radius * 2.8 + 2),
+      70
   );
+
+  const size = baseSize * boardZoom;
   const pos = (q, rr) => ({
-    x: r.width * 0.5 + size * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * rr),
-    y: r.height * 0.5 + size * 1.5 * rr,
+      x: r.width * 0.5 +
+        boardOffsetX +
+        size * (
+            Math.sqrt(3) * q +
+            (Math.sqrt(3) / 2) * rr
+        ),
+
+      y: r.height * 0.5 +
+        boardOffsetY +
+        size * 1.5 * rr
   });
   return { radius, size, pos };
 }
