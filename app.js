@@ -41,7 +41,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://laptops-catch-lace-township.trycloudflare.com";
+const WS_URL = "wss://bonus-app-pda-bear.trycloudflare.com ";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -322,7 +322,9 @@ function renderState(s) {
   console.log("PLAYER TRADE:", s.playerTrade);
   if (s.playerTrade) {
     renderPlayerTrade(s.playerTrade);
-} 
+} else {
+    $("tradeOffer").classList.add("hidden");
+}
   
   const players = s.players || [];
   $("players").innerHTML = players
@@ -665,6 +667,12 @@ function startAction(a) {
 
 if (a === "endTurn") {
     mode = null;
+
+    // eigenes Handelsfenster schließen
+    $("tradeOffer").classList.add("hidden");
+
+    // eigenes Handelsangebot schließen
+    closeTradeBar();
     updatePrompt(lastState);
 
     send("endTurn", {
@@ -858,11 +866,17 @@ $("board").addEventListener("click", (ev) => {
     const verts = b.vertices || [];
     const edges = b.edges || [];
 
+    s = lastState;
+    const mep = (s.players || []).find(p => p.name === me);
+
+    if (!mep) return;
+
+    const myTurn = mep.id === s.currentPlayer;
     // ==========================================
     // 1. RÄUBER BEWEGEN
     // ==========================================
 
-    if (lastState.moveRobberMode) {
+    if (lastState.moveRobberMode && myTurn) {
         const tile = findTile(b.tiles || [], b, x, y, rect);
 
         if (tile) {
@@ -1045,13 +1059,18 @@ function findTile(ts, b, x, y, r) {
 }
 function updatePrompt(s) {
   let t = "";
-  if (s.moveRobberMode) {
+  const mep = (s.players || []).find(p => p.name === me);
+
+  if (!mep) return;
+
+  const myTurn = mep.id === s.currentPlayer;
+  if (s.moveRobberMode && myTurn) {
     t = "Klicke auf ein Feld, um den Räuber zu bewegen";
 }
-else if (s.stealMode) {
+else if (s.stealMode && myTurn) {
     t = "Klicke auf eine gegnerische Siedlung, um zu stehlen";
 }
-else if (s.discardResourcesMode) {
+else if (s.discardResourcesMode && mep.hasToDiscard > 0) {
     t = "Du musst Ressourcen abwerfen";
 }
   else if (mode)
@@ -1389,7 +1408,7 @@ function updateActionButtons(s) {
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
             !myTurn || discarding|| mustRoll ||
-            (!inSetup && !hasSettlementResources);
+            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources);
     }
 
 
@@ -1399,7 +1418,7 @@ function updateActionButtons(s) {
         const canBuildFreeRoad =
             myTurn &&
             (
-                inSetup ||
+                (inSetup && s.setUpRoad) ||
                 (s.freeRoads || 0) > 0
             );
 
