@@ -948,11 +948,12 @@ async def handle_message(conn, message):
         for t in logic.board.tiles:
             if t.id == tileId:
                 tile = t
-        logic.robberTile = tile
-        for vertex in tile.vertices:
-            if vertex.owner != None and vertex.owner != logic.current_player:
-                logic.stealMode = True
-        logic.moveRobberMode = False
+        if (tile != logic.robberTile):
+            logic.robberTile = tile
+            for vertex in tile.vertices:
+                if vertex.owner != None and vertex.owner != logic.current_player:
+                    logic.stealMode = True
+            logic.moveRobberMode = False
 
     elif action == "steal":
         name = message["playerName"]
