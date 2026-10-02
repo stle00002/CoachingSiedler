@@ -313,7 +313,7 @@ input {
         font-size: 12px;
     }
 }
-@media (max-width: 600px) {
+@media (max-height: 600px) {
     body {
         overflow: auto;
     }
