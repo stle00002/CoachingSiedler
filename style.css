@@ -15,7 +15,7 @@ body {
   display: none !important;
 }
 .screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
   background: radial-gradient(circle at center, #4d331d, #17130f 70%);
@@ -118,7 +118,7 @@ input {
   color: #222;
 }
 .game-screen {
-  height: 100vh;
+  height: 100dvh;
 }
 .topbar {
   height: 54px;
@@ -135,7 +135,7 @@ input {
   font-size: 25px;
 }
 .layout {
-    height: calc(100vh - 54px);
+    height: calc(100dvh - 54px);
     min-height: 0;
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr) 250px;
@@ -262,7 +262,7 @@ input {
 }
 @media (max-width: 1000px) {
     .layout {
-        height: calc(100vh - 54px);
+        height: calc(100dvh - 54px);
         grid-template-columns: 110px minmax(0, 1fr) 170px;
     }
 
