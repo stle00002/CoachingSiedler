@@ -1968,12 +1968,12 @@ if (!harbor.resource) {
 
     ctx.fillStyle = "#ffffff";
     ctx.font =
-        `bold ${Math.max(22, size * 0.5)}px Georgia`;
+        `bold ${Math.max(16, size * 0.39)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
         0,
-        size*0.25
+        size*0.32
     );
 
     ctx.restore();
