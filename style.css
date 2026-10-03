@@ -604,3 +604,74 @@ input {
     user-select: none;
 }
 
+/* =========================================================
+   HÄFEN
+   ========================================================= */
+
+.harbor {
+    position: absolute;
+
+    width: 90px;
+    height: 90px;
+
+    transform-origin: center center;
+
+    pointer-events: none;
+
+    z-index: 20;
+}
+
+/* Die beiden gestrichelten Linien */
+.harbor-line {
+    fill: none;
+    stroke: #222;
+    stroke-width: 6;
+    stroke-dasharray: 13 11;
+    stroke-linecap: round;
+}
+
+/* Ressourcen-Symbol */
+.harbor-resource {
+    position: absolute;
+
+    left: 50%;
+    top: 5px;
+
+    transform: translateX(-50%);
+
+    width: 34px;
+    height: 34px;
+
+    background: white;
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+
+    border: 2px solid #333;
+
+    z-index: 2;
+}
+
+/* 2:1 / 3:1 */
+.harbor-ratio {
+    position: absolute;
+
+    left: 50%;
+    top: 48px;
+
+    transform: translateX(-50%);
+
+    font-size: 22px;
+    font-weight: bold;
+
+    color: #222;
+
+    white-space: nowrap;
+
+    z-index: 2;
+}
+

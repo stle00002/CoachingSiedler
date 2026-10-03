@@ -63,7 +63,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://attended-black-lifestyle-departmental.trycloudflare.com";
+const WS_URL = "wss://views-montana-maritime-received.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -552,6 +552,18 @@ ctx.fillRect(
 );
 }
 }
+// =========================================================
+// HÄFEN
+// =========================================================
+
+drawHarbors(
+    ctx,
+    b,
+    pos,
+    zoomedSize,
+    center
+);
+
 const edges = b.edges || [];
 for (const e of edges) {
   const a = vertexPos(e.vertex1, e, b, pos),
@@ -617,6 +629,7 @@ for (const v of vs) {
   }
 }
 }
+
 $("board").addEventListener("wheel", (ev) => {
     ev.preventDefault();
 
@@ -1753,4 +1766,204 @@ $("board").addEventListener("touchcancel", () => {
 
 }, { passive: false });
 
+// =========================================================
+// HÄFEN
+// =========================================================
+
+function getHarborSymbol(resource) {
+    switch (resource) {
+        case "HOLZ":
+            return "🌲";
+        case "LEHM":
+            return "🧱";
+        case "SCHAF":
+            return "🐑";
+        case "WEIZEN":
+            return "🌾";
+        case "ERZ":
+            return "⛏";
+        default:
+            return "★";
+    }
+}
+
+
+// ---------------------------------------------------------
+// Einen einzelnen Hafen direkt auf das Canvas zeichnen
+// ---------------------------------------------------------
+
+function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
+
+    // Mittelpunkt der Küstenkante
+    const mx = (p1.x + p2.x) / 2;
+    const my = (p1.y + p2.y) / 2;
+
+
+    // Richtung vom Mittelpunkt der Insel nach außen
+    let dx = mx - boardCenter.x;
+    let dy = my - boardCenter.y;
+
+    const length = Math.hypot(dx, dy);
+
+    if (length === 0) return;
+
+    dx /= length;
+    dy /= length;
+
+
+    // Wie weit der Steg nach außen geht
+    const dockLength = size * 1.25;
+
+
+    // Endpunkt des Stegs
+    const endX = mx + dx * dockLength;
+    const endY = my + dy * dockLength;
+
+
+    // -----------------------------------------------------
+    // Gestrichelte Linien
+    // -----------------------------------------------------
+
+    ctx.save();
+
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = Math.max(2, size * 0.045);
+    ctx.setLineDash([
+        size * 0.16,
+        size * 0.13
+    ]);
+
+    ctx.lineCap = "butt";
+
+
+    // leichte Krümmung der beiden Seiten
+    const curve = size * 0.35;
+
+
+    // Linke Seite
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+
+    ctx.quadraticCurveTo(
+        p1.x + dx * curve,
+        p1.y + dy * curve,
+        endX,
+        endY
+    );
+
+    ctx.stroke();
+
+
+    // Rechte Seite
+    ctx.beginPath();
+    ctx.moveTo(p2.x, p2.y);
+
+    ctx.quadraticCurveTo(
+        p2.x + dx * curve,
+        p2.y + dy * curve,
+        endX,
+        endY
+    );
+
+    ctx.stroke();
+
+
+    ctx.restore();
+
+
+    // -----------------------------------------------------
+    // Hafen-Information
+    // -----------------------------------------------------
+
+    // etwas weiter draußen als das Ende des Stegs
+    const textDistance = size * 1.55;
+
+    const textX = mx + dx * textDistance;
+    const textY = my + dy * textDistance;
+
+
+    ctx.save();
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+
+    // Verhältnis
+    ctx.fillStyle = "#222";
+    ctx.font = `bold ${Math.max(12, size * 0.28)}px Georgia`;
+
+    ctx.fillText(
+        `${harbor.ratio}:1`,
+        textX,
+        textY
+    );
+
+
+    // Ressourcensymbol nur bei einem speziellen Hafen
+    if (harbor.resource) {
+
+        const symbol = getHarborSymbol(harbor.resource);
+
+        ctx.font = `${Math.max(14, size * 0.34)}px Arial`;
+
+        ctx.fillText(
+            symbol,
+            textX,
+            textY - size * 0.38
+        );
+    }
+
+
+    ctx.restore();
+}
+
+
+// =========================================================
+// ALLE HÄFEN ZEICHNEN
+// =========================================================
+
+function drawHarbors(ctx, boardState, pos, size, boardCenter) {
+
+    if (!boardState || !boardState.harbors) {
+        return;
+    }
+
+    const vertices = boardState.vertices || [];
+
+
+    for (const harbor of boardState.harbors) {
+
+        const vertex1 = vertices.find(
+            v => v.id === harbor.vertex1
+        );
+
+        const vertex2 = vertices.find(
+            v => v.id === harbor.vertex2
+        );
+
+
+        if (!vertex1 || !vertex2) {
+            continue;
+        }
+
+
+        const p1 = vertexPoint(vertex1, boardState, pos);
+        const p2 = vertexPoint(vertex2, boardState, pos);
+
+
+        if (!p1 || !p2) {
+            continue;
+        }
+
+
+        drawHarbor(
+            ctx,
+            harbor,
+            p1,
+            p2,
+            boardCenter,
+            size
+        );
+    }
+}
 connect();
