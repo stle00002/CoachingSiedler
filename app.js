@@ -1921,11 +1921,13 @@ if (!harbor.resource) {
     // Mittelpunkt des Kreises
     ctx.translate(tipX, tipY);
 
-    // gleiche Ausrichtung wie der Hafen
-    ctx.rotate(edgeAngle);
+    let textAngle = edgeAngle;
 
-    // falls der Hafen um 180° gedreht wird:
-    ctx.rotate(Math.PI);
+    if (textAngle > Math.PI / 2 || textAngle < -Math.PI / 2) {
+      textAngle += Math.PI;
+    } 
+
+    ctx.rotate(textAngle);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1968,12 +1970,12 @@ if (!harbor.resource) {
 
     ctx.fillStyle = "#ffffff";
     ctx.font =
-        `bold ${Math.max(16, size * 0.39)}px Georgia`;
+        `bold ${Math.max(14, size * 0.3)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
         0,
-        size*0.32
+        size*0.45
     );
 
     ctx.restore();
