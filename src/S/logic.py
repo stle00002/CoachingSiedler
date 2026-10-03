@@ -46,6 +46,7 @@ class Logic:
             11: 0,
             12: 0,
         }
+        self.tradeId = 0
 
     def createBoard(self, playerCount):
         self.board = Board(playerCount)
@@ -300,6 +301,7 @@ class Logic:
     def openPlayerTrade(self, offer, request):
         self.playerTrade = offer,request
         self.playersDeclined = []
+        self.tradeId += 1
     def revealVictoryPoints(self):
         for player in self.players:
             player.victoryPoints = player.victoryPoints + player.secretVictoryPoints

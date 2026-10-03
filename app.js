@@ -301,10 +301,7 @@ function renderPlayerTrade(trade) {
         tradeOffer.classList.add("hidden");
         return;
     }
-        const tradeId =
-        JSON.stringify(trade.offer || {}) +
-        "|" +
-        JSON.stringify(trade.request || {});
+    const tradeId = lastState.tradeId;
 
             // Neues Handelsangebot
     if (tradeId !== lastTradeId) {
