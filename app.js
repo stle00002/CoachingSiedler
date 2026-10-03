@@ -619,12 +619,14 @@ for (const v of vs) {
       ctx.beginPath();
       const buildingSize = 10 * boardZoom;
 
-      ctx.rect(
-          p.x - buildingSize,
-          p.y - buildingSize,
-          buildingSize * 2,
-          buildingSize * 2
-      ); 
+      ctx.moveTo(p.x - buildingSize, p.y + buildingSize);
+      ctx.lineTo(p.x + buildingSize, p.y + buildingSize);
+      ctx.lineto(p.x + buildingSize, p.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.lineTo(p.x- 0.5* buildingSize, p.y - buildingSize);
+      ctx.lineTo(p.x-buildingSize, p.y);
+      ctx.lineTo(p.x-buildingSize, p.y + buildingSize);
+      ctx.closePath();
       ctx.fill();
 
       ctx.fillStyle = "#fff";
@@ -636,6 +638,8 @@ for (const v of vs) {
 
       ctx.moveTo(p.x, p.y - settlementSize);
       ctx.lineTo(p.x + settlementSize, p.y + settlementSize * 0.83);
+      ctx.lineTo(p.x + settlementSize, p.y + settlementSize *2);
+      ctx.lineTo(p.x-settlementSize, p.y + settlementSize * 2);
       ctx.lineTo(p.x - settlementSize, p.y + settlementSize * 0.83);
       ctx.closePath();
       ctx.fill();
