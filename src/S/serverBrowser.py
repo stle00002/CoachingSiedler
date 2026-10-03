@@ -598,6 +598,60 @@ async def handle_message(conn, message):
         return
     print("Nachricht:", message)
     action = message.get("type") or message.get("action")
+
+    if action == "join":
+        name = message["name"]
+
+        print(f"Join-Anfrage: {name}")
+
+        # =====================================================
+        # RECONNECT WÄHREND EINES LAUFENDEN SPIELS
+        # =====================================================
+
+        if game_state == "running":
+
+            existing_player = None
+
+            for player in logic.players:
+                if player.name == name:
+                    existing_player = player
+                    break
+
+            if existing_player is not None:
+
+                print(
+                    f"Spieler im laufenden Spiel gefunden: "
+                    f"{existing_player.name}"
+                )
+
+                clients.add(conn)
+                client_players[conn] = existing_player
+
+                player_index = logic.players.index(existing_player)
+
+                print(
+                    f"Reconnect erfolgreich: "
+                    f"{existing_player.name}, "
+                    f"Index: {player_index}, "
+                    f"Farbe: {existing_player.color}"
+                )
+
+                await send_json(conn, {
+                    "action": "welcome",
+                    "player_index": player_index,
+                    "in_game": True
+                })
+
+                await send_state(conn)
+
+                return
+
+            await send_json(conn, {
+                "type": "error",
+                "message": "Spieler nicht im laufenden Spiel gefunden."
+            })
+
+            return
     # Während der Würfelphase darf noch keine normale Aktion
     # ausgeführt werden.
     if logic.würfelMode and not logic.setupPhase:
@@ -639,6 +693,7 @@ async def handle_message(conn, message):
                 # Neue WebSocket-Verbindung diesem Spieler zuordnen
                 clients.add(conn)
                 client_players[conn] = existing_player
+                client_ready[conn] = False
 
                 # Position im laufenden Spiel
                 player_index = logic.players.index(existing_player)
@@ -759,7 +814,7 @@ async def handle_message(conn, message):
         return
 
     elif action == "ready":
-        client_ready[conn] = not client_ready[conn]
+        client_ready[conn] = not client_ready.get(conn, False)
         await broadcast_lobby()
         return
     elif action == "addBot":

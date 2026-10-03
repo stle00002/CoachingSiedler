@@ -16,6 +16,8 @@ const RESOURCE_COLORS = {
 };
 
 let tradeOpen = false;
+let lastTradeId = null;
+let tradeDeclined = false;
 
 let tradeOffer = {
   HOLZ: 0,
@@ -187,7 +189,7 @@ $("declineTradeBtn").onclick = () => {
     send("declineTrade", {
         playerName: me
     });
-
+    tradeDeclined = true;
     $("tradeOffer").classList.add("hidden");
 };
 $("joinBtn").onclick = () => {
@@ -292,6 +294,24 @@ function renderPlayerTrade(trade) {
     const tradeOffer = document.getElementById("tradeOffer");
 
     if (!trade) {
+        tradeDeclined =false;
+        lastTradeId = null;
+        tradeOffer.classList.add("hidden");
+        return;
+    }
+        const tradeId =
+        JSON.stringify(trade.offer || {}) +
+        "|" +
+        JSON.stringify(trade.request || {});
+
+            // Neues Handelsangebot
+    if (tradeId !== lastTradeId) {
+        tradeDeclined = false;
+        lastTradeId = tradeId;
+    }
+
+    // Dieses Handelsangebot wurde von mir bereits abgelehnt
+    if (tradeDeclined) {
         tradeOffer.classList.add("hidden");
         return;
     }
@@ -335,6 +355,7 @@ function declinePlayerTrade() {
     playerName: me
   });
 
+  tradeDeclined = true;
   closeModal();
 }
 function renderState(s) {
@@ -1973,7 +1994,7 @@ if (!harbor.resource) {
     ctx.fillText(
         `${harbor.ratio}:1`,
         0,
-        size*0.45
+        size*0.4
     );
 
     ctx.restore();
