@@ -1850,7 +1850,7 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     ctx.strokeStyle = "#ffffff";
 
     // deutlich dünner
-    ctx.lineWidth = Math.max(1.5, size * 0.025);
+    ctx.lineWidth = Math.max(3, size * 0.05);
 
     ctx.setLineDash([
         size * 0.13,
@@ -1932,21 +1932,32 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     );
 
 
-    // Ressourcensymbol
-    if (harbor.resource) {
+// Ressourcen-Kreis
+if (harbor.resource) {
 
-        const symbol =
-            getHarborSymbol(harbor.resource);
+    const resourceColor =
+        RESOURCE_COLORS[harbor.resource] || "#888";
 
-        ctx.font =
-            `${Math.max(13, size * 0.30)}px Arial`;
+    const circleRadius = size * 0.20;
 
-        ctx.fillText(
-            symbol,
-            textX,
-            textY - size * 0.34
-        );
-    }
+    ctx.beginPath();
+    ctx.arc(
+        textX,
+        textY - size * 0.34,
+        circleRadius,
+        0,
+        Math.PI * 2
+    );
+
+    // Füllung
+    ctx.fillStyle = resourceColor;
+    ctx.fill();
+
+    // weiße Umrandung
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = Math.max(2, size * 0.045);
+    ctx.stroke();
+}
 
 
     ctx.restore();
