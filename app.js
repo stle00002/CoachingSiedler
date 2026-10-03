@@ -1794,82 +1794,57 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     const mx = (p1.x + p2.x) / 2;
     const my = (p1.y + p2.y) / 2;
 
-
-    // ==========================================
-    // NORMALE DER KÜSTENKANTE
-    // ==========================================
-
+    // Richtung der Küstenkante
     const edgeX = p2.x - p1.x;
     const edgeY = p2.y - p1.y;
-
     const edgeLength = Math.hypot(edgeX, edgeY);
 
     if (edgeLength === 0) return;
 
-
-    // Senkrechter Vektor auf die Küste
+    // Normale zur Küstenkante
     let nx = -edgeY / edgeLength;
     let ny = edgeX / edgeLength;
 
-
-    // ==========================================
-    // RICHTIGE SEITE AUSWÄHLEN
-    // ==========================================
-
-    // Vektor vom Spielfeldzentrum zum Hafen
+    // Richtige Außenseite bestimmen
     const outwardX = mx - boardCenter.x;
     const outwardY = my - boardCenter.y;
 
-
-    // Falls die Normale nach innen zeigt -> umdrehen
-    if (
-        nx * outwardX +
-        ny * outwardY < 0
-    ) {
+    if (nx * outwardX + ny * outwardY < 0) {
         nx = -nx;
         ny = -ny;
     }
 
+    // ------------------------------------------------
+    // GEOMETRIE
+    // ------------------------------------------------
 
-    // ==========================================
-    // SPITZE DES STEGS
-    // ==========================================
-
+    // Spitze des Hafens
     const dockLength = size * 1.05;
 
     const tipX = mx + nx * dockLength;
     const tipY = my + ny * dockLength;
 
+    // Winkel der Küstenkante
+    const edgeAngle = Math.atan2(edgeY, edgeX);
 
-    // ==========================================
-    // GESTRICHELTE LINIEN
-    // ==========================================
+    // ------------------------------------------------
+    // GESTRICHELTE HAFENLINIEN
+    // ------------------------------------------------
 
     ctx.save();
 
     ctx.strokeStyle = "#ffffff";
-
-    // deutlich dünner
     ctx.lineWidth = Math.max(3, size * 0.05);
-
     ctx.setLineDash([
         size * 0.13,
         size * 0.11
     ]);
-
     ctx.lineCap = "butt";
 
-
-    // etwas Krümmung
     const curve = size * 0.22;
 
-
-    // ------------------------------------------
-    // linke Seite
-    // ------------------------------------------
-
+    // linke Linie
     ctx.beginPath();
-
     ctx.moveTo(p1.x, p1.y);
 
     ctx.quadraticCurveTo(
@@ -1881,13 +1856,8 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     ctx.stroke();
 
-
-    // ------------------------------------------
-    // rechte Seite
-    // ------------------------------------------
-
+    // rechte Linie
     ctx.beginPath();
-
     ctx.moveTo(p2.x, p2.y);
 
     ctx.quadraticCurveTo(
@@ -1899,70 +1869,79 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     ctx.stroke();
 
-
     ctx.restore();
 
 
-    // ==========================================
-    // HAFEN-INFO
-    // ==========================================
+    // ------------------------------------------------
+    // RESSOURCEN-KREIS
+    // EXAKT AUF DER SPITZE
+    // ------------------------------------------------
 
-    const textDistance = size * 1.42;
+    if (harbor.resource) {
 
-    const textX = mx + nx * textDistance;
-    const textY = my + ny * textDistance;
+        const resourceColor =
+            RESOURCE_COLORS[harbor.resource] || "#888";
 
+        const circleRadius = size * 0.20;
+
+        ctx.save();
+
+        ctx.beginPath();
+
+        ctx.arc(
+            tipX,
+            tipY,
+            circleRadius,
+            0,
+            Math.PI * 2
+        );
+
+        // Ressourcenfarbe
+        ctx.fillStyle = resourceColor;
+        ctx.fill();
+
+        // weiße Umrandung
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = Math.max(2, size * 0.045);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+
+    // ------------------------------------------------
+    // 3:1
+    // ZWISCHEN DEN BEIDEN LINIEN
+    // UND PARALLEL ZUR KÜSTENKANTE
+    // ------------------------------------------------
+
+    const ratioDistance = size * 0.62;
+
+    const ratioX = mx + nx * ratioDistance;
+    const ratioY = my + ny * ratioDistance;
 
     ctx.save();
+
+    ctx.translate(ratioX, ratioY);
+
+    // Parallel zur Küstenkante
+    ctx.rotate(edgeAngle);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-
-    // Verhältnis
     ctx.fillStyle = "#222";
-
     ctx.font =
         `bold ${Math.max(11, size * 0.25)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
-        textX,
-        textY
-    );
-
-
-// Ressourcen-Kreis
-if (harbor.resource) {
-
-    const resourceColor =
-        RESOURCE_COLORS[harbor.resource] || "#888";
-
-    const circleRadius = size * 0.20;
-
-    ctx.beginPath();
-    ctx.arc(
-        textX,
-        textY - size * 0.34,
-        circleRadius,
         0,
-        Math.PI * 2
+        0
     );
-
-    // Füllung
-    ctx.fillStyle = resourceColor;
-    ctx.fill();
-
-    // weiße Umrandung
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = Math.max(2, size * 0.045);
-    ctx.stroke();
-}
-
 
     ctx.restore();
 }
-
 // =========================================================
 // ALLE HÄFEN ZEICHNEN
 // =========================================================
