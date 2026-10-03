@@ -615,35 +615,57 @@ for (const v of vs) {
     ctx.fillStyle = colorCss(owner.color);
 
     if (v.isCity) {
-      ctx.beginPath();
-      const buildingSize = 10 * boardZoom;
+  ctx.beginPath();
+  const buildingSize = 10 * boardZoom;
 
-      ctx.moveTo(p.x - buildingSize, p.y + buildingSize);
-      ctx.lineTo(p.x + buildingSize, p.y + buildingSize);
-      ctx.lineto(p.x + buildingSize, p.y);
-      ctx.lineTo(p.x, p.y);
-      ctx.lineTo(p.x- 0.5* buildingSize, p.y - buildingSize);
-      ctx.lineTo(p.x-buildingSize, p.y);
-      ctx.lineTo(p.x-buildingSize, p.y + buildingSize);
-      ctx.closePath();
-      ctx.fill();
+  // etwas nach oben/zentral verschoben
+  const offsetY = -5 * boardZoom;
 
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(p.x - 5, p.y - 7, 10, 5);
+  ctx.moveTo(p.x - buildingSize, p.y + buildingSize + offsetY);
+  ctx.lineTo(p.x + buildingSize, p.y + buildingSize + offsetY);
+  ctx.lineTo(p.x + buildingSize, p.y + offsetY);
+  ctx.lineTo(p.x, p.y + offsetY);
+  ctx.lineTo(p.x - 0.5 * buildingSize, p.y - buildingSize + offsetY);
+  ctx.lineTo(p.x - buildingSize, p.y + offsetY);
+  ctx.lineTo(p.x - buildingSize, p.y + buildingSize + offsetY);
+  ctx.closePath();
+  ctx.fill();
 
-    } else {
-      ctx.beginPath();
-      const settlementSize = 12 * boardZoom;
+} else {
+  ctx.beginPath();
+  const settlementSize = 12 * boardZoom;
 
-      ctx.moveTo(p.x, p.y - settlementSize);
-      ctx.lineTo(p.x + settlementSize, p.y + settlementSize * 0.83);
-      ctx.lineTo(p.x + settlementSize, p.y + settlementSize *2);
-      ctx.lineTo(p.x-settlementSize, p.y + settlementSize * 2);
-      ctx.lineTo(p.x - settlementSize, p.y + settlementSize * 0.83);
-      ctx.closePath();
-      ctx.fill();
-    }
+  // etwas nach oben verschoben
+  const offsetY = -5 * boardZoom;
 
+  ctx.moveTo(p.x, p.y - settlementSize + offsetY);
+
+  // Dach halb so "dick":
+  // Die Dachspitze bleibt gleich, aber der Übergang
+  // zum unteren Teil liegt näher an der Spitze.
+  ctx.lineTo(
+    p.x + settlementSize,
+    p.y + settlementSize * 0.42 + offsetY
+  );
+
+  ctx.lineTo(
+    p.x + settlementSize,
+    p.y + settlementSize * 2 + offsetY
+  );
+
+  ctx.lineTo(
+    p.x - settlementSize,
+    p.y + settlementSize * 2 + offsetY
+  );
+
+  ctx.lineTo(
+    p.x - settlementSize,
+    p.y + settlementSize * 0.42 + offsetY
+  );
+
+  ctx.closePath();
+  ctx.fill();
+}
   } else if (mode === "settlement") {
     ctx.fillStyle = "#6ff";
 
