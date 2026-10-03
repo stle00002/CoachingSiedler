@@ -301,7 +301,7 @@ function renderPlayerTrade(trade) {
         tradeOffer.classList.add("hidden");
         return;
     }
-    const tradeId = lastState.tradeId;
+    const tradeId = trade.tradeId;
 
             // Neues Handelsangebot
     if (tradeId !== lastTradeId) {
