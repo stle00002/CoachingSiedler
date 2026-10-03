@@ -1872,41 +1872,76 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     ctx.restore();
 
 
-    // ------------------------------------------------
-    // RESSOURCEN-KREIS
-    // EXAKT AUF DER SPITZE
-    // ------------------------------------------------
+// ------------------------------------------------
+// HAFEN-KREIS
+// Ressource = farbiger Kreis
+// 3:1 = weißer Kreis mit schwarzem ?
+// ------------------------------------------------
 
-    if (harbor.resource) {
+const circleRadius = size * 0.20;
 
-        const resourceColor =
-            RESOURCE_COLORS[harbor.resource] || "#888";
+ctx.save();
 
-        const circleRadius = size * 0.20;
+ctx.beginPath();
+ctx.arc(
+    tipX,
+    tipY,
+    circleRadius,
+    0,
+    Math.PI * 2
+);
 
-        ctx.save();
+// 3:1 Hafen -> weißer Kreis
+// Ressourcenhafen -> Ressourcenfarbe
+if (harbor.resource) {
+    ctx.fillStyle =
+        RESOURCE_COLORS[harbor.resource] || "#888";
+} else {
+    ctx.fillStyle = "#ffffff";
+}
 
-        ctx.beginPath();
+ctx.fill();
 
-        ctx.arc(
-            tipX,
-            tipY,
-            circleRadius,
-            0,
-            Math.PI * 2
-        );
+// weiße Umrandung
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = Math.max(2, size * 0.045);
+ctx.stroke();
 
-        // Ressourcenfarbe
-        ctx.fillStyle = resourceColor;
-        ctx.fill();
+ctx.restore();
 
-        // weiße Umrandung
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = Math.max(2, size * 0.045);
-        ctx.stroke();
 
-        ctx.restore();
-    }
+// ------------------------------------------------
+// FRAGEZEICHEN BEIM 3:1-HAFEN
+// ------------------------------------------------
+
+if (!harbor.resource) {
+
+    ctx.save();
+
+    // Mittelpunkt des Kreises
+    ctx.translate(tipX, tipY);
+
+    // gleiche Ausrichtung wie der Hafen
+    ctx.rotate(edgeAngle);
+
+    // falls der Hafen um 180° gedreht wird:
+    ctx.rotate(Math.PI);
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillStyle = "#222";
+    ctx.font =
+        `bold ${Math.max(18, size * 0.32)}px Georgia`;
+
+    ctx.fillText(
+        "?",
+        0,
+        0
+    );
+
+    ctx.restore();
+}
 
 
     // ------------------------------------------------
@@ -1926,18 +1961,19 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     // Parallel zur Küstenkante
     ctx.rotate(edgeAngle);
+    ctx.rotate(Math.PI);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    ctx.fillStyle = "#222";
+    ctx.fillStyle = "#ffffff";
     ctx.font =
-        `bold ${Math.max(11, size * 0.25)}px Georgia`;
+        `bold ${Math.max(22, size * 0.5)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
         0,
-        0
+        size*0.25
     );
 
     ctx.restore();
