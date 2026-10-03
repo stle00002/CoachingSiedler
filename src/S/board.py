@@ -295,7 +295,7 @@ class Board:
                 testHarbor = Harbor(2, 1, tile.vertices[4], tile.vertices[5],  None, 3)
                 self.harbors.append(testHarbor)
             if tile.q == 2 and tile.r == -1:
-                testHarbor = Harbor(3, -1, tile.vertices[0], tile.vertices[5], Resource.SCHAF, 2)
+                testHarbor = Harbor(3, -1, tile.vertices[5], tile.vertices[0], Resource.SCHAF, 2)
                 self.harbors.append(testHarbor)
         else:
             if self.radius == 4:
@@ -311,7 +311,7 @@ class Board:
                     self.harbors.append(Harbor(-3, -1, tile.vertices[2], tile.vertices[3], None, 3))
 
                 if tile.q == -3 and tile.r == -0:
-                    self.harbors.append(Harbor(-4, 1, tile.vertices[4], tile.vertices[3], Resource.LEHM, 2))
+                    self.harbors.append(Harbor(-4, 1, tile.vertices[3], tile.vertices[4], Resource.LEHM, 2))
 
                 if tile.q == -3 and tile.r == 2:
                     self.harbors.append(Harbor(-4, 3, tile.vertices[3], tile.vertices[4], None, 3))
@@ -329,13 +329,13 @@ class Board:
                     self.harbors.append(Harbor(3, 1, tile.vertices[4], tile.vertices[5], None, 3))
 
                 if tile.q == 3 and tile.r == -1:
-                    self.harbors.append(Harbor(4, -1, tile.vertices[0], tile.vertices[5], Resource.ERZ, 2))
+                    self.harbors.append(Harbor(4, -1, tile.vertices[5], tile.vertices[0], Resource.ERZ, 2))
 
                 if tile.q == 3 and tile.r == -2:
-                    self.harbors.append(Harbor(4, -3, tile.vertices[1], tile.vertices[0], None, 3))
+                    self.harbors.append(Harbor(4, -3, tile.vertices[0], tile.vertices[1], None, 3))
 
                 if tile.q == 3 and tile.r == -3:
-                    self.harbors.append(Harbor(3, -4, tile.vertices[2], tile.vertices[1], Resource.HOLZ, 2))
+                    self.harbors.append(Harbor(3, -4, tile.vertices[1], tile.vertices[2], Resource.HOLZ, 2))
                 
 
     def canBuildSettlement(self, player, vertex, setupPhase):

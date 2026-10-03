@@ -8,11 +8,11 @@ const TILE_IMAGES = {
   WASSER: new Image(),
 };
 const RESOURCE_COLORS = {
-    HOLZ: "#4f9b51",
-    LEHM: "#c66d4b",
-    SCHAF: "#79bb5a",
-    WEIZEN: "#dfbf55",
-    ERZ: "#8e9294"
+    HOLZ: "#159413",
+    LEHM: "#f17646",
+    SCHAF: "#1edb09",
+    WEIZEN: "#f1e545",
+    ERZ: "#a8aaab"
 };
 
 let tradeOpen = false;
@@ -1921,13 +1921,11 @@ if (!harbor.resource) {
     // Mittelpunkt des Kreises
     ctx.translate(tipX, tipY);
 
-    let textAngle = edgeAngle;
+    // gleiche Ausrichtung wie der Hafen
+    ctx.rotate(edgeAngle);
 
-    if (textAngle > Math.PI / 2 || textAngle < -Math.PI / 2) {
-      textAngle += Math.PI;
-    } 
-
-    ctx.rotate(textAngle);
+    // falls der Hafen um 180° gedreht wird:
+    ctx.rotate(Math.PI);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1970,7 +1968,7 @@ if (!harbor.resource) {
 
     ctx.fillStyle = "#ffffff";
     ctx.font =
-        `bold ${Math.max(14, size * 0.3)}px Georgia`;
+        `bold ${Math.max(16, size * 0.39)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
