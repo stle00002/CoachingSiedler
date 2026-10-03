@@ -88,7 +88,8 @@ let ws = null,
 const $ = (id) => document.getElementById(id);
 $("name").value = me;
 function send(type, extra = {}) {
-  if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type, ...extra }));
+  if (ws && ws.readyState === 1) {
+    console.log("message is definetly send");ws.send(JSON.stringify({ type, ...extra }))};
 }
 let player_index = null;
 let reconnectTimer = null;
@@ -186,6 +187,7 @@ $("acceptTradeBtn").onclick = () => {
     $("tradeOffer").classList.add("hidden");
 };
 $("declineTradeBtn").onclick = () => {
+    console.log("Tradedecline message will be send");
     send("declineTrade", {
         playerName: me
     });

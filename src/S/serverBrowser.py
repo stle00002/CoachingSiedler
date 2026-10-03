@@ -596,7 +596,6 @@ async def handle_client(websocket):
 async def handle_message(conn, message):
     if message == None:
         return
-    print("Nachricht:", message)
     action = message.get("type") or message.get("action")
 
     if action == "join":
