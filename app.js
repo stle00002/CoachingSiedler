@@ -616,7 +616,7 @@ for (const v of vs) {
 
     if (v.isCity) {
   ctx.beginPath();
-  const buildingSize = 10 * boardZoom;
+  const buildingSize = 17 * boardZoom;
 
   // etwas nach oben/zentral verschoben
   const offsetY = -5 * boardZoom;
@@ -633,10 +633,10 @@ for (const v of vs) {
 
 } else {
   ctx.beginPath();
-  const settlementSize = 12 * boardZoom;
+  const settlementSize = 10 * boardZoom;
 
   // etwas nach oben verschoben
-  const offsetY = -5 * boardZoom;
+  const offsetY = -3 * boardZoom;
 
   ctx.moveTo(p.x, p.y - settlementSize + offsetY);
 
