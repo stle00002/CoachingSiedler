@@ -1788,10 +1788,6 @@ function getHarborSymbol(resource) {
 }
 
 
-// ---------------------------------------------------------
-// Einen einzelnen Hafen direkt auf das Canvas zeichnen
-// ---------------------------------------------------------
-
 function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     // Mittelpunkt der Küstenkante
@@ -1799,70 +1795,106 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     const my = (p1.y + p2.y) / 2;
 
 
-    // Richtung vom Mittelpunkt der Insel nach außen
-    let dx = mx - boardCenter.x;
-    let dy = my - boardCenter.y;
+    // ==========================================
+    // NORMALE DER KÜSTENKANTE
+    // ==========================================
 
-    const length = Math.hypot(dx, dy);
+    const edgeX = p2.x - p1.x;
+    const edgeY = p2.y - p1.y;
 
-    if (length === 0) return;
+    const edgeLength = Math.hypot(edgeX, edgeY);
 
-    dx /= length;
-    dy /= length;
-
-
-    // Wie weit der Steg nach außen geht
-    const dockLength = size * 1.25;
+    if (edgeLength === 0) return;
 
 
-    // Endpunkt des Stegs
-    const endX = mx + dx * dockLength;
-    const endY = my + dy * dockLength;
+    // Senkrechter Vektor auf die Küste
+    let nx = -edgeY / edgeLength;
+    let ny = edgeX / edgeLength;
 
 
-    // -----------------------------------------------------
-    // Gestrichelte Linien
-    // -----------------------------------------------------
+    // ==========================================
+    // RICHTIGE SEITE AUSWÄHLEN
+    // ==========================================
+
+    // Vektor vom Spielfeldzentrum zum Hafen
+    const outwardX = mx - boardCenter.x;
+    const outwardY = my - boardCenter.y;
+
+
+    // Falls die Normale nach innen zeigt -> umdrehen
+    if (
+        nx * outwardX +
+        ny * outwardY < 0
+    ) {
+        nx = -nx;
+        ny = -ny;
+    }
+
+
+    // ==========================================
+    // SPITZE DES STEGS
+    // ==========================================
+
+    const dockLength = size * 1.05;
+
+    const tipX = mx + nx * dockLength;
+    const tipY = my + ny * dockLength;
+
+
+    // ==========================================
+    // GESTRICHELTE LINIEN
+    // ==========================================
 
     ctx.save();
 
-    ctx.strokeStyle = "#222";
-    ctx.lineWidth = Math.max(2, size * 0.045);
+    ctx.strokeStyle = "#ffffff";
+
+    // deutlich dünner
+    ctx.lineWidth = Math.max(1.5, size * 0.025);
+
     ctx.setLineDash([
-        size * 0.16,
-        size * 0.13
+        size * 0.13,
+        size * 0.11
     ]);
 
     ctx.lineCap = "butt";
 
 
-    // leichte Krümmung der beiden Seiten
-    const curve = size * 0.35;
+    // etwas Krümmung
+    const curve = size * 0.22;
 
 
-    // Linke Seite
+    // ------------------------------------------
+    // linke Seite
+    // ------------------------------------------
+
     ctx.beginPath();
+
     ctx.moveTo(p1.x, p1.y);
 
     ctx.quadraticCurveTo(
-        p1.x + dx * curve,
-        p1.y + dy * curve,
-        endX,
-        endY
+        p1.x + nx * curve,
+        p1.y + ny * curve,
+        tipX,
+        tipY
     );
 
     ctx.stroke();
 
 
-    // Rechte Seite
+    // ------------------------------------------
+    // rechte Seite
+    // ------------------------------------------
+
     ctx.beginPath();
+
     ctx.moveTo(p2.x, p2.y);
 
     ctx.quadraticCurveTo(
-        p2.x + dx * curve,
-        p2.y + dy * curve,
-        endX,
-        endY
+        p2.x + nx * curve,
+        p2.y + ny * curve,
+        tipX,
+        tipY
     );
 
     ctx.stroke();
@@ -1871,15 +1903,14 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     ctx.restore();
 
 
-    // -----------------------------------------------------
-    // Hafen-Information
-    // -----------------------------------------------------
+    // ==========================================
+    // HAFEN-INFO
+    // ==========================================
 
-    // etwas weiter draußen als das Ende des Stegs
-    const textDistance = size * 1.55;
+    const textDistance = size * 1.42;
 
-    const textX = mx + dx * textDistance;
-    const textY = my + dy * textDistance;
+    const textX = mx + nx * textDistance;
+    const textY = my + ny * textDistance;
 
 
     ctx.save();
@@ -1890,7 +1921,9 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     // Verhältnis
     ctx.fillStyle = "#222";
-    ctx.font = `bold ${Math.max(12, size * 0.28)}px Georgia`;
+
+    ctx.font =
+        `bold ${Math.max(11, size * 0.25)}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
@@ -1899,24 +1932,25 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     );
 
 
-    // Ressourcensymbol nur bei einem speziellen Hafen
+    // Ressourcensymbol
     if (harbor.resource) {
 
-        const symbol = getHarborSymbol(harbor.resource);
+        const symbol =
+            getHarborSymbol(harbor.resource);
 
-        ctx.font = `${Math.max(14, size * 0.34)}px Arial`;
+        ctx.font =
+            `${Math.max(13, size * 0.30)}px Arial`;
 
         ctx.fillText(
             symbol,
             textX,
-            textY - size * 0.38
+            textY - size * 0.34
         );
     }
 
 
     ctx.restore();
 }
-
 
 // =========================================================
 // ALLE HÄFEN ZEICHNEN
