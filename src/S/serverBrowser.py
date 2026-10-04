@@ -36,6 +36,9 @@ def getState(obj):
 
     for player_id, player in enumerate(self.players):
 
+        countResources = player.resources.get("HOLZ", 0) +player.resources.get("HOLZ", 0) +player.resources.get("LEHM", 0) +player.resources.get("SCHAF", 0) +player.resources.get("WEIZEN", 0) + player.resources.get("ERZ", 0)
+        countDevelopmentCards = player.developmentCards.get("RITTER", 0) + player.developmentCards.get("1SIEGPUNKT", 0) + player.developmentCards.get("MONOPOL", 0)+ player.developmentCards.get("ERFINDUNG", 0)+player.developmentCards.get("STRAßENBAU", 0)
+        
         player_state = {
             "id": player_id,
 
@@ -55,6 +58,7 @@ def getState(obj):
                 "ERZ": player.resources.get("ERZ", 0)
             },
 
+            "countResources": countResources,
             # -------------------------
             # Entwicklungskarten
             # -------------------------
@@ -67,6 +71,7 @@ def getState(obj):
                 "STRAßENBAU": player.developmentCards.get("STRAßENBAU", 0)
             },
 
+            "countDevelopmentCards": countDevelopmentCards,
             # -------------------------
             # Punkte
             # -------------------------

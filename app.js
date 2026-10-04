@@ -65,7 +65,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://summary-asset-fantastic-smoking.trycloudflare.com";
+const WS_URL = "wss://illustration-teachers-printed-lovely.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -384,8 +384,7 @@ function renderState(s) {
         ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
       </b>
       <br>
-      <span>${p.victoryPoints || 0} VP</span>
-      · Ritter ${p.knights || 0}
+      <span>${p.victoryPoints || 0} Siegpunkte · <span>${p.countResources || 0} Karten · <span>${p.countDevelopmentCards || 0} Entwicklungskarten · </span>${p.knights || 0} Ritter 
     </div>
   `,
 )
@@ -633,7 +632,7 @@ for (const v of vs) {
 
 } else {
   ctx.beginPath();
-  const settlementSize = 10 * boardZoom;
+  const settlementSize = 12 * boardZoom;
 
   // etwas nach oben verschoben
   const offsetY = -3 * boardZoom;
