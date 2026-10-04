@@ -380,11 +380,11 @@ function renderState(s) {
   (p) => `
     <div class="player-card ${isCurrent(p) ? "current" : ""}">
       <b style="color:${colorCss(p.color)}">
-        ${esc(p.name)}
+        ${esc(p.name)} ${esc(p.victoryPoints || 0)}
         ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
       </b>
       <br>
-      <span>${p.victoryPoints || 0} Siegpunkte<br><span>${p.countResources || 0} Karten<br><span>${p.countDevelopmentCards || 0} Entwicklungskarten<br></span>${p.knights || 0} Ritter 
+      <span>${p.countResources || 0} Karten<br><span>${p.countDevelopmentCards || 0} Entwicklungskarten<br></span>${p.knights || 0} Ritter 
     </div>
   `,
 )
@@ -644,22 +644,22 @@ for (const v of vs) {
   // zum unteren Teil liegt näher an der Spitze.
   ctx.lineTo(
     p.x + settlementSize,
-    p.y + settlementSize * 0.42 + offsetY
+    p.y + settlementSize * 0.25 + offsetY
   );
 
   ctx.lineTo(
     p.x + settlementSize,
-    p.y + settlementSize * 2 + offsetY
+    p.y + settlementSize * 1 + offsetY
   );
 
   ctx.lineTo(
     p.x - settlementSize,
-    p.y + settlementSize * 2 + offsetY
+    p.y + settlementSize * 1 + offsetY
   );
 
   ctx.lineTo(
     p.x - settlementSize,
-    p.y + settlementSize * 0.42 + offsetY
+    p.y + settlementSize * 0.25 + offsetY
   );
 
   ctx.closePath();
