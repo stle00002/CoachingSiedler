@@ -7,6 +7,8 @@ const TILE_IMAGES = {
   WÜSTE: new Image(),
   WASSER: new Image(),
 };
+const ROBBER_IMAGE = new Image();
+ROBBER_IMAGE.src = "images/ritter.png";
 const RESOURCE_COLORS = {
     HOLZ: "#159413",
     LEHM: "#f17646",
@@ -551,24 +553,17 @@ if (resource.includes("WASSER")) {
   ctx.textBaseline = "middle";
   ctx.fillText(t.number ?? "", p.x, p.y);
 
-  if (t.hasRobber) {
-    ctx.fillStyle = "#222";
+if (t.hasRobber) {
+    const robberHeight = zoomedSize * 1.15;
+    const robberWidth = robberHeight * (512 / 1280);
 
-    ctx.beginPath();
-ctx.arc(
-    p.x,
-    p.y - zoomedSize * 0.35,
-    zoomedSize * 0.22,
-    0,
-    Math.PI * 2
-);
-
-ctx.fillRect(
-    p.x - zoomedSize * 0.12,
-    p.y - zoomedSize * 0.15,
-    zoomedSize * 0.24,
-    zoomedSize * 0.5
-);
+    ctx.drawImage(
+        ROBBER_IMAGE,
+        p.x - robberWidth / 2,
+        p.y - robberHeight * 0.72,
+        robberWidth,
+        robberHeight
+    );
 }
 }
 // =========================================================
