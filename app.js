@@ -630,7 +630,7 @@ for (const v of vs) {
   ctx.closePath();
   ctx.fill();
     // schwarze Umrandung
-  ctx.strokeStyle = "#000";
+  ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 2 * boardZoom;
   ctx.stroke();
 
@@ -669,7 +669,7 @@ for (const v of vs) {
   ctx.closePath();
   ctx.fill();
     // schwarze Umrandung
-  ctx.strokeStyle = "#000";
+  ctx.strokeStyle = "#ffffff";
   ctx.lineWidth = 2 * boardZoom;
   ctx.stroke();
 }
