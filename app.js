@@ -644,7 +644,7 @@ for (const v of vs) {
   // zum unteren Teil liegt näher an der Spitze.
   ctx.lineTo(
     p.x + settlementSize,
-    p.y + settlementSize * 0.25 + offsetY
+    p.y - settlementSize * 0.25 + offsetY
   );
 
   ctx.lineTo(
@@ -659,7 +659,7 @@ for (const v of vs) {
 
   ctx.lineTo(
     p.x - settlementSize,
-    p.y + settlementSize * 0.25 + offsetY
+    p.y - settlementSize * 0.25 + offsetY
   );
 
   ctx.closePath();
