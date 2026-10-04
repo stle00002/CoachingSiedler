@@ -1886,7 +1886,7 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
 
     ctx.save();
 
-    ctx.strokeStyle = "#ffffff";
+    ctx.strokeStyle = "#000000";
     ctx.lineWidth = Math.max(3, size * 0.05);
     ctx.setLineDash([
         size * 0.13,
@@ -1956,7 +1956,7 @@ if (harbor.resource) {
 ctx.fill();
 
 // weiße Umrandung
-ctx.strokeStyle = "#ffffff";
+ctx.strokeStyle = "#000000";
 ctx.lineWidth = Math.max(2, size * 0.045);
 ctx.stroke();
 
@@ -2019,7 +2019,7 @@ if (!harbor.resource) {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = "#000000";
     ctx.font =
         `bold ${Math.max(16, size * 0.39)}px Georgia`;
 
