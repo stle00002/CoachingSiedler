@@ -629,6 +629,10 @@ for (const v of vs) {
   ctx.lineTo(p.x - buildingSize, p.y + buildingSize + offsetY);
   ctx.closePath();
   ctx.fill();
+    // schwarze Umrandung
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2 * boardZoom;
+  ctx.stroke();
 
 } else {
   ctx.beginPath();
@@ -664,6 +668,10 @@ for (const v of vs) {
 
   ctx.closePath();
   ctx.fill();
+    // schwarze Umrandung
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 2 * boardZoom;
+  ctx.stroke();
 }
   } else if (mode === "settlement") {
     ctx.fillStyle = "#6ff";
