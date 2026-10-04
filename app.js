@@ -384,7 +384,7 @@ function renderState(s) {
         ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
       </b>
       <br>
-      <span>${p.victoryPoints || 0} Siegpunkte · <span>${p.countResources || 0} Karten · <span>${p.countDevelopmentCards || 0} Entwicklungskarten · </span>${p.knights || 0} Ritter 
+      <span>${p.victoryPoints || 0} Siegpunkte<br><span>${p.countResources || 0} Karten<br><span>${p.countDevelopmentCards || 0} Entwicklungskarten<br></span>${p.knights || 0} Ritter 
     </div>
   `,
 )
