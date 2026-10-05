@@ -8,6 +8,7 @@ const TILE_IMAGES = {
   WASSER: new Image(),
 };
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
+const IPHONE_BOARD_SCALE = IS_IPHONE ? 0.72 : 1;
 
 if (IS_IPHONE) {
     document.documentElement.classList.add("iphone");
@@ -498,7 +499,7 @@ function drawBoard(s) {
       y: H * 0.5 + boardOffsetY
   };
 
-  const zoomedSize = size * boardZoom;
+const zoomedSize = size * boardZoom * IPHONE_BOARD_SCALE;
 
   const pos = (q, r) => ({
       x: center.x +
@@ -545,7 +546,13 @@ if (resource.includes("WASSER")) {
   // Zahl
   ctx.fillStyle = "#f2dfbb";
   ctx.beginPath();
-  ctx.arc(p.x, p.y, 20, 0, Math.PI * 2);
+  ctx.arc(
+    p.x,
+    p.y,
+    20 * (IS_IPHONE ? 0.72 : 1),
+    0,
+    Math.PI * 2
+);
   ctx.fill();
 
   ctx.fillStyle =
