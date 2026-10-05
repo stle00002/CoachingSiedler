@@ -8,6 +8,7 @@ const TILE_IMAGES = {
   WASSER: new Image(),
 };
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
+const DESKTOP_BOARD_SIZE = 35.2212389380531;
 
 if (IS_IPHONE) {
     document.documentElement.classList.add("iphone");
@@ -492,8 +493,14 @@ function drawBoard(s) {
     ),
     3,
   );
-  const size = Math.min(W / (radius * 3.1 + 2), H / (radius * 2.8 + 2), 70);
-  console.log("DESKTOP BOARD SIZE:", size, "W:", W, "H:", H, "radius:", radius);
+const size = IS_IPHONE
+    ? DESKTOP_BOARD_SIZE
+    : Math.min(
+        W / (radius * 3.1 + 2),
+        H / (radius * 2.8 + 2),
+        70
+      );
+        console.log("DESKTOP BOARD SIZE:", size, "W:", W, "H:", H, "radius:", radius);
   const center = {
       x: W * 0.5 + boardOffsetX,
       y: H * 0.5 + boardOffsetY
@@ -1140,11 +1147,13 @@ function boardGeom(b, r) {
       ),
     ),
   );
-  const baseSize = Math.min(
-      r.width / (radius * 3.1 + 2),
-      r.height / (radius * 2.8 + 2),
-      70
-  );
+const baseSize = IS_IPHONE
+    ? DESKTOP_BOARD_SIZE
+    : Math.min(
+        r.width / (radius * 3.1 + 2),
+        r.height / (radius * 2.8 + 2),
+        70
+      );
 
   const size = baseSize * boardZoom;
   const pos = (q, rr) => ({
