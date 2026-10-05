@@ -1599,7 +1599,7 @@ if (buildRoundButton) {
     // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            !darfBauenBaurunde &&
+            (!(darfBauenBaurunde && !inSetup) || !hasSettlementResources)&&
             (!myTurn || discarding|| mustRoll ||
             (!(inSetup &&s.setUpSettlement) && !hasSettlementResources));
     }
@@ -1616,7 +1616,7 @@ if (buildRoundButton) {
             );
 
         buttons.buildRoad.disabled =
-            !darfBauenBaurunde &&
+            (!(darfBauenBaurunde && !inSetup) || !hasRoadResources) &&
             (!myTurn || discarding|| mustRoll||
             (!hasRoadResources && !canBuildFreeRoad));
     }
@@ -1625,7 +1625,7 @@ if (buildRoundButton) {
     // CITY gibt es in der Setup-Phase nicht
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
-            !darfBauenBaurunde &&
+            (!(darfBauenBaurunde && !inSetup)|| !hasCityResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll ||
             !hasCityResources);
@@ -1635,7 +1635,7 @@ if (buildRoundButton) {
     // Entwicklungskarte gibt es in der Setup-Phase nicht
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
-            !darfBauenBaurunde &&
+            (!(darfBauenBaurunde && !inSetup) || !hasDevelopmentResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll||
             !hasDevelopmentResources);
