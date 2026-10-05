@@ -1546,7 +1546,7 @@ if (buildRoundButton) {
         // Normale Spielphase
 
         buildRoundButton.textContent = "BAURUNDE";
-        buildRoundButton.disabled = false;
+        buildRoundButton.disabled = raised;
     }
 }
 
@@ -1582,11 +1582,14 @@ if (buildRoundButton) {
         (resources.WEIZEN || 0) >= 1 &&
         (resources.ERZ || 0) >= 1;
 
+    const raised =
+    s.raisedHands?.[String(player_index)] === true;
+    const darfBauenBaurunde = raised && s.buildPhase;
 
     // Würfeln nur wenn man selbst dran ist
     if (buttons.roll_dice) {
-        buttons.roll_dice.disabled =
-            !myTurn || !s.würfelMode;
+        buttons.roll_dice.disabled = 
+            (!myTurn || !s.würfelMode);
     }
 
 
@@ -1594,8 +1597,9 @@ if (buildRoundButton) {
     // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            !myTurn || discarding|| mustRoll ||
-            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources);
+            !darfBauenBaurunde &&
+            (!myTurn || discarding|| mustRoll ||
+            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources));
     }
 
 
@@ -1610,26 +1614,29 @@ if (buildRoundButton) {
             );
 
         buttons.buildRoad.disabled =
-            !myTurn || discarding|| mustRoll||
-            (!hasRoadResources && !canBuildFreeRoad);
+            !darfBauenBaurunde &&
+            (!myTurn || discarding|| mustRoll||
+            (!hasRoadResources && !canBuildFreeRoad));
     }
 
 
     // CITY gibt es in der Setup-Phase nicht
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
-            !myTurn ||
+            !darfBauenBaurunde &&
+            (!myTurn ||
             inSetup || discarding|| mustRoll ||
-            !hasCityResources;
+            !hasCityResources);
     }
 
 
     // Entwicklungskarte gibt es in der Setup-Phase nicht
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
-            !myTurn ||
+            !darfBauenBaurunde &&
+            (!myTurn ||
             inSetup || discarding|| mustRoll||
-            !hasDevelopmentResources;
+            !hasDevelopmentResources);
     }
 
    const tradeButton = document.getElementById("tradeButton");
