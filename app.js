@@ -1544,6 +1544,8 @@ if (buildRoundButton) {
 
     } else {
         // Normale Spielphase
+        const raised =
+            s.raisedHands?.[String(player_index)] === true;
 
         buildRoundButton.textContent = "BAURUNDE";
         buildRoundButton.disabled = raised;
