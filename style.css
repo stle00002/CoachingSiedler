@@ -730,7 +730,7 @@ input {
    ========================================================= */
 
 .iphone .trade-bar {
-    width: min(350px, 50%);
+    width: min(250px, 30%);
     padding: 6px;
 }
 

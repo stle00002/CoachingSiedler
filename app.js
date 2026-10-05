@@ -549,7 +549,7 @@ if (resource.includes("WASSER")) {
   ctx.arc(
     p.x,
     p.y,
-    20 * (IS_IPHONE ? 0.3 : 1),
+    20 * (IS_IPHONE ? 0.5 : 1),
     0,
     Math.PI * 2
 );
@@ -622,8 +622,7 @@ for (const v of vs) {
 
     if (v.isCity) {
   ctx.beginPath();
-  const buildingSize = 17 * boardZoom;
-
+  const buildingSize = 10 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
   // etwas nach oben/zentral verschoben
   const offsetY = -5 * boardZoom;
 
@@ -643,8 +642,7 @@ for (const v of vs) {
 
 } else {
   ctx.beginPath();
-  const settlementSize = 12 * boardZoom;
-
+const settlementSize = 7 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
   // etwas nach oben verschoben
   const offsetY = -3 * boardZoom;
 
