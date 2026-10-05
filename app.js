@@ -1650,7 +1650,7 @@ if (tradeButton) {
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
-            !myTurn || discarding||
+            !myTurn || discarding|| s.buildPhase||
             mustFinishAction(s);
     }
 }
