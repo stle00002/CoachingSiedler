@@ -525,12 +525,13 @@ if (resource.includes("WASSER")) {
         zoomedSize * 2.2
     );
 } else {
+    const tileDrawScale = IS_IPHONE ? 1.08 : 1;
     ctx.drawImage(
         img,
-        p.x - zoomedSize * 0.9,
-        p.y - zoomedSize,
-        zoomedSize * 1.8,
-        zoomedSize * 2
+        p.x - zoomedSize * 0.9 * tileDrawScale,
+        p.y - zoomedSize *tileDrawScale,
+        zoomedSize * 1.8*tileDrawScale,
+        zoomedSize * 2*tileDrawScale
     );
 }
   }
@@ -603,7 +604,7 @@ for (const e of edges) {
     ? colorCss(owner.color)
     : "#8b704e";
 
-ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
+ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom*(IS_IPHONE ? 0.38 : 1);
   ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(z.x, z.y);
@@ -637,7 +638,7 @@ for (const v of vs) {
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom;
+  ctx.lineWidth = 2 * boardZoom *(IS_IPHONE ? 0.5 : 1);
   ctx.stroke();
 
 } else {
@@ -675,7 +676,7 @@ const settlementSize = 7 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom;
+  ctx.lineWidth = 2 * boardZoom *(IS_IPHONE ? 0.5 : 1);
   ctx.stroke();
 }
   } else if (mode === "settlement") {
