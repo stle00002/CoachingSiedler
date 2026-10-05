@@ -677,3 +677,190 @@ input {
     z-index: 3;
 }
 
+/* =========================================================
+   NUR IPHONE
+   ========================================================= */
+
+.iphone .layout {
+    grid-template-columns: 145px minmax(0, 1fr) 165px;
+}
+
+/* linke und rechte Sidebar kompakter */
+.iphone .sidebar {
+    padding: 8px;
+}
+
+.iphone .player-card {
+    padding: 6px;
+    margin-bottom: 5px;
+    font-size: 12px;
+}
+
+.iphone .resources {
+    gap: 4px;
+    margin-bottom: 8px;
+}
+
+.iphone .res {
+    padding: 5px;
+    font-size: 12px;
+}
+
+.iphone .actions {
+    gap: 4px;
+}
+
+.iphone .actions button {
+    padding: 7px 5px;
+    font-size: 12px;
+}
+
+.iphone .cards {
+    margin-top: 10px;
+}
+
+.iphone .cardline {
+    padding: 4px 0;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   HANDELSLEISTE UNTEN
+   ========================================================= */
+
+.iphone .trade-bar {
+    width: min(460px, 70%);
+    padding: 6px;
+}
+
+.iphone .trade-row {
+    gap: 5px;
+}
+
+.iphone .trade-resource {
+    width: 38px;
+    height: 38px;
+}
+
+.iphone .resource-square {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.iphone .trade-middle {
+    min-height: 45px;
+    margin: 3px 0;
+    gap: 6px;
+    padding: 4px;
+}
+
+.iphone .trade-middle-side {
+    min-width: 80px;
+}
+
+.iphone .trade-middle-label {
+    font-size: 9px;
+}
+
+.iphone .trade-display {
+    min-height: 30px;
+    gap: 3px;
+}
+
+.iphone .trade-display .resource-box {
+    width: 28px;
+    height: 28px;
+}
+
+.iphone .trade-arrow {
+    font-size: 18px;
+}
+
+.iphone .trade-action-buttons {
+    margin-left: 3px;
+}
+
+.iphone .trade-action-buttons button {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   EINGEHENDES HANDELSANGEBOT
+   ========================================================= */
+
+.iphone .trade-offer {
+    width: 175px !important;
+    padding: 8px !important;
+    top: 8px !important;
+    right: 8px !important;
+}
+
+.iphone .trade-title {
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.iphone .trade-content {
+    gap: 4px;
+}
+
+.iphone .trade-label {
+    font-size: 10px;
+}
+
+.iphone .trade-buttons {
+    margin-top: 7px;
+    gap: 5px;
+}
+
+.iphone .trade-buttons button {
+    padding: 6px;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   MODAL / HANDELSFENSTER
+   ========================================================= */
+
+.iphone .modal-card {
+    min-width: 0;
+    width: 230px;
+    max-width: 80vw;
+    padding: 14px;
+}
+
+.iphone .modal-card h2 {
+    font-size: 18px;
+}
+
+.iphone .modal-card p {
+    font-size: 12px;
+}
+
+.iphone .choice-grid {
+    gap: 5px;
+}
+
+.iphone .choice {
+    padding: 8px;
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   PROMPT
+   ========================================================= */
+
+.iphone .prompt {
+    top: 8px;
+    padding: 6px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+

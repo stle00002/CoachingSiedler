@@ -7,6 +7,11 @@ const TILE_IMAGES = {
   WÜSTE: new Image(),
   WASSER: new Image(),
 };
+const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
+
+if (IS_IPHONE) {
+    document.documentElement.classList.add("iphone");
+}
 const ROBBER_IMAGE = new Image();
 ROBBER_IMAGE.src = "images/ritter.png";
 const RESOURCE_COLORS = {
