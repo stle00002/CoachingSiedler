@@ -8,7 +8,6 @@ const TILE_IMAGES = {
   WASSER: new Image(),
 };
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
-const IPHONE_BOARD_SCALE = IS_IPHONE ? 0.5 : 1;
 
 if (IS_IPHONE) {
     document.documentElement.classList.add("iphone");
@@ -494,12 +493,13 @@ function drawBoard(s) {
     3,
   );
   const size = Math.min(W / (radius * 3.1 + 2), H / (radius * 2.8 + 2), 70);
+  console.log("DESKTOP BOARD SIZE:", size, "W:", W, "H:", H, "radius:", radius);
   const center = {
       x: W * 0.5 + boardOffsetX,
       y: H * 0.5 + boardOffsetY
   };
 
-const zoomedSize = size * boardZoom * IPHONE_BOARD_SCALE;
+const zoomedSize = size * boardZoom;
 
   const pos = (q, r) => ({
       x: center.x +
@@ -525,13 +525,12 @@ if (resource.includes("WASSER")) {
         zoomedSize * 2.2
     );
 } else {
-    const tileDrawScale = IS_IPHONE ? 1.08 : 1;
     ctx.drawImage(
         img,
-        p.x - zoomedSize * 0.9 * tileDrawScale,
-        p.y - zoomedSize *tileDrawScale,
-        zoomedSize * 1.8*tileDrawScale,
-        zoomedSize * 2*tileDrawScale
+        p.x - zoomedSize * 0.9,
+        p.y - zoomedSize ,
+        zoomedSize * 1.8,
+        zoomedSize * 2
     );
 }
   }
@@ -550,7 +549,7 @@ if (resource.includes("WASSER")) {
   ctx.arc(
     p.x,
     p.y,
-    20 * (IS_IPHONE ? 0.5 : 1),
+    20 ,
     0,
     Math.PI * 2
 );
@@ -604,7 +603,7 @@ for (const e of edges) {
     ? colorCss(owner.color)
     : "#8b704e";
 
-ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom*(IS_IPHONE ? 0.38 : 1);
+ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
   ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(z.x, z.y);
@@ -623,7 +622,7 @@ for (const v of vs) {
 
     if (v.isCity) {
   ctx.beginPath();
-  const buildingSize = 10 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
+  const buildingSize = 10 * boardZoom ;
   // etwas nach oben/zentral verschoben
   const offsetY = -5 * boardZoom;
 
@@ -638,12 +637,12 @@ for (const v of vs) {
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom *(IS_IPHONE ? 0.5 : 1);
+  ctx.lineWidth = 2 * boardZoom ;
   ctx.stroke();
 
 } else {
   ctx.beginPath();
-const settlementSize = 7 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
+const settlementSize = 7 * boardZoom ;
   // etwas nach oben verschoben
   const offsetY = -3 * boardZoom;
 
@@ -676,7 +675,7 @@ const settlementSize = 7 * boardZoom * (IS_IPHONE ? 0.5 : 1.7);
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom *(IS_IPHONE ? 0.5 : 1);
+  ctx.lineWidth = 2 * boardZoom ;
   ctx.stroke();
 }
   } else if (mode === "settlement") {
