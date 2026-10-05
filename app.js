@@ -8,7 +8,7 @@ const TILE_IMAGES = {
   WASSER: new Image(),
 };
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
-const IPHONE_BOARD_SCALE = IS_IPHONE ? 0.72 : 1;
+const IPHONE_BOARD_SCALE = IS_IPHONE ? 0.5 : 1;
 
 if (IS_IPHONE) {
     document.documentElement.classList.add("iphone");
@@ -549,7 +549,7 @@ if (resource.includes("WASSER")) {
   ctx.arc(
     p.x,
     p.y,
-    20 * (IS_IPHONE ? 0.72 : 1),
+    20 * (IS_IPHONE ? 0.3 : 1),
     0,
     Math.PI * 2
 );
@@ -1536,19 +1536,19 @@ if (buildRoundButton) {
         const raised =
             s.raisedHands?.[String(player_index)] === true;
 
-        buildRoundButton.textContent = "FERTIG";
+        buildRoundButton.textContent = "Fertig";
 
         // Nur Spieler, die Baurunde gewählt haben,
         // dürfen FERTIG drücken.
-        buildRoundButton.disabled = !raised;
+        buildRoundButton.disabled = !raised || inSetup;
 
     } else {
         // Normale Spielphase
         const raised =
             s.raisedHands?.[String(player_index)] === true;
 
-        buildRoundButton.textContent = "BAURUNDE";
-        buildRoundButton.disabled = raised;
+        buildRoundButton.textContent = "Baurunde";
+        buildRoundButton.disabled = raised || inSetup;
     }
 }
 
