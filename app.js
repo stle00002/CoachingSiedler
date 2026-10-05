@@ -1228,6 +1228,16 @@ else if (s.stealMode && myTurn) {
 else if (s.discardResourcesMode && mep.hasToDiscard > 0) {
     t = "Du musst Ressourcen abwerfen";
 }
+else if (s.buildPhase) {
+    const raised =
+        s.raisedHands?.[String(player_index)] === true;
+
+    if (raised) {
+        t = "Du bist in der Baurunde – du kannst bauen";
+    } else {
+        t = "Sonderbauphase";
+    }
+}
   else if (mode)
     t =
       mode === "settlement"
@@ -1517,6 +1527,28 @@ function updateActionButtons(s) {
 
     const myTurn = mep.id === s.currentPlayer;
     const inSetup = s.setupPhase === true;
+    const buildRoundButton = $("buildRoundBtn");
+
+if (buildRoundButton) {
+    if (s.buildPhase) {
+        // Wir sind gerade in der Sonderbauphase
+
+        const raised =
+            s.raisedHands?.[String(player_index)] === true;
+
+        buildRoundButton.textContent = "FERTIG";
+
+        // Nur Spieler, die Baurunde gewählt haben,
+        // dürfen FERTIG drücken.
+        buildRoundButton.disabled = !raised;
+
+    } else {
+        // Normale Spielphase
+
+        buildRoundButton.textContent = "BAURUNDE";
+        buildRoundButton.disabled = false;
+    }
+}
 
     const buttons = {
         roll_dice: document.querySelector('[data-action="roll_dice"]'),
@@ -2086,4 +2118,28 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         );
     }
 }
+
+$("buildRoundBtn").onclick = () => {
+    if (!lastState) return;
+
+    // Außerhalb der Sonderbauphase:
+    // für die nächste Sonderbauphase anmelden
+    if (!lastState.buildPhase) {
+        send("raiseHand", {
+            playerName: me,
+            value: true
+        });
+        return;
+    }
+
+    // Während der Sonderbauphase:
+    // nur fertig melden, wenn man vorher Baurunde gewählt hat
+    const raised = lastState.raisedHands?.[String(player_index)] === true;
+
+    if (raised) {
+        send("finishBuild", {
+            playerName: me
+        });
+    }
+};
 connect();
