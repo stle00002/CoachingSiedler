@@ -310,11 +310,13 @@ function renderPlayerTrade(trade) {
     }
     const tradeId = trade.tradeId;
 
+    const isOwnTrade = trade.tradingPlayer === me;
+
     // Neues Handelsangebot
     if (tradeId !== lastTradeId) {
         tradeDeclined = false;
         lastTradeId = tradeId;
-        if (!hasResources(trade.request)){
+        if (!hasResources(trade.request) && !isOwnTrade){
           console.log("Tradedecline message will be send");
           send("declineTrade", {
              playerName: me
@@ -323,7 +325,6 @@ function renderPlayerTrade(trade) {
         }
     }
 
-    const isOwnTrade = trade.tradingPlayer === me;
     const acceptTradeBtn = $("acceptTradeBtn");
     const declineTradeBtn = $("declineTradeBtn");
     if (tradeDeclined) {
