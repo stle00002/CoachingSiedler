@@ -804,11 +804,11 @@ ctx.restore();
     if (ROBBER_CANVAS.width > 0) {
     ctx.drawImage(
         ROBBER_CANVAS,
-        robberX - 11,
-        robberY - 11,
-        robberWidth + 22,
-        robberHeight + 22
-    );
+        robberX - 3,
+        robberY - 3,
+        robberWidth + 6,
+        robberHeight + 6
+    );  
 }
 }
 }
@@ -2421,8 +2421,8 @@ $("buildRoundBtn").onclick = () => {
 function prepareRobberImage() {
     const outline = 11;
 
-    ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + outline * 2;
-    ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + outline * 2;
+    ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + outline * 4;
+    ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + outline * 4;
 
     ROBBER_CTX.clearRect(
         0,
