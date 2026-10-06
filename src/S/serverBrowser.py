@@ -473,6 +473,8 @@ def getState(obj):
         # -----------------------------------------------------
 
         "currentPlayer": current_player_id,
+        "currentPlayerName": self.logic.current_player.name,
+
         "currentPlayerIndex": self.current_player_index,
 
         # -----------------------------------------------------

@@ -417,6 +417,16 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+  const isMyTurn = s.currentPlayerName === me;
+
+if (isMyTurn && !wasMyTurn) {
+    YOUR_TURN_SOUND.currentTime = 0;
+    YOUR_TURN_SOUND.play().catch(err => {
+        console.log("YourTurn.wav konnte nicht abgespielt werden:", err);
+    });
+}
+
+wasMyTurn = isMyTurn;
   checkVictory(s);
   updateActionButtons(s);
   console.log("PLAYER TRADE:", s.playerTrade);
