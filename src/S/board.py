@@ -48,69 +48,179 @@ class Board:
         self.edges:list[Edge] = []
         self.harbors:list[Harbor] = []
         if playerCount <= 4:
+            self.earthMap = False
             self.radius = 3
+
             self.resources = (
-        [Resource.HOLZ]*4 +
-        [Resource.LEHM]*3 +
-        [Resource.SCHAF]*4 +
-        [Resource.WEIZEN]*4 +
-        [Resource.ERZ]*3 +
-        [Resource.WÜSTE]
-    )
+                [Resource.HOLZ] * 4 +
+                [Resource.LEHM] * 3 +
+                [Resource.SCHAF] * 4 +
+                [Resource.WEIZEN] * 4 +
+                [Resource.ERZ] * 3 +
+                [Resource.WÜSTE]
+            )
+
             self.tiles_positions = [
-    # obere Wasser-Rand-Reihe (q = -3)
-    (-3, 0), (-3, 1), (-3, 2), (-3, 3),
-    # zweite Reihe (q = -2)
-    (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
-    # dritte Reihe (q = -1)
-    (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
-    # mittlere Reihe (q = 0)
-    (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
-    # untere mittlere Reihe (q = 1)
-    (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
-    # untere Reihe (q = 2)
-    (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
-    # unterer Wasser-Rand (q = 3)
-    (3, -3), (3, -2), (3, -1), (3, 0)
-]
-        else: 
+                (-3, 0), (-3, 1), (-3, 2), (-3, 3),
+
+                (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
+
+                (-1, -2), (-1, -1), (-1, 0),
+                (-1, 1), (-1, 2), (-1, 3),
+
+                (0, -3), (0, -2), (0, -1),
+                (0, 0), (0, 1), (0, 2), (0, 3),
+
+                (1, -3), (1, -2), (1, -1),
+                (1, 0), (1, 1), (1, 2),
+
+                (2, -3), (2, -2), (2, -1),
+                (2, 0), (2, 1),
+
+                (3, -3), (3, -2), (3, -1), (3, 0)
+            ]
+            print("EARTH Landfelder:", len(self.tiles_positions))
+            print("EARTH Ressourcen:", len(self.resources))
+
+        elif playerCount < 6:
+            self.earthMap = False
             self.radius = 4
+
             self.resources = (
-        [Resource.HOLZ]*7 +
-        [Resource.LEHM]*7 +
-        [Resource.SCHAF]*7 +
-        [Resource.WEIZEN]*7 +
-        [Resource.ERZ]*7 +
-        [Resource.WÜSTE]*2
-    )
+                [Resource.HOLZ] * 7 +
+                [Resource.LEHM] * 7 +
+                [Resource.SCHAF] * 7 +
+                [Resource.WEIZEN] * 7 +
+                [Resource.ERZ] * 7 +
+                [Resource.WÜSTE] * 2
+            )
+
             self.tiles_positions = [
-        # q = -4
-        (-4, 0), (-4, 1), (-4, 2), (-4, 3), (-4, 4),
+                (-4, 0), (-4, 1), (-4, 2), (-4, 3), (-4, 4),
 
-        # q = -3
-        (-3, -1), (-3, 0), (-3, 1), (-3, 2), (-3, 3), (-3, 4),
+                (-3, -1), (-3, 0), (-3, 1),
+                (-3, 2), (-3, 3), (-3, 4),
 
-        # q = -2
-        (-2, -2), (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3), (-2, 4),
+                (-2, -2), (-2, -1), (-2, 0),
+                (-2, 1), (-2, 2), (-2, 3), (-2, 4),
 
-        # q = -1
-        (-1, -3), (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3), (-1, 4),
+                (-1, -3), (-1, -2), (-1, -1),
+                (-1, 0), (-1, 1), (-1, 2),
+                (-1, 3), (-1, 4),
 
-        # q = 0
-        (0, -4), (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
+                (0, -4), (0, -3), (0, -2), (0, -1),
+                (0, 0), (0, 1), (0, 2), (0, 3), (0, 4),
 
-        # q = 1
-        (1, -4), (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2), (1, 3),
+                (1, -4), (1, -3), (1, -2), (1, -1),
+                (1, 0), (1, 1), (1, 2), (1, 3),
 
-        # q = 2
-        (2, -4), (2, -3), (2, -2), (2, -1), (2, 0), (2, 1), (2, 2),
+                (2, -4), (2, -3), (2, -2), (2, -1),
+                (2, 0), (2, 1), (2, 2),
 
-        # q = 3
-        (3, -4), (3, -3), (3, -2), (3, -1), (3, 0), (3, 1),
+                (3, -4), (3, -3), (3, -2),
+                (3, -1), (3, 0), (3, 1),
 
-        # q = 4
-        (4, -4), (4, -3), (4, -2), (4, -1), (4, 0),
-    ]
+                (4, -4), (4, -3), (4, -2),
+                (4, -1), (4, 0)
+            ]
+            print("EARTH Landfelder:", len(self.tiles_positions))
+            print("EARTH Ressourcen:", len(self.resources))
+
+        else:
+            # =========================
+            # EARTH MAP
+            # =========================
+
+            self.earthMap = True
+            self.radius = 10
+
+            self.resources = (
+                [Resource.HOLZ] * 16 +
+                [Resource.LEHM] * 16 +
+                [Resource.SCHAF] * 16 +
+                [Resource.WEIZEN] * 16 +
+                [Resource.ERZ] * 16 +
+                [Resource.WÜSTE]
+            )
+
+            self.tiles_positions = [
+                # =====================
+                # NORDAMERIKA
+                # =====================
+                (-10, 0), (-9, 0), (-8, 0),
+
+                (-11, 1), (-10, 1), (-9, 1),
+                (-8, 1), (-7, 1),
+
+                (-11, 2), (-10, 2), (-9, 2),
+                (-8, 2), (-7, 2), (-6, 2),
+
+                (-10, 3), (-9, 3), (-8, 3),
+                (-7, 3), (-6, 3),
+
+                (-9, 4), (-8, 4), (-7, 4), (-6, 4),
+
+                (-7, 5),
+
+                # =====================
+                # EUROPA
+                # =====================
+                (-3, -1), (-2, -1),
+                (-3, 0), (-2, 0),
+                (-3, 1),
+
+                # =====================
+                # ASIEN
+                # =====================
+                (4, -1), (5, -1), (6, -1),
+
+                (4, 0), (5, 0), (6, 0), (7, 0),
+
+                (3, 1), (4, 1), (5, 1),
+                (6, 1), (7, 1), (8, 1),
+
+                (4, 2), (5, 2), (6, 2), (7, 2),
+
+                (5, 3), (6, 3),
+
+                # =====================
+                # AFRIKA
+                # =====================
+                (0, 3), (1, 3), (2, 3),
+
+                (-1, 4), (0, 4), (1, 4),
+                (2, 4), (3, 4),
+
+                (-1, 5), (0, 5), (1, 5),
+                (2, 5), (3, 5),
+
+                (0, 6), (1, 6), (2, 6),
+
+                # =====================
+                # SÜDAMERIKA
+                # =====================
+                (-7, 6), (-6, 6),
+
+                (-7, 7), (-6, 7), (-5, 7),
+
+                (-7, 8), (-6, 8), (-5, 8),
+
+                # =====================
+                # AUSTRALIEN
+                # =====================
+                (8, 5), (9, 5),
+                (8, 6), (9, 6),
+                (9, 7),
+
+                # =====================
+                # ANTARKTIS
+                # =====================
+                (-3, 9), (-2, 9),
+                (-1, 9), (0, 9)
+            ]
+            
+            print("EARTH Landfelder:", len(self.tiles_positions))
+            print("EARTH Ressourcen:", len(self.resources))
         self.HEX_DIRECTIONS = [
     (1, 0),
     (1, -1),
@@ -132,15 +242,37 @@ class Board:
         self.createHarbors()
     def createTiles(self):
         random.shuffle(self.resources)
-        for q, r in self.tiles_positions:
 
-            if abs(q) == self.radius or abs(r) == self.radius or abs(-q-r) == self.radius:
-                resource = Resource.WASSER
-            else:
+        land_positions = set(self.tiles_positions)
+
+        # Alle Wasserfelder direkt um die Landmasse herum
+        water_positions = set()
+
+        for q, r in land_positions:
+            for dq, dr in self.HEX_DIRECTIONS:
+                neighbour = (q + dq, r + dr)
+
+                if neighbour not in land_positions:
+                    water_positions.add(neighbour)
+
+        # Land + Wasser
+        all_positions = land_positions | water_positions
+
+        for q, r in sorted(all_positions):
+
+            if (q, r) in land_positions:
                 resource = self.resources.pop()
+            else:
+                resource = Resource.WASSER
 
+            tile = Tile(
+                q,
+                r,
+                resource,
+                None,
+                self.currentId
+            )
 
-            tile = Tile(q, r, resource, None, self.currentId)
             self.currentId += 1
             self.tiles.append(tile)
     def incorrectNumbers(self):
@@ -154,21 +286,43 @@ class Board:
         return False
     
     def createNumbers(self):
-        if self.radius == 3:
-            numbers = [2,3,3,4,4,5,5,6,6,8,8,9,9,10,10,11,11,12]
+        if self.earthMap:
+            # 80 Zahlen für 81 Landfelder
+            # Die Wüste bekommt keine Zahl.
+            numbers = (
+                [2] * 4 +
+                [3] * 6 +
+                [4] * 8 +
+                [5] * 10 +
+                [6] * 10 +
+                [8] * 10 +
+                [9] * 10 +
+                [10] * 8 +
+                [11] * 8 +
+                [12] * 6
+            )
+
+        elif self.radius == 3:
+            numbers = [
+                2, 3, 3, 4, 4,
+                5, 5, 6, 6,
+                8, 8, 9, 9,
+                10, 10, 11, 11, 12
+            ]
+
         else:
             numbers = [
-    2, 2,
-    3, 3, 3,
-    4, 4, 4,
-    5, 5, 5, 5,
-    6, 6, 6, 6, 6,
-    8, 8, 8, 8, 8,
-    9, 9, 9, 9, 9,
-    10, 10, 10,
-    11, 11, 11,
-    12, 12
-]       
+                2, 2,
+                3, 3, 3,
+                4, 4, 4,
+                5, 5, 5, 5,
+                6, 6, 6, 6, 6,
+                8, 8, 8, 8, 8,
+                9, 9, 9, 9, 9,
+                10, 10, 10,
+                11, 11, 11,
+                12, 12
+            ]
         random.shuffle(numbers)
         for tile in self.tiles:
             if not tile.resource == Resource.WASSER and not tile.resource == Resource.WÜSTE:
@@ -182,19 +336,24 @@ class Board:
              for dq, dr in self.HEX_DIRECTIONS:
                 neighbourPos = (tile.q + dq, tile.r + dr)
                 if neighbourPos in self.tile_map:
-                        neighbour = self.tile_map[neighbourPos]
-                        key = tuple(sorted([
-                            (tile.q, tile.r),
-                            (neighbour.q, neighbour.r)
-                        ]))
-                        if key not in edge_map:
-                            newEdge = Edge(self.currentId)
-                            self.currentId += 1
-                            newEdge.adjacentTiles = (tile, neighbour)
-                            edge_map[key] = newEdge
-                            self.edges.append(newEdge)
-                            tile.edges.append(newEdge)
-                            neighbour.edges.append(newEdge)
+
+                    neighbour = self.tile_map[neighbourPos]
+
+                    # Keine Straßenkante zwischen Land und Wasser
+                    if neighbour.resource is Resource.WASSER:
+                        continue
+                    key = tuple(sorted([
+                        (tile.q, tile.r),
+                        (neighbour.q, neighbour.r)
+                    ]))
+                    if key not in edge_map:
+                        newEdge = Edge(self.currentId)
+                        self.currentId += 1
+                        newEdge.adjacentTiles = (tile, neighbour)
+                        edge_map[key] = newEdge
+                        self.edges.append(newEdge)
+                        tile.edges.append(newEdge)
+                        neighbour.edges.append(newEdge)
 
     def createVertices(self):
             vertex_map = {}

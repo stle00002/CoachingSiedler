@@ -755,12 +755,12 @@ if (resource.includes("WASSER")) {
     continue;
   }
 
-  // =========================================================
+// =========================================================
 // ZAHLENKREIS
 // =========================================================
 
-// Feste Größe relativ zur Spielfeldgröße
-const numberCircleRadius = 20 * boardZoom;
+// Größe relativ zum tatsächlichen Hexfeld
+const numberCircleRadius = zoomedSize * 0.28;
 
 ctx.fillStyle = "#f2dfbb";
 ctx.beginPath();
@@ -773,7 +773,6 @@ ctx.arc(
 );
 ctx.fill();
 
-
 // =========================================================
 // ZAHL
 // =========================================================
@@ -783,7 +782,7 @@ ctx.fillStyle =
         ? "#c33"
         : "#222";
 
-ctx.font = `bold ${18 * boardZoom}px Georgia`;
+ctx.font = `bold ${zoomedSize * 0.25}px Georgia`;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";
 
@@ -853,8 +852,9 @@ for (const e of edges) {
     ? colorCss(owner.color)
     : "#8b704e";
 
-ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
-  ctx.beginPath();
+ctx.lineWidth = owner
+    ? zoomedSize * 0.12
+    : zoomedSize * 0.04;  ctx.beginPath();
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(z.x, z.y);
   ctx.stroke();
@@ -869,7 +869,7 @@ ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
           ctx.fillStyle = "#6ff";
 
           ctx.beginPath();
-          ctx.arc(mx, my, 7, 0, Math.PI * 2);
+          ctx.arc(mx, my, zoomedSize * 0.10, 0, Math.PI * 2);     
           ctx.fill();
       }
   }
@@ -887,9 +887,8 @@ for (const v of vs) {
 
     if (v.isCity) {
   ctx.beginPath();
-  const buildingSize = 17 * boardZoom ;
-  // etwas nach oben/zentral verschoben
-  const offsetY = -5 * boardZoom;
+const buildingSize = zoomedSize * 0.24;
+const offsetY = -zoomedSize * 0.07;
 
   ctx.moveTo(p.x - buildingSize, p.y + buildingSize + offsetY);
   ctx.lineTo(p.x + buildingSize, p.y + buildingSize + offsetY);
@@ -907,9 +906,9 @@ for (const v of vs) {
 
 } else {
   ctx.beginPath();
-const settlementSize = 12 * boardZoom ;
+const settlementSize = zoomedSize * 0.17;
   // etwas nach oben verschoben
-  const offsetY = -3 * boardZoom;
+const offsetY = -zoomedSize * 0.04;
 
   ctx.moveTo(p.x, p.y - settlementSize + offsetY);
 
@@ -951,7 +950,7 @@ const settlementSize = 12 * boardZoom ;
         ctx.fillStyle = "#6ff";
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, zoomedSize * 0.10, 0, Math.PI * 2);
         ctx.fill();
     }
 } if (mode === "city" && owner) {
@@ -962,7 +961,7 @@ const settlementSize = 12 * boardZoom ;
         ctx.fillStyle = "#6ff";
 
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, zoomedSize * 0.10, 0, Math.PI * 2);
         ctx.fill();
     }
 }
