@@ -405,12 +405,13 @@ def getState(obj):
 
     if self.playerTrade is not None:
 
-        offer, request, id = self.playerTrade
+        offer, request, id, tradingPlayer = self.playerTrade
 
         player_trade_state = {
             "offer": offer,
             "request": request,
-            "tradeId": id
+            "tradeId": id,
+            "tradingPlayer": tradingPlayer
         }
 
 
@@ -1055,7 +1056,7 @@ async def handle_message(conn, message):
             if p.name == name:
                 player = p
         try:
-            trade_offer, trade_request, id = logic.playerTrade
+            trade_offer, trade_request, id, tradingPlayer = logic.playerTrade
             success = logic.tradeWithPlayer(player, trade_request, trade_offer)
             if success:
                 logic.playerTrade = None

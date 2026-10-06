@@ -299,7 +299,7 @@ class Logic:
                     self.freeRoads = 1
 
     def openPlayerTrade(self, offer, request):
-        self.playerTrade = offer,request, self.tradeId
+        self.playerTrade = offer,request, self.tradeId, self.current_player
         self.playersDeclined = []
         self.tradeId += 1
     def revealVictoryPoints(self):

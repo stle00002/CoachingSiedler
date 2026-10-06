@@ -323,13 +323,16 @@ function renderPlayerTrade(trade) {
         }
     }
 
-
+    const isOwnTrade = trade.tradingPlayer === me;
     const acceptTradeBtn = $("acceptTradeBtn");
     const declineTradeBtn = $("declineTradeBtn");
-    if (tradeDeclined){
+    if (tradeDeclined) {
       acceptTradeBtn.disabled = true;
       declineTradeBtn.disabled = true;
-    } else{
+    } else if (isOwnTrade) {
+      acceptTradeBtn.disabled = true;
+      declineTradeBtn.disabled = false;
+    } else {
       acceptTradeBtn.disabled = false;
       declineTradeBtn.disabled = false;
     }
@@ -337,23 +340,30 @@ function renderPlayerTrade(trade) {
     console.log("TRADE ELEMENT:", tradeOffer);
     console.log("PARENT:", tradeOffer.parentElement);
 
-    $("tradeTitle").textContent = "HANDELSANGEBOT";
+    if (isOwnTrade){
+      $("tradeTitle").textContent = "DEIN HANDELSANGEBOT";
+    }else{
+      $("tradeTitle").textContent = "HANDELSANGEBOT";
+    }
 
-    $("tradeOfferResources").innerHTML =
-        `<div class="trade-resources">
-            ${Object.entries(trade.offer || {})
-                .filter(([_, amount]) => amount > 0)
-                .map(([resource, amount]) => resourceBox(resource, amount))
-                .join("")}
-        </div>`;
+const topResources = isOwnTrade ? trade.request : trade.offer;
+const bottomResources = isOwnTrade ? trade.offer : trade.request;
 
-    $("tradeRequestResources").innerHTML =
-        `<div class="trade-resources">
-            ${Object.entries(trade.request || {})
-                .filter(([_, amount]) => amount > 0)
-                .map(([resource, amount]) => resourceBox(resource, amount))
-                .join("")}
-        </div>`;
+$("tradeOfferResources").innerHTML =
+    `<div class="trade-resources">
+        ${Object.entries(topResources || {})
+            .filter(([_, amount]) => amount > 0)
+            .map(([resource, amount]) => resourceBox(resource, amount))
+            .join("")}
+    </div>`;
+
+$("tradeRequestResources").innerHTML =
+    `<div class="trade-resources">
+        ${Object.entries(bottomResources || {})
+            .filter(([_, amount]) => amount > 0)
+            .map(([resource, amount]) => resourceBox(resource, amount))
+            .join("")}
+    </div>`;
 
     tradeOffer.classList.remove("hidden");
 
