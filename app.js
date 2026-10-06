@@ -722,7 +722,7 @@ const zoomedSize = size * boardZoom;
         zoomedSize * 1.5 * r
   });
 
-    const waterRadius = 20;
+    const waterRadius = 50;
 
     for (let q = -waterRadius; q <= waterRadius; q++) {
         for (let r = -waterRadius; r <= waterRadius; r++) {
@@ -737,10 +737,10 @@ const zoomedSize = size * boardZoom;
             if (img.complete && img.naturalWidth > 0) {
                 ctx.drawImage(
                     img,
-                    p.x - zoomedSize,
-                    p.y - zoomedSize,
-                    zoomedSize * 2,
-                    zoomedSize * 2
+                    p.x - zoomedSize* 1.1,
+                    p.y - zoomedSize*1.1,
+                    zoomedSize * 2.2,
+                    zoomedSize * 2.2,
                 );
             }
         }
