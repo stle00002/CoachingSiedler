@@ -20,8 +20,17 @@ const YOUR_TURN_SOUND = new Audio("sounds/YourTurn.wav");
 YOUR_TURN_SOUND.volume = 1.0;
 
 let wasMyTurn = false;
+
 const ROBBER_IMAGE = new Image();
+const ROBBER_CANVAS = document.createElement("canvas");
+const ROBBER_CTX = ROBBER_CANVAS.getContext("2d");
+
+ROBBER_IMAGE.onload = () => {
+    prepareRobberImage();
+};
+
 ROBBER_IMAGE.src = "images/ritter.png";
+
 const RESOURCE_COLORS = {
     HOLZ: "#159413",
     LEHM: "#f17646",
@@ -792,29 +801,15 @@ ctx.ellipse(
 ctx.fill();
 
 ctx.restore();
-    ctx.save();
-
-    // Schwarze Kontur um die transparente PNG-Kontur
-ctx.filter = `
-    drop-shadow(2px 0 0 white)
-    drop-shadow(-2px 0 0 white)
-    drop-shadow(0 2px 0 white)
-    drop-shadow(0 -2px 0 white)
-    drop-shadow(1.5px 1.5px 0 white)
-    drop-shadow(-1.5px 1.5px 0 white)
-    drop-shadow(1.5px -1.5px 0 white)
-    drop-shadow(-1.5px -1.5px 0 white)
-`;
-
+    if (ROBBER_CANVAS.width > 0) {
     ctx.drawImage(
-        ROBBER_IMAGE,
-        robberX,
-        robberY,
-        robberWidth,
-        robberHeight
+        ROBBER_CANVAS,
+        robberX - 3,
+        robberY - 3,
+        robberWidth + 6,
+        robberHeight + 6
     );
-
-    ctx.restore();
+}
 }
 }
 // =========================================================
@@ -2423,4 +2418,38 @@ $("buildRoundBtn").onclick = () => {
         });
     }
 };
+function prepareRobberImage() {
+    const outline = 3;
+
+    ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + outline * 2;
+    ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + outline * 2;
+
+    ROBBER_CTX.clearRect(
+        0,
+        0,
+        ROBBER_CANVAS.width,
+        ROBBER_CANVAS.height
+    );
+
+    ROBBER_CTX.save();
+
+    ROBBER_CTX.filter = `
+        drop-shadow(${outline}px 0 0 white)
+        drop-shadow(-${outline}px 0 0 white)
+        drop-shadow(0 ${outline}px 0 white)
+        drop-shadow(0 -${outline}px 0 white)
+        drop-shadow(${outline}px ${outline}px 0 white)
+        drop-shadow(-${outline}px ${outline}px 0 white)
+        drop-shadow(${outline}px -${outline}px 0 white)
+        drop-shadow(-${outline}px -${outline}px 0 white)
+    `;
+
+    ROBBER_CTX.drawImage(
+        ROBBER_IMAGE,
+        outline,
+        outline
+    );
+
+    ROBBER_CTX.restore();
+}
 connect();
