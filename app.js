@@ -2419,7 +2419,7 @@ $("buildRoundBtn").onclick = () => {
     }
 };
 function prepareRobberImage() {
-    const outline = 3;
+    const outline = 8;
 
     ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + outline * 2;
     ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + outline * 2;
