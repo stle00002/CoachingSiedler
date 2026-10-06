@@ -782,9 +782,9 @@ ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
 ctx.beginPath();
 ctx.ellipse(
     p.x,
-    p.y + robberHeight * 0.47,
-    robberWidth * 0.32,
-    robberHeight * 0.035,
+    p.y + robberHeight * 0.60,
+    robberWidth * 0.50,
+    robberHeight * 0.05,
     0,
     0,
     Math.PI * 2
