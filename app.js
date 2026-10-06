@@ -769,13 +769,52 @@ if (resource.includes("WASSER")) {
   ctx.fillText(t.number ?? "", p.x, p.y);
 
 if (t.hasRobber) {
-    const robberHeight = zoomedSize * 1.15;
+    const robberHeight = zoomedSize * 1.30;
     const robberWidth = robberHeight * (512 / 1280);
+
+    const robberX = p.x - robberWidth / 2;
+    const robberY = p.y - robberHeight * 0.62;
+
+    // Schwarze Umrandung
+    const outline = 2 * boardZoom;
 
     ctx.drawImage(
         ROBBER_IMAGE,
-        p.x - robberWidth / 2,
-        p.y - robberHeight * 0.72,
+        robberX - outline,
+        robberY,
+        robberWidth,
+        robberHeight
+    );
+    
+    ctx.drawImage(
+        ROBBER_IMAGE,
+        robberX + outline,
+        robberY,
+        robberWidth,
+        robberHeight
+    );
+
+    ctx.drawImage(
+        ROBBER_IMAGE,
+        robberX,
+        robberY - outline,
+        robberWidth,
+        robberHeight
+    );
+
+    ctx.drawImage(
+        ROBBER_IMAGE,
+        robberX,
+        robberY + outline,
+        robberWidth,
+        robberHeight
+    );
+
+    // Eigentliches Bild
+    ctx.drawImage(
+        ROBBER_IMAGE,
+        robberX,
+        robberY,
         robberWidth,
         robberHeight
     );
