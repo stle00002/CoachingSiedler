@@ -73,7 +73,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://drag-roots-evans-services.trycloudflare.com";
+const WS_URL = "wss://seeks-geek-picture-compressed.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -200,7 +200,6 @@ $("declineTradeBtn").onclick = () => {
         playerName: me
     });
     tradeDeclined = true;
-    $("tradeOffer").classList.add("hidden");
 };
 $("joinBtn").onclick = () => {
   me = $("name").value.trim();
@@ -311,16 +310,28 @@ function renderPlayerTrade(trade) {
     }
     const tradeId = trade.tradeId;
 
-            // Neues Handelsangebot
+    // Neues Handelsangebot
     if (tradeId !== lastTradeId) {
         tradeDeclined = false;
         lastTradeId = tradeId;
+        if (!hasResources(trade.request)){
+          console.log("Tradedecline message will be send");
+          send("declineTrade", {
+             playerName: me
+            });
+          tradeDeclined = true;
+        }
     }
 
-    // Dieses Handelsangebot wurde von mir bereits abgelehnt
-    if (tradeDeclined) {
-        tradeOffer.classList.add("hidden");
-        return;
+
+    const acceptTradeBtn = $("acceptTradeBtn");
+    const declineTradeBtn = $("declineTradeBtn");
+    if (tradeDeclined){
+      acceptTradeBtn.disabled = true;
+      declineTradeBtn.disabled = true;
+    } else{
+      acceptTradeBtn.disabled = false;
+      acceptTradeBtn.disabled = false;
     }
 
     console.log("TRADE ELEMENT:", tradeOffer);
@@ -350,7 +361,24 @@ function renderPlayerTrade(trade) {
     console.log("POSITION:", getComputedStyle(tradeOffer).position);
     console.log("DISPLAY:", getComputedStyle(tradeOffer).display);
     console.log("RECT:", tradeOffer.getBoundingClientRect());
-}function acceptPlayerTrade() {
+}
+function hasResources(request) {
+    const mep = (lastState?.players || [])
+        .find((p) => p.name === me);
+
+    if (!mep) return false;
+
+    const resources = mep.resources || {};
+
+    for (const [resource, count] of Object.entries(request || {})) {
+        if ((resources[resource] || 0) < count) {
+            return false;
+        }
+    }
+
+    return true;
+}
+function acceptPlayerTrade() {
   send("acceptTrade", {
     playerName: me
   });
@@ -1534,6 +1562,7 @@ function updateActionButtons(s) {
 
     const myTurn = mep.id === s.currentPlayer;
     const inSetup = s.setupPhase === true;
+
     const buildRoundButton = $("buildRoundBtn");
 
 if (buildRoundButton) {
