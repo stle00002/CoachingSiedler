@@ -775,42 +775,20 @@ if (t.hasRobber) {
     const robberX = p.x - robberWidth / 2;
     const robberY = p.y - robberHeight * 0.62;
 
-    // Schwarze Umrandung
-    const outline = 2 * boardZoom;
+    ctx.save();
 
-    ctx.drawImage(
-        ROBBER_IMAGE,
-        robberX - outline,
-        robberY,
-        robberWidth,
-        robberHeight
-    );
-    
-    ctx.drawImage(
-        ROBBER_IMAGE,
-        robberX + outline,
-        robberY,
-        robberWidth,
-        robberHeight
-    );
+    // Schwarze Kontur um die transparente PNG-Kontur
+    ctx.filter = `
+        drop-shadow(2px 0 0 black)
+        drop-shadow(-2px 0 0 black)
+        drop-shadow(0 2px 0 black)
+        drop-shadow(0 -2px 0 black)
+        drop-shadow(1.5px 1.5px 0 black)
+        drop-shadow(-1.5px 1.5px 0 black)
+        drop-shadow(1.5px -1.5px 0 black)
+        drop-shadow(-1.5px -1.5px 0 black)
+    `;
 
-    ctx.drawImage(
-        ROBBER_IMAGE,
-        robberX,
-        robberY - outline,
-        robberWidth,
-        robberHeight
-    );
-
-    ctx.drawImage(
-        ROBBER_IMAGE,
-        robberX,
-        robberY + outline,
-        robberWidth,
-        robberHeight
-    );
-
-    // Eigentliches Bild
     ctx.drawImage(
         ROBBER_IMAGE,
         robberX,
@@ -818,6 +796,8 @@ if (t.hasRobber) {
         robberWidth,
         robberHeight
     );
+
+    ctx.restore();
 }
 }
 // =========================================================
