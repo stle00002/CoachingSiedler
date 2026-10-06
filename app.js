@@ -7,12 +7,19 @@ const TILE_IMAGES = {
   WÜSTE: new Image(),
   WASSER: new Image(),
 };
+
+
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
 const DESKTOP_BOARD_SIZE = 35.2212389380531;
 
 if (IS_IPHONE) {
     document.documentElement.classList.add("iphone");
 }
+
+const YOUR_TURN_SOUND = new Audio("sounds/YourTurn.wav");
+YOUR_TURN_SOUND.volume = 1.0;
+
+let wasMyTurn = false;
 const ROBBER_IMAGE = new Image();
 ROBBER_IMAGE.src = "images/ritter.png";
 const RESOURCE_COLORS = {

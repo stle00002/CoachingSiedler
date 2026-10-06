@@ -102,9 +102,9 @@ class Logic:
         self.würfelMode = True
         self.playerTrade = None
         self.playersDeclined = []
-        pygame.mixer.init()
-        pygame.mixer.music.load("src/S/YourTurn.wav")
-        pygame.mixer.music.play()
+        #pygame.mixer.init()
+        #pygame.mixer.music.load("src/S/YourTurn.wav")
+        #pygame.mixer.music.play()
         for player in self.players:
             if player.victoryPoints + player.secretVictoryPoints >= 10:
                 self.finished = True
