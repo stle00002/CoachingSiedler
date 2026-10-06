@@ -721,6 +721,30 @@ const zoomedSize = size * boardZoom;
       y: center.y +
         zoomedSize * 1.5 * r
   });
+
+    const waterRadius = 20;
+
+    for (let q = -waterRadius; q <= waterRadius; q++) {
+        for (let r = -waterRadius; r <= waterRadius; r++) {
+
+            // gültige Hex-Koordinaten
+            if (Math.abs(q + r) > waterRadius) continue;
+
+            const p = pos(q, r);
+
+            const img = TILE_IMAGES.WASSER;
+
+            if (img.complete && img.naturalWidth > 0) {
+                ctx.drawImage(
+                    img,
+                    p.x - zoomedSize,
+                    p.y - zoomedSize,
+                    zoomedSize * 2,
+                    zoomedSize * 2
+                );
+            }
+        }
+    }
   for (const t of tiles) {
   const p = pos(+t.q, +t.r);
 
