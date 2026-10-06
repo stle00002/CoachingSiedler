@@ -538,6 +538,106 @@ function esc(x) {
 function getBoard(s) {
   return s.board || s;
 }
+function canBuildSettlement(v, b, s, mep) {
+    if (!v) return false;
+
+    // Bereits besetzt
+    if (v.owner !== null && v.owner !== undefined) {
+        return false;
+    }
+
+    const vertices = b.vertices || [];
+    const edges = b.edges || [];
+
+    // ------------------------------------------------
+    // 2-Abstand-Regel:
+    // Kein direkt benachbarter Vertex darf besetzt sein
+    // ------------------------------------------------
+    for (const e of edges) {
+        let neighbor = null;
+
+        if (e.vertex1 === v.id) {
+            neighbor = vertices.find(x => x.id === e.vertex2);
+        } else if (e.vertex2 === v.id) {
+            neighbor = vertices.find(x => x.id === e.vertex1);
+        }
+
+        if (
+            neighbor &&
+            neighbor.owner !== null &&
+            neighbor.owner !== undefined
+        ) {
+            return false;
+        }
+    }
+
+    // ------------------------------------------------
+    // SETUPPHASE
+    // In der Setupphase braucht man keine eigene Straße
+    // ------------------------------------------------
+    if (s.setupPhase) {
+        return true;
+    }
+
+    // ------------------------------------------------
+    // NORMALE PHASE:
+    // Es muss eine eigene Straße an diesem Vertex hängen
+    // ------------------------------------------------
+    return edges.some(e => {
+        if (e.owner !== mep.id) {
+            return false;
+        }
+
+        return e.vertex1 === v.id || e.vertex2 === v.id;
+    });
+}
+
+
+function canBuildCity(v, mep) {
+    // Stadt nur auf eigener Siedlung
+    return v.owner === mep.id && !v.isCity;
+}
+
+
+function canBuildRoad(e, b, s, mep) {
+    if (!e) return false;
+
+    // Straße bereits vorhanden
+    if (e.owner !== null && e.owner !== undefined) {
+        return false;
+    }
+
+    const vertices = b.vertices || [];
+    const edges = b.edges || [];
+
+    // ------------------------------------------------
+    // SETUPPHASE:
+    // Straße muss an einer eigenen Siedlung hängen
+    // ------------------------------------------------
+    if (s.setupPhase) {
+        return [e.vertex1, e.vertex2].some(vertexId => {
+            const v = vertices.find(x => x.id === vertexId);
+
+            return v && v.owner === mep.id;
+        });
+    }
+
+    // ------------------------------------------------
+    // NORMALE PHASE:
+    // Straße muss an einer eigenen Straße hängen
+    // ------------------------------------------------
+    return edges.some(other => {
+        if (other.id === e.id) return false;
+        if (other.owner !== mep.id) return false;
+
+        return (
+            other.vertex1 === e.vertex1 ||
+            other.vertex2 === e.vertex1 ||
+            other.vertex1 === e.vertex2 ||
+            other.vertex2 === e.vertex2
+        );
+    });
+}
 function drawBoard(s) {
   const c = $("board"),
     r = c.getBoundingClientRect(),
@@ -684,6 +784,21 @@ ctx.lineWidth = owner ? 9 * boardZoom : 3 * boardZoom;
   ctx.moveTo(a.x, a.y);
   ctx.lineTo(z.x, z.y);
   ctx.stroke();
+    if (!owner && mode === "road") {
+      const mep = (lastState.players || [])
+          .find(p => p.name === me);
+
+      if (mep && canBuildRoad(e, b, lastState, mep)) {
+          const mx = (a.x + z.x) / 2;
+          const my = (a.y + z.y) / 2;
+
+          ctx.fillStyle = "#6ff";
+
+          ctx.beginPath();
+          ctx.arc(mx, my, 7, 0, Math.PI * 2);
+          ctx.fill();
+      }
+  }
 }
 const vs = b.vertices || [];
 
@@ -698,7 +813,7 @@ for (const v of vs) {
 
     if (v.isCity) {
   ctx.beginPath();
-  const buildingSize = 10 * boardZoom ;
+  const buildingSize = 17 * boardZoom ;
   // etwas nach oben/zentral verschoben
   const offsetY = -5 * boardZoom;
 
@@ -713,12 +828,12 @@ for (const v of vs) {
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom ;
+  ctx.lineWidth = 3 * boardZoom ;
   ctx.stroke();
 
 } else {
   ctx.beginPath();
-const settlementSize = 7 * boardZoom ;
+const settlementSize = 12 * boardZoom ;
   // etwas nach oben verschoben
   const offsetY = -3 * boardZoom;
 
@@ -751,16 +866,32 @@ const settlementSize = 7 * boardZoom ;
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2 * boardZoom ;
+  ctx.lineWidth = 3 * boardZoom ;
   ctx.stroke();
 }
   } else if (mode === "settlement") {
-    ctx.fillStyle = "#6ff";
+    const mep = (lastState.players || [])
+        .find(p => p.name === me);
 
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
-    ctx.fill();
-  }
+    if (mep && canBuildSettlement(v, b, lastState, mep)) {
+        ctx.fillStyle = "#6ff";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.fill();
+    }
+} else if (mode === "city") {
+    const mep = (lastState.players || [])
+        .find(p => p.name === me);
+
+    if (mep && canBuildCity(v, mep)) {
+        ctx.fillStyle = "#6ff";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
 }
 }
 
@@ -943,6 +1074,7 @@ if (a === "endTurn") {
           : null;
 
   updatePrompt(lastState);
+  drawBoard(lastState);
 }
 function openTradeBar() {
     if (!lastState) return;
