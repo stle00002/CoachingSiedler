@@ -755,27 +755,43 @@ if (resource.includes("WASSER")) {
     continue;
   }
 
-  // Zahl
-  ctx.fillStyle = "#f2dfbb";
-  ctx.beginPath();
-  ctx.arc(
+  // =========================================================
+// ZAHLENKREIS
+// =========================================================
+
+// Feste Größe relativ zur Spielfeldgröße
+const numberCircleRadius = 20 * boardZoom;
+
+ctx.fillStyle = "#f2dfbb";
+ctx.beginPath();
+ctx.arc(
     p.x,
     p.y,
-    20 ,
+    numberCircleRadius,
     0,
     Math.PI * 2
 );
-  ctx.fill();
+ctx.fill();
 
-  ctx.fillStyle =
+
+// =========================================================
+// ZAHL
+// =========================================================
+
+ctx.fillStyle =
     t.number === 6 || t.number === 8
-      ? "#c33"
-      : "#222";
+        ? "#c33"
+        : "#222";
 
-  ctx.font = "bold 18px Georgia";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(t.number ?? "", p.x, p.y);
+ctx.font = `bold ${18 * boardZoom}px Georgia`;
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+
+ctx.fillText(
+    t.number ?? "",
+    p.x,
+    p.y
+);
 
 if (t.hasRobber) {
     const robberHeight = zoomedSize * 1.30;
