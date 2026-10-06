@@ -773,8 +773,25 @@ if (t.hasRobber) {
     const robberWidth = robberHeight * (512 / 1280);
 
     const robberX = p.x - robberWidth / 2;
-    const robberY = p.y - robberHeight * 0.52;
+    const robberY = p.y - robberHeight * 0.55;
 
+    // Schatten unter dem Räuber
+ctx.save();
+
+ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+ctx.beginPath();
+ctx.ellipse(
+    p.x,
+    p.y + robberHeight * 0.47,
+    robberWidth * 0.32,
+    robberHeight * 0.035,
+    0,
+    0,
+    Math.PI * 2
+);
+ctx.fill();
+
+ctx.restore();
     ctx.save();
 
     // Schwarze Kontur um die transparente PNG-Kontur
