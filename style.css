@@ -202,7 +202,8 @@ input {
   gap: 7px;
 }
 .actions button:disabled,
-.trade button:disabled {
+.trade button:disabled,
+.trade-buttons button:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }

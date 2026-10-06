@@ -331,7 +331,7 @@ function renderPlayerTrade(trade) {
       declineTradeBtn.disabled = true;
     } else{
       acceptTradeBtn.disabled = false;
-      acceptTradeBtn.disabled = false;
+      declineTradeBtn.disabled = false;
     }
 
     console.log("TRADE ELEMENT:", tradeOffer);
