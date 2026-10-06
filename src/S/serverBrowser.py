@@ -411,7 +411,7 @@ def getState(obj):
             "offer": offer,
             "request": request,
             "tradeId": id,
-            "tradingPlayer": tradingPlayer
+            "tradingPlayer": tradingPlayer.name
         }
 
 

@@ -347,6 +347,17 @@ function renderPlayerTrade(trade) {
       $("tradeTitle").textContent = "HANDELSANGEBOT";
     }
 
+  
+    const offerLabel = document.querySelector("#tradeOffer .trade-label");
+const requestLabel = document.querySelector("#tradeOffer .trade-content > div:nth-child(3) .trade-label");
+
+if (isOwnTrade) {
+    offerLabel.textContent = "Du möchtest:";
+    requestLabel.textContent = "Du gibst:";
+} else {
+    offerLabel.textContent = "Gibt:";
+    requestLabel.textContent = "Möchte:";
+}
 const topResources = isOwnTrade ? trade.request : trade.offer;
 const bottomResources = isOwnTrade ? trade.offer : trade.request;
 
