@@ -340,7 +340,7 @@ class Bot(Player):
                         self.resourceStrength[tile.resource] += self.getValue(tile.number)
     def wantsPlayerTrade(self):
 
-        offer, request, id = self.logic.playerTrade
+        offer, request, id, tradingPlayer = self.logic.playerTrade
 
         give_value = 0
         get_value = 0

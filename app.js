@@ -334,6 +334,8 @@ function renderPlayerTrade(trade) {
 
     const acceptTradeBtn = $("acceptTradeBtn");
     const declineTradeBtn = $("declineTradeBtn");
+    acceptTradeBtn.disabled = false;
+    declineTradeBtn.disabled = false;
     if (tradeDeclined) {
       acceptTradeBtn.disabled = true;
       declineTradeBtn.disabled = true;
