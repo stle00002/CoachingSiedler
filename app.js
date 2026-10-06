@@ -778,16 +778,16 @@ if (t.hasRobber) {
     ctx.save();
 
     // Schwarze Kontur um die transparente PNG-Kontur
-    ctx.filter = `
-        drop-shadow(2px 0 0 black)
-        drop-shadow(-2px 0 0 black)
-        drop-shadow(0 2px 0 black)
-        drop-shadow(0 -2px 0 black)
-        drop-shadow(1.5px 1.5px 0 black)
-        drop-shadow(-1.5px 1.5px 0 black)
-        drop-shadow(1.5px -1.5px 0 black)
-        drop-shadow(-1.5px -1.5px 0 black)
-    `;
+ctx.filter = `
+    drop-shadow(2px 0 0 white)
+    drop-shadow(-2px 0 0 white)
+    drop-shadow(0 2px 0 white)
+    drop-shadow(0 -2px 0 white)
+    drop-shadow(1.5px 1.5px 0 white)
+    drop-shadow(-1.5px 1.5px 0 white)
+    drop-shadow(1.5px -1.5px 0 white)
+    drop-shadow(-1.5px -1.5px 0 white)
+`;
 
     ctx.drawImage(
         ROBBER_IMAGE,
