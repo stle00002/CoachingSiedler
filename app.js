@@ -80,7 +80,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water.png";
 
-const WS_URL = "wss://seeks-geek-picture-compressed.trycloudflare.com";
+const WS_URL = "wss://menus-lace-touched-representations.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
