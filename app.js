@@ -612,15 +612,42 @@ function canBuildRoad(e, b, s, mep) {
 
     // ------------------------------------------------
     // SETUPPHASE:
-    // Straße muss an einer eigenen Siedlung hängen
+    // Straße muss an einer eigenen richtigen Siedlung hängen 
     // ------------------------------------------------
-    if (s.setupPhase) {
-        return [e.vertex1, e.vertex2].some(vertexId => {
-            const v = vertices.find(x => x.id === vertexId);
+if (s.setupPhase) {
+    const v1 = vertices.find(v => v.id === e.vertex1);
+    const v2 = vertices.find(v => v.id === e.vertex2);
 
-            return v && v.owner === mep.id;
-        });
+    // Straße darf an einer eigenen Siedlung/Stadt liegen
+    const atOwnSettlement =
+        (v1 && v1.owner === mep.id) ||
+        (v2 && v2.owner === mep.id);
+
+    if (!atOwnSettlement) {
+        return false;
     }
+
+    // Keine eigene Straße darf an einem der beiden Endpunkte
+    // dieser neuen Straße liegen.
+    const connectedEdges = edges.filter(other => {
+        if (other.id === e.id) return false;
+
+        return (
+            other.vertex1 === e.vertex1 ||
+            other.vertex2 === e.vertex1 ||
+            other.vertex1 === e.vertex2 ||
+            other.vertex2 === e.vertex2
+        );
+    });
+
+    for (const other of connectedEdges) {
+        if (other.owner === mep.id) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
     // ------------------------------------------------
     // NORMALE PHASE:
@@ -880,7 +907,7 @@ const settlementSize = 12 * boardZoom ;
         ctx.arc(p.x, p.y, 7, 0, Math.PI * 2);
         ctx.fill();
     }
-} else if (mode === "city") {
+} if (mode === "city" && owner) {
     const mep = (lastState.players || [])
         .find(p => p.name === me);
 
