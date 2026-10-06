@@ -773,7 +773,7 @@ if (t.hasRobber) {
     const robberWidth = robberHeight * (512 / 1280);
 
     const robberX = p.x - robberWidth / 2;
-    const robberY = p.y - robberHeight * 0.62;
+    const robberY = p.y - robberHeight * 0.52;
 
     ctx.save();
 
