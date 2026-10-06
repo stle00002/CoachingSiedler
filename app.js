@@ -804,10 +804,10 @@ ctx.restore();
     if (ROBBER_CANVAS.width > 0) {
     ctx.drawImage(
         ROBBER_CANVAS,
-        robberX - 3,
-        robberY - 3,
-        robberWidth + 6,
-        robberHeight + 6
+        robberX - 12,
+        robberY - 12,
+        robberWidth + 24,
+        robberHeight + 24
     );
 }
 }
@@ -2420,9 +2420,10 @@ $("buildRoundBtn").onclick = () => {
 };
 function prepareRobberImage() {
     const outline = 11;
+    const padding = 12;
 
-    ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + outline * 4;
-    ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + outline * 4;
+    ROBBER_CANVAS.width = ROBBER_IMAGE.naturalWidth + padding * 2;
+    ROBBER_CANVAS.height = ROBBER_IMAGE.naturalHeight + padding * 2;
 
     ROBBER_CTX.clearRect(
         0,
