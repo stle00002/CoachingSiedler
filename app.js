@@ -70,7 +70,7 @@ let dragStartOffsetX = 0;
 let dragStartOffsetY = 0;
 
 const MIN_BOARD_ZOOM = 0.6;
-const MAX_BOARD_ZOOM = 2.5;
+const MAX_BOARD_ZOOM = 4;
 
 let touchStartDistance = 0;
 let touchStartZoom = 1;
@@ -869,7 +869,7 @@ ctx.lineWidth = owner
           ctx.fillStyle = "#6ff";
 
           ctx.beginPath();
-          ctx.arc(mx, my, zoomedSize * 0.10, 0, Math.PI * 2);     
+          ctx.arc(mx, my, zoomedSize * 0.17, 0, Math.PI * 2);     
           ctx.fill();
       }
   }
@@ -901,7 +901,7 @@ const offsetY = -zoomedSize * 0.07;
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 3 * boardZoom ;
+ctx.lineWidth = zoomedSize * 0.025;
   ctx.stroke();
 
 } else {
@@ -939,7 +939,7 @@ const offsetY = -zoomedSize * 0.04;
   ctx.fill();
     // schwarze Umrandung
   ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 3 * boardZoom ;
+ctx.lineWidth = zoomedSize * 0.025;
   ctx.stroke();
 }
   } else if (mode === "settlement") {
