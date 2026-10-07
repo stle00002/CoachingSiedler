@@ -89,7 +89,7 @@ TILE_IMAGES.WEIZEN.src = "images/fieldBright.png";
 TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
-TILE_IMAGES.GOLD.src = "images/gold.png";
+TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
 const WS_URL = "wss://appointed-directive-pod-aspect.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
@@ -795,10 +795,10 @@ if (resource.includes("WASSER")) {
 } else if (resource.includes("GOLD")) {
     ctx.drawImage(
         img,
-        p.x - zoomedSize * 1.5,
-        p.y - zoomedSize * 0.9,
-        zoomedSize * 3,
-        zoomedSize * 1.8
+        p.x - zoomedSize * 1.54,
+        p.y - zoomedSize * 1.05,
+        zoomedSize * 3.08,
+        zoomedSize * 2.1
     );
 } else{
     ctx.drawImage(
