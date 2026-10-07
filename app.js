@@ -170,7 +170,7 @@ else if (m.action === "lobby_update") {
     console.log("LOBBY UPDATE:", m.players);
 
     // Lobby-Spielerliste aktualisieren
-    renderLobby(m.players);
+    renderLobby(m.players, m.loading);
 
     // Lobby anzeigen
     $("lobby").classList.remove("hidden");
@@ -292,7 +292,37 @@ function resourceClicked(resource) {
         res: resource
     });
 }
-function renderLobby(players) {
+function renderLobby(players, loading) {
+
+  // ==========================================
+  // LOADING
+  // ==========================================
+  if (loading) {
+
+    // Keine Spielerliste
+    $("players").innerHTML = `
+      <div class="lobby-loading">
+        <div class="loading-spinner"></div>
+        <span>Spiel wird gestartet...</span>
+      </div>
+    `;
+
+    // Alle Lobby-Elemente ausblenden
+    $("join-row").style.display = "none";
+    $("lobby-actions").style.display = "none";
+    $("colors").style.display = "none";
+
+    return;
+  }
+
+  // ==========================================
+  // NORMALE LOBBY
+  // ==========================================
+
+  $("join-row").style.display = "";
+  $("lobby-actions").style.display = "";
+  $("colors").style.display = "";
+
   $("players").innerHTML = players
     .map(
       (p) => `
@@ -313,6 +343,7 @@ function renderLobby(players) {
     )
     .join("");
 }
+
 function renderPlayerTrade(trade) {
     console.log("TRADE FUNKTION AUFGERUFEN:", trade);
 

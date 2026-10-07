@@ -19,6 +19,7 @@ players = []
 bots = []
 game_state = "lobby"
 client_ready = {}
+loading = False
 # -------------------------
 # Hilfsfunktionen für TCP
 # -------------------------
@@ -895,6 +896,8 @@ async def handle_message(conn, message):
                     noDoubleColor = False
             colors.append(p.color)
         if all(client_ready.values()) and len(players) + len(bots) >= 2 and noDoubleColor:
+            loading = True
+            broadcast_lobby
             await start_game()
         return
     
@@ -1128,7 +1131,8 @@ async def broadcast_lobby():
     for client in clients:
         await send_json(client, {
     "action": "lobby_update",
-    "players": lobby_data
+    "players": lobby_data,
+    "loading": loading
 })
 # -------------------------
 # Spielstand an alle senden
