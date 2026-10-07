@@ -909,7 +909,7 @@ for (const v of vs) {
   if (owner) {
     ctx.fillStyle = colorCss(owner.color);
 
-    if (v.isCity && owner != "Mama") {
+    if (v.isCity && owner.name != "Mama") {
   ctx.beginPath();
 const buildingSize = zoomedSize * 0.24;
 const offsetY = -zoomedSize * 0.07;
@@ -928,7 +928,7 @@ const offsetY = -zoomedSize * 0.07;
 ctx.lineWidth = zoomedSize * 0.025;
   ctx.stroke();
 
-} else if (v.isCity && owner == "Mama") {
+} else if (v.isCity && owner.name == "Mama") {
     const buildingSize = zoomedSize * 0.24;
     const offsetY = -zoomedSize * 0.07;
 
