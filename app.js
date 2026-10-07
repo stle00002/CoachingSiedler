@@ -784,7 +784,7 @@ const zoomedSize = size * boardZoom;
   const img = TILE_IMAGES[resource];
 
   if (img && img.complete && img.naturalWidth > 0) {
-if (resource.includes("WASSER") || resource.includes("GOLD")) {
+if (resource.includes("WASSER")) {
     ctx.drawImage(
         img,
         p.x - zoomedSize * 1.91,
@@ -792,7 +792,15 @@ if (resource.includes("WASSER") || resource.includes("GOLD")) {
         zoomedSize * 3.82,
         zoomedSize * 2.44
     );
-} else {
+} else if (resource.includes("GOLD")) {
+    ctx.drawImage(
+        img,
+        p.x - zoomedSize * 1.5,
+        p.y - zoomedSize * 0.9,
+        zoomedSize * 3,
+        zoomedSize * 1.8
+    );
+} else{
     ctx.drawImage(
         img,
         p.x - zoomedSize * 0.9,
