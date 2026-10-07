@@ -6,6 +6,7 @@ const TILE_IMAGES = {
   ERZ: new Image(),
   WÜSTE: new Image(),
   WASSER: new Image(),
+  GOLD: new Image(),
 };
 
 
@@ -88,6 +89,7 @@ TILE_IMAGES.WEIZEN.src = "images/fieldBright.png";
 TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
+TILE_IMAGES.GOLD.src = "images/gold.png";
 
 const WS_URL = "wss://assessment-spectrum-punch-essex.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];

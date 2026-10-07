@@ -8,6 +8,7 @@ class Resource(Enum):
     ERZ = 5
     WÜSTE = 6
     WASSER = 7
+    GOLD = 8
 def toString(resource):
     if resource == Resource.HOLZ:
         return "HOLZ"

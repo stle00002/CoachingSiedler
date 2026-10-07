@@ -147,10 +147,11 @@ class Board:
             self.resources = (
                 [Resource.HOLZ] * 16 +
                 [Resource.LEHM] * 16 +
-                [Resource.SCHAF] * 16 +
-                [Resource.WEIZEN] * 16 +
-                [Resource.ERZ] * 16 +
-                [Resource.WÜSTE]
+                [Resource.SCHAF] * 15 +
+                [Resource.WEIZEN] * 15 +
+                [Resource.ERZ] * 15 +
+                [Resource.WÜSTE] + 
+                [Resource.GOLD] * 3
             )
 
 
