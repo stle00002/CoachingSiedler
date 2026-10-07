@@ -737,10 +737,10 @@ const zoomedSize = size * boardZoom;
             if (img.complete && img.naturalWidth > 0) {
                 ctx.drawImage(
                     img,
-                    p.x - zoomedSize* 2,
-                    p.y - zoomedSize*1.3,
-                    zoomedSize * 4,
-                    zoomedSize * 2.6,
+                    p.x - zoomedSize* 1.93,
+                    p.y - zoomedSize*1.22,
+                    zoomedSize * 3.86,
+                    zoomedSize * 2.44,
                 );
             }
         }
@@ -755,10 +755,10 @@ const zoomedSize = size * boardZoom;
 if (resource.includes("WASSER")) {
     ctx.drawImage(
         img,
-        p.x - zoomedSize * 2,
-        p.y - zoomedSize * 1.3,
-        zoomedSize * 4,
-        zoomedSize * 2.6
+        p.x - zoomedSize * 1.93,
+        p.y - zoomedSize * 1.22,
+        zoomedSize * 2.86,
+        zoomedSize * 2.44
     );
 } else {
     ctx.drawImage(
