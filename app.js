@@ -87,7 +87,7 @@ TILE_IMAGES.SCHAF.src = "images/pastureBright.png";
 TILE_IMAGES.WEIZEN.src = "images/fieldBright.png";
 TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
-TILE_IMAGES.WASSER.src = "images/water.png";
+TILE_IMAGES.WASSER.src = "images/water2.png";
 
 const WS_URL = "wss://menus-lace-touched-representations.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
