@@ -784,7 +784,7 @@ const zoomedSize = size * boardZoom;
   const img = TILE_IMAGES[resource];
 
   if (img && img.complete && img.naturalWidth > 0) {
-if (resource.includes("WASSER")) {
+if (resource.includes("WASSER") || resource.includes("GOLD")) {
     ctx.drawImage(
         img,
         p.x - zoomedSize * 1.91,
