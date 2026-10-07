@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/gold.png";
 
-const WS_URL = "wss://assessment-spectrum-punch-essex.trycloudflare.com";
+const WS_URL = "wss://appointed-directive-pod-aspect.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
