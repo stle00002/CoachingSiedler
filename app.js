@@ -1014,35 +1014,10 @@ if (owner) {
             ctx.fill();
 
             // weißer Rand
-            ctx.strokeStyle = "#ffffff";
+            ctx.strokeStyle = "#FFD700";
             ctx.lineWidth = zoomedSize * 0.025;
             ctx.stroke();
 
-
-            // -------------------------------------------------
-            // Goldene Verzierung
-            // -------------------------------------------------
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                p.x - buildingSize * 0.72,
-                p.y + buildingSize * 0.70 + offsetY
-            );
-
-            ctx.lineTo(
-                p.x + buildingSize * 0.72,
-                p.y + buildingSize * 0.70 + offsetY
-            );
-
-            ctx.lineTo(
-                p.x + buildingSize * 0.72,
-                p.y + buildingSize * 0.35 + offsetY
-            );
-
-            ctx.strokeStyle = "#FFD700";
-            ctx.lineWidth = zoomedSize * 0.018;
-            ctx.stroke();
 
 
             // -------------------------------------------------
@@ -1050,9 +1025,9 @@ if (owner) {
             // -------------------------------------------------
 
             const crownY =
-                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.5;
+                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.66;
             const crownX =
-                p.x + buildingSize * 0.3
+                p.x + buildingSize * 0.36
 
             const crownWidth =
                 buildingSize * 0.9;
