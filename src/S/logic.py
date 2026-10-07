@@ -142,24 +142,24 @@ class Logic:
 
         self.distributeResources(self.dice)
         return self.dice
-def distributeResources(self, dice_number):
-    for tile in self.board.tiles:
-        if tile.number == dice_number and tile != self.robberTile:
+    def distributeResources(self, dice_number):
+        for tile in self.board.tiles:
+            if tile.number == dice_number and tile != self.robberTile:
 
-            for vertex in tile.vertices:
-                if vertex.owner is None:
-                    continue
+                for vertex in tile.vertices:
+                    if vertex.owner is None:
+                        continue
 
-                player = vertex.owner
+                    player = vertex.owner
 
-                amount = 2 if vertex.isCity else 1
+                    amount = 2 if vertex.isCity else 1
 
-                if tile.resource.name == "GOLD":
-                    self.goldChoices[player] = (
-                        self.goldChoices.get(player, 0) + amount
-                    )
-                else:
-                    player.resources[tile.resource.name] += amount
+                    if tile.resource.name == "GOLD":
+                        self.goldChoices[player] = (
+                            self.goldChoices.get(player, 0) + amount
+                        )
+                    else:
+                        player.resources[tile.resource.name] += amount
     def checkWinner(self):
         for player in self.players:
             if player.victoryPoints >= 10:

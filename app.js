@@ -469,7 +469,11 @@ function renderState(s) {
   lastState = s;
     const mep2 = (s.players || []).find(p => p.name === me);
 
+    console.log("MEP:", mep);
+    console.log("GOLD CHOICES:", mep?.goldChoices);
     if (mep2 && (mep2.goldChoices || 0) > 0) {
+        console.log("ÖFFNE GOLD MODAL");
+
         openGoldResourceModal();
     } else {
         closeGoldResourceModal();

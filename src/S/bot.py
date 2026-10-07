@@ -41,6 +41,12 @@ class Bot(Player):
         actions = []
         self.logic = logic
 
+        if self.logic.goldChoices.get(self.name, 0) > 0:
+            return {
+                "action": "chooseGoldResource",
+                "playerName": self.name,
+                "resource": "HOLZ",
+            }
         if self.logic.current_player != self or self.logic.buildPhase:
             if self.logic.playerTrade != None:
                 if self.wantsPlayerTrade():
@@ -122,6 +128,8 @@ class Bot(Player):
                 value = self.getValue(tile.number)
                 if tile.resource == Resource.ERZ or tile.resource == Resource.WEIZEN:
                     value += 1
+                if tile.resource == Resource.GOLD:
+                    value += 3
                 for vertex in tile.vertices:
                     if vertex.owner != None and vertex.owner != self:
                         value += 2
@@ -269,7 +277,9 @@ class Bot(Player):
                 value += self.getValue(tile.number)
                 if tile.resource == Resource.ERZ or tile.resource == Resource.WEIZEN:
                     value += 1
-                if not (tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and resourceStrengthWithCurrentField[tile.resource] == 0: 
+                if tile.resource == Resource.GOLD:
+                    value += 4
+                elif not (tile.resource == Resource.GOLD or tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and resourceStrengthWithCurrentField[tile.resource] == 0: 
                     value += 2
                     resourceStrengthWithCurrentField[tile.resource] += self.getValue(tile.number)
             if value > max_value:
@@ -333,7 +343,7 @@ class Bot(Player):
         for vertex in self.logic.board.vertices:
             if vertex.owner == self:
                 for tile in vertex.adjacentTiles:
-                    if tile.resource == Resource.WÜSTE or tile.resource == Resource.WASSER:
+                    if tile.resource == Resource.WÜSTE or tile.resource == Resource.WASSER or tile.resource == Resource.GOLD:
                         continue
                     self.resourceStrength[tile.resource] += self.getValue(tile.number)
                     if vertex.isCity:
@@ -405,7 +415,9 @@ class Bot(Player):
                     value += self.getValue(tile.number)
                     if tile.resource == Resource.ERZ or tile.resource == Resource.WEIZEN:
                         value += 1
-                    if not (tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and self.resourceStrength[tile.resource] < 2: 
+                    if tile.resource == Resource.GOLD:
+                        value += 4
+                    elif not (tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and self.resourceStrength[tile.resource] < 2: 
                         value += 2
                 if value > max_value:
                     max_vertex = vertex
@@ -426,7 +438,9 @@ class Bot(Player):
                     value += self.getValue(tile.number)
                     if tile.resource == Resource.ERZ or tile.resource == Resource.WEIZEN:
                         value += 1
-                    if not (tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and self.resourceStrength[tile.resource] < 2: 
+                    if tile.resource == Resource.GOLD:
+                        value += 4
+                    elif not (tile.resource == Resource.WASSER or tile.resource == Resource.WÜSTE) and self.resourceStrength[tile.resource] < 2: 
                         value += 2
                 if value > max_value:
                     max_vertex = vertex
