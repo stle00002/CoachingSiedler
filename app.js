@@ -1025,9 +1025,9 @@ if (owner) {
             // -------------------------------------------------
 
             const crownY =
-                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.5;
+                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.55;
             const crownX =
-                p.x + buildingSize * 0.5
+                p.x + buildingSize * 0.53
 
             const crownWidth =
                 buildingSize * 0.9;
