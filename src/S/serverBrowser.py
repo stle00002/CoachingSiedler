@@ -887,6 +887,7 @@ async def handle_message(conn, message):
         return
 
     elif action == "start_game":
+        global loading
         noDoubleColor = True
         colors = []
         players_and_bots = players + bots
@@ -897,7 +898,7 @@ async def handle_message(conn, message):
             colors.append(p.color)
         if all(client_ready.values()) and len(players) + len(bots) >= 2 and noDoubleColor:
             loading = True
-            broadcast_lobby
+            await broadcast_lobby()
             await start_game()
         return
     

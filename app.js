@@ -319,7 +319,6 @@ function renderLobby(players, loading) {
   // NORMALE LOBBY
   // ==========================================
 
-  $("join-row").style.display = "";
   $("lobby-actions").style.display = "";
   $("colors").style.display = "";
 
