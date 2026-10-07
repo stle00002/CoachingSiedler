@@ -1050,7 +1050,9 @@ if (owner) {
             // -------------------------------------------------
 
             const crownY =
-                p.y - buildingSize * 1.12 + offsetY;
+                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.5;
+            const crownX =
+                p.x + buildingSize * 0.3
 
             const crownWidth =
                 buildingSize * 0.9;
@@ -1062,37 +1064,37 @@ if (owner) {
             ctx.beginPath();
 
             ctx.moveTo(
-                p.x - crownWidth / 2,
+                crownX - crownWidth / 2,
                 crownY + crownHeight
             );
 
             ctx.lineTo(
-                p.x - crownWidth / 2,
+                crownX - crownWidth / 2,
                 crownY
             );
 
             ctx.lineTo(
-                p.x - crownWidth * 0.20,
+                crownX - crownWidth * 0.20,
                 crownY + crownHeight * 0.55
             );
 
             ctx.lineTo(
-                p.x,
+                crownX,
                 crownY - crownHeight * 0.15
             );
 
             ctx.lineTo(
-                p.x + crownWidth * 0.20,
+                crownX + crownWidth * 0.20,
                 crownY + crownHeight * 0.55
             );
 
             ctx.lineTo(
-                p.x + crownWidth / 2,
+                crownX + crownWidth / 2,
                 crownY
             );
 
             ctx.lineTo(
-                p.x + crownWidth / 2,
+                crownX + crownWidth / 2,
                 crownY + crownHeight
             );
 
@@ -1116,7 +1118,7 @@ if (owner) {
 
             ctx.beginPath();
             ctx.arc(
-                p.x - crownWidth * 0.30,
+                crownX - crownWidth * 0.30,
                 crownY + crownHeight * 0.55,
                 r,
                 0,
@@ -1126,7 +1128,7 @@ if (owner) {
 
             ctx.beginPath();
             ctx.arc(
-                p.x,
+                crownX,
                 crownY + crownHeight * 0.35,
                 r,
                 0,
@@ -1136,7 +1138,7 @@ if (owner) {
 
             ctx.beginPath();
             ctx.arc(
-                p.x + crownWidth * 0.30,
+                crownX + crownWidth * 0.30,
                 crownY + crownHeight * 0.55,
                 r,
                 0,
