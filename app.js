@@ -89,7 +89,7 @@ TILE_IMAGES.ERZ.src = "images/mountain.png";
 TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 
-const WS_URL = "wss://wellness-lead-contracts-resistant.trycloudflare.com";
+const WS_URL = "wss://assessment-spectrum-punch-essex.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
