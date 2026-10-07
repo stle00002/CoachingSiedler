@@ -898,3 +898,63 @@ input {
         transform: rotate(360deg);
     }
 }
+.gold-resource-modal {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 10000;
+
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.gold-resource-modal.hidden {
+    display: none;
+}
+
+.gold-resource-box {
+    background: #f3e4c4;
+    border: 2px solid #5c4025;
+    border-radius: 10px;
+
+    padding: 15px 18px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+
+    text-align: center;
+}
+
+.gold-resource-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.gold-resource-options {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.gold-choice {
+    cursor: pointer;
+
+    width: 50px;
+    height: 50px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    transition: transform 0.1s;
+}
+
+.gold-choice:hover {
+    transform: scale(1.08);
+}

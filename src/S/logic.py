@@ -33,6 +33,7 @@ class Logic:
         self.buildPhase = False
         self.currentPlayerWithMostKnights = None
         self.würfelMode = False
+        self.goldChoices = {}
         self.dices = {
             2: 0,
             3: 0,
@@ -141,20 +142,24 @@ class Logic:
 
         self.distributeResources(self.dice)
         return self.dice
-    def distributeResources(self, dice_number):
-        for tile in self.board.tiles:
-            if tile.number == dice_number and tile != self.robberTile:
+def distributeResources(self, dice_number):
+    for tile in self.board.tiles:
+        if tile.number == dice_number and tile != self.robberTile:
 
-                for vertex in tile.vertices:
-                    if vertex.owner is not None:
+            for vertex in tile.vertices:
+                if vertex.owner is None:
+                    continue
 
-                        player = vertex.owner
+                player = vertex.owner
 
-                        if not vertex.isCity:
-                            player.resources[tile.resource.name] += 1
+                amount = 2 if vertex.isCity else 1
 
-                        else:
-                            player.resources[tile.resource.name] += 2
+                if tile.resource.name == "GOLD":
+                    self.goldChoices[player] = (
+                        self.goldChoices.get(player, 0) + amount
+                    )
+                else:
+                    player.resources[tile.resource.name] += amount
     def checkWinner(self):
         for player in self.players:
             if player.victoryPoints >= 10:
@@ -326,4 +331,31 @@ class Logic:
             if harbor.resource == None and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
                 cost = min(harbor.ratio, cost)
         return cost
+    def chooseGoldResource(self, player, resource):
+        valid_resources = [
+            "HOLZ",
+            "LEHM",
+            "SCHAF",
+            "WEIZEN",
+            "ERZ"
+        ]
+
+        if resource not in valid_resources:
+            return False
+
+        choices = self.goldChoices.get(player, 0)
+
+        if choices <= 0:
+            return False
+
+        player.resources[resource] += 1
+
+        choices -= 1
+
+        if choices <= 0:
+            self.goldChoices.pop(player, None)
+        else:
+            self.goldChoices[player] = choices
+
+        return True
     

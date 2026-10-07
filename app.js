@@ -467,6 +467,13 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+    const mep2 = (s.players || []).find(p => p.name === me);
+
+    if (mep2 && (mep2.goldChoices || 0) > 0) {
+        openGoldResourceModal();
+    } else {
+        closeGoldResourceModal();
+    }
   const isMyTurn = s.currentPlayerName === me;
 
 if (isMyTurn && !wasMyTurn) {
@@ -2768,5 +2775,47 @@ function prepareRobberImage() {
     );
 
     ROBBER_CTX.restore();
+}
+function openGoldResourceModal() {
+    const options = document.getElementById("goldResourceOptions");
+
+    const resources = [
+        "HOLZ",
+        "LEHM",
+        "SCHAF",
+        "WEIZEN",
+        "ERZ"
+    ];
+
+    options.innerHTML = resources
+        .map(resource => `
+            <div
+                class="resource-box gold-choice"
+                style="background:${RESOURCE_COLORS[resource] || "#888"}"
+                title="${resource}"
+                onclick="chooseGoldResource('${resource}')"
+            >
+            </div>
+        `)
+        .join("");
+
+    document
+        .getElementById("goldResourceModal")
+        .classList.remove("hidden");
+}
+
+function closeGoldResourceModal() {
+    document
+        .getElementById("goldResourceModal")
+        .classList.add("hidden");
+}
+
+function chooseGoldResource(resource) {
+    send("chooseGoldResource", {
+        playerName: me,
+        resource: resource
+    });
+
+    closeGoldResourceModal();
 }
 connect();

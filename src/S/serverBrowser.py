@@ -59,6 +59,8 @@ def getState(obj):
                 "ERZ": player.resources.get("ERZ", 0)
             },
 
+            "goldChoices": logic.goldChoices.get(player, 0),
+
             "countResources": countResources,
             # -------------------------
             # Entwicklungskarten
@@ -674,6 +676,9 @@ async def handle_message(conn, message):
     if logic.discardResourcesMode:
         if action != "discardResource":
             return
+    if logic.goldChoices != {}:
+        if action != "chooseGoldResource":
+            return
     if action == "join":
         name = message["name"]
 
@@ -1083,6 +1088,12 @@ async def handle_message(conn, message):
             if len(logic.playersDeclined) >= len(logic.players) -1:
                 logic.playerTrade = None
                 logic.playersDeclined = []
+    elif action == "chooseGoldResource":
+        name = message["playerName"]
+        for p in logic.players:
+            if p.name == name:
+                player = p
+        logic.chooseGoldResource(player, message["resource"])
     await broadcast_state()
 
 
