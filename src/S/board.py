@@ -287,7 +287,7 @@ class Board:
 
             print("EARTH Landfelder:", len(self.tiles_positions))
             print("EARTH Ressourcen:", len(self.resources))
-            self.HEX_DIRECTIONS = [
+        self.HEX_DIRECTIONS = [
     (1, 0),
     (1, -1),
     (0, -1),
@@ -299,10 +299,15 @@ class Board:
 
         self.createTiles()
         self.createNumbers()
+        self.tile_map = {
+    (tile.q, tile.r): tile
+    for tile in self.tiles
+}
+        self.createVertices()
+
         self.createEdges()
         while self.incorrectNumbers():
             self.createNumbers()
-        self.createVertices()
         self.connectEdgesAndVertices()
         self.connectNeighbourVertices()
         self.createHarbors()
@@ -345,10 +350,17 @@ class Board:
         for tile in self.tiles:
             for edge in tile.edges:
                 for possibleNeighbourTile in edge.adjacentTiles:
-                    if possibleNeighbourTile != tile:
-                        neighbourTile = possibleNeighbourTile
-                        if (neighbourTile.number == 6 or neighbourTile.number == 8) and (tile.number == 6 or tile.number == 8):
-                            return True
+                    if possibleNeighbourTile is None or possibleNeighbourTile == tile:
+                        continue
+
+                    neighbourTile = possibleNeighbourTile
+
+                    if (
+                        neighbourTile.number in (6, 8)
+                        and tile.number in (6, 8)
+                    ):
+                        return True
+
         return False
     
     def createNumbers(self):
@@ -421,6 +433,69 @@ class Board:
                         self.edges.append(newEdge)
                         tile.edges.append(newEdge)
                         neighbour.edges.append(newEdge)
+        # ==========================================
+        # KÜSTENKANTEN
+        # ==========================================
+
+        for tile in self.tiles:
+
+            if tile.resource is Resource.WASSER:
+                continue
+
+            # Ein Tile hat durch deine ursprüngliche
+            # Vertex-Erzeugung genau 6 Vertices.
+            if len(tile.vertices) != 6:
+                print(
+                    "FEHLER: Land-Tile hat nicht 6 Vertices:",
+                    tile.q, tile.r,
+                    len(tile.vertices)
+                )
+                continue
+
+            for i, (dq, dr) in enumerate(self.HEX_DIRECTIONS):
+
+                neighbourPos = (
+                    tile.q + dq,
+                    tile.r + dr
+                )
+
+                # Nur echte Küste
+                if neighbourPos in self.tile_map:
+                    neighbour = self.tile_map[neighbourPos]
+
+                    if neighbour.resource is not Resource.WASSER:
+                        continue
+
+                # Die Seite in Richtung i liegt zwischen
+                # den Ecken i-1 und i.
+                vertex1 = tile.vertices[(i - 1) % 6]
+                vertex2 = tile.vertices[i]
+
+                # Edge eindeutig über die beiden Vertices bestimmen
+                key = tuple(sorted([
+                    vertex1.id,
+                    vertex2.id
+                ]))
+
+                if key in edge_map:
+                    continue
+
+                newEdge = Edge(self.currentId)
+                self.currentId += 1
+
+                # Nur ein Land-Tile grenzt an diese Edge
+                newEdge.adjacentTiles = (tile, None)
+
+                newEdge.vertex1 = vertex1
+                newEdge.vertex2 = vertex2
+
+                edge_map[key] = newEdge
+                self.edges.append(newEdge)
+
+                tile.edges.append(newEdge)
+
+                vertex1.connectedEdges.append(newEdge)
+                vertex2.connectedEdges.append(newEdge)
 
     def createVertices(self):
             vertex_map = {}
@@ -461,7 +536,15 @@ class Board:
 
     def connectEdgesAndVertices(self):
         for edge in self.edges:
+
+            # Küstenkante wurde bereits direkt verbunden
+            if edge.vertex1 is not None and edge.vertex2 is not None:
+                continue
+
             tile1, tile2 = edge.adjacentTiles
+
+            if tile1 is None or tile2 is None:
+                continue
 
             matching_vertices = []
 
@@ -471,14 +554,15 @@ class Board:
 
             if len(matching_vertices) == 2:
                 v1, v2 = matching_vertices
+
                 edge.vertex1 = v1
                 edge.vertex2 = v2
 
                 v1.connectedEdges.append(edge)
                 v2.connectedEdges.append(edge)
+
             else:
                 print("Fehler: Edge hat nicht genau 2 Vertices")
-    
     def connectNeighbourVertices(self):
         for edge in self.edges:
             v1 = edge.vertex1
@@ -494,74 +578,438 @@ class Board:
                 v2.neighbourVertices.append(v1)
             
     def createHarbors(self):
-        if self.radius == 3:
-         for tile in self.tiles:
-            if tile.q == 2 and tile.r == -2:
-                testHarbor = Harbor(3, -3, tile.vertices[0], tile.vertices[1], Resource.HOLZ, 2)
-                self.harbors.append(testHarbor)
-            if tile.q == 0 and tile.r == -2:
-                testHarbor = Harbor(1, -3, tile.vertices[0], tile.vertices[1], None, 3)
-                self.harbors.append(testHarbor)
-            if tile.q == -1 and tile.r == -1:
-                testHarbor = Harbor(-1, -2, tile.vertices[1], tile.vertices[2], Resource.LEHM, 2)
-                self.harbors.append(testHarbor)
-            if tile.q == -2 and tile.r == 0:
-                testHarbor = Harbor(-3, 0, tile.vertices[2], tile.vertices[3], None, 3)
-                self.harbors.append(testHarbor)
-            if tile.q == -2 and tile.r == 1:
-                testHarbor = Harbor(-3, 2, tile.vertices[3], tile.vertices[4], Resource.ERZ, 2)
-                self.harbors.append(testHarbor)
-            if tile.q == -2 and tile.r == 2:
-                testHarbor = Harbor(-2, 3, tile.vertices[4], tile.vertices[5],  None, 3)
-                self.harbors.append(testHarbor)
-            if tile.q == 0 and tile.r == 2:
-                testHarbor = Harbor(0, 3, tile.vertices[4], tile.vertices[5], Resource.WEIZEN, 2)
-                self.harbors.append(testHarbor)
-            if tile.q == 2 and tile.r == 0:
-                testHarbor = Harbor(2, 1, tile.vertices[4], tile.vertices[5],  None, 3)
-                self.harbors.append(testHarbor)
-            if tile.q == 2 and tile.r == -1:
-                testHarbor = Harbor(3, -1, tile.vertices[5], tile.vertices[0], Resource.SCHAF, 2)
-                self.harbors.append(testHarbor)
-        else:
-            if self.radius == 4:
-             for tile in self.tiles:
+        if not self.earthMap:
+            if self.radius == 3:
+                for tile in self.tiles:
+                    if tile.q == 2 and tile.r == -2:
+                        testHarbor = Harbor(3, -3, tile.vertices[0], tile.vertices[1], Resource.HOLZ, 2)
+                        self.harbors.append(testHarbor)
+                    if tile.q == 0 and tile.r == -2:
+                        testHarbor = Harbor(1, -3, tile.vertices[0], tile.vertices[1], None, 3)
+                        self.harbors.append(testHarbor)
+                    if tile.q == -1 and tile.r == -1:
+                        testHarbor = Harbor(-1, -2, tile.vertices[1], tile.vertices[2], Resource.LEHM, 2)
+                        self.harbors.append(testHarbor)
+                    if tile.q == -2 and tile.r == 0:
+                        testHarbor = Harbor(-3, 0, tile.vertices[2], tile.vertices[3], None, 3)
+                        self.harbors.append(testHarbor)
+                    if tile.q == -2 and tile.r == 1:
+                        testHarbor = Harbor(-3, 2, tile.vertices[3], tile.vertices[4], Resource.ERZ, 2)
+                        self.harbors.append(testHarbor)
+                    if tile.q == -2 and tile.r == 2:
+                        testHarbor = Harbor(-2, 3, tile.vertices[4], tile.vertices[5],  None, 3)
+                        self.harbors.append(testHarbor)
+                    if tile.q == 0 and tile.r == 2:
+                        testHarbor = Harbor(0, 3, tile.vertices[4], tile.vertices[5], Resource.WEIZEN, 2)
+                        self.harbors.append(testHarbor)
+                    if tile.q == 2 and tile.r == 0:
+                        testHarbor = Harbor(2, 1, tile.vertices[4], tile.vertices[5],  None, 3)
+                        self.harbors.append(testHarbor)
+                    if tile.q == 2 and tile.r == -1:
+                        testHarbor = Harbor(3, -1, tile.vertices[5], tile.vertices[0], Resource.SCHAF, 2)
+                        self.harbors.append(testHarbor)
+            else:
+                if self.radius == 4:
+                    for tile in self.tiles:
+                        if tile.q == 0 and tile.r == -3:
+                            self.harbors.append(Harbor(1, -4, tile.vertices[0], tile.vertices[1], None, 3))
 
-                if tile.q == 0 and tile.r == -3:
-                    self.harbors.append(Harbor(1, -4, tile.vertices[0], tile.vertices[1], None, 3))
+                        if tile.q == -1 and tile.r == -2:
+                            self.harbors.append(Harbor(-1, -3, tile.vertices[1], tile.vertices[2], Resource.HOLZ, 2))
 
-                if tile.q == -1 and tile.r == -2:
-                    self.harbors.append(Harbor(-1, -3, tile.vertices[1], tile.vertices[2], Resource.HOLZ, 2))
+                        if tile.q == -2 and tile.r == -1:
+                            self.harbors.append(Harbor(-3, -1, tile.vertices[2], tile.vertices[3], None, 3))
 
-                if tile.q == -2 and tile.r == -1:
-                    self.harbors.append(Harbor(-3, -1, tile.vertices[2], tile.vertices[3], None, 3))
+                        if tile.q == -3 and tile.r == -0:
+                            self.harbors.append(Harbor(-4, 1, tile.vertices[3], tile.vertices[4], Resource.LEHM, 2))
 
-                if tile.q == -3 and tile.r == -0:
-                    self.harbors.append(Harbor(-4, 1, tile.vertices[3], tile.vertices[4], Resource.LEHM, 2))
+                        if tile.q == -3 and tile.r == 2:
+                            self.harbors.append(Harbor(-4, 3, tile.vertices[3], tile.vertices[4], None, 3))
 
-                if tile.q == -3 and tile.r == 2:
-                    self.harbors.append(Harbor(-4, 3, tile.vertices[3], tile.vertices[4], None, 3))
+                        if tile.q == -3 and tile.r == 3:
+                            self.harbors.append(Harbor(-3, 4, tile.vertices[4], tile.vertices[5], Resource.SCHAF, 2))
 
-                if tile.q == -3 and tile.r == 3:
-                    self.harbors.append(Harbor(-3, 4, tile.vertices[4], tile.vertices[5], Resource.SCHAF, 2))
+                        if tile.q == 0 and tile.r == 3:
+                            self.harbors.append(Harbor(-1, 4, tile.vertices[3], tile.vertices[4], None, 3))
 
-                if tile.q == 0 and tile.r == 3:
-                    self.harbors.append(Harbor(-1, 4, tile.vertices[3], tile.vertices[4], None, 3))
+                        if tile.q == 0 and tile.r == 3:
+                            self.harbors.append(Harbor(1, 3, tile.vertices[5], tile.vertices[0], Resource.WEIZEN, 2))
 
-                if tile.q == 0 and tile.r == 3:
-                    self.harbors.append(Harbor(1, 3, tile.vertices[5], tile.vertices[0], Resource.WEIZEN, 2))
+                        if tile.q == 3 and tile.r == 0:
+                            self.harbors.append(Harbor(3, 1, tile.vertices[4], tile.vertices[5], None, 3))
 
-                if tile.q == 3 and tile.r == 0:
-                    self.harbors.append(Harbor(3, 1, tile.vertices[4], tile.vertices[5], None, 3))
+                        if tile.q == 3 and tile.r == -1:
+                            self.harbors.append(Harbor(4, -1, tile.vertices[5], tile.vertices[0], Resource.ERZ, 2))
 
-                if tile.q == 3 and tile.r == -1:
-                    self.harbors.append(Harbor(4, -1, tile.vertices[5], tile.vertices[0], Resource.ERZ, 2))
+                        if tile.q == 3 and tile.r == -2:
+                            self.harbors.append(Harbor(4, -3, tile.vertices[0], tile.vertices[1], None, 3))
 
-                if tile.q == 3 and tile.r == -2:
-                    self.harbors.append(Harbor(4, -3, tile.vertices[0], tile.vertices[1], None, 3))
+                        if tile.q == 3 and tile.r == -3:
+                            self.harbors.append(Harbor(3, -4, tile.vertices[1], tile.vertices[2], Resource.HOLZ, 2))
+            return
+      
+        # =========================================================
+        # EARTH / WORLD MAP
+        # =========================================================
 
-                if tile.q == 3 and tile.r == -3:
-                    self.harbors.append(Harbor(3, -4, tile.vertices[1], tile.vertices[2], Resource.HOLZ, 2))
+        # Wir definieren die Häfen über:
+        #
+        # (Land-tile-q, Land-tile-r, Richtung)
+        #
+        # Die Richtung bestimmt automatisch die beiden richtigen
+        # Vertices und die Position des Hafens auf der Wasserseite.
+        #
+        # direction:
+        #
+        #       2       1
+        #        \     /
+        #         \   /
+        #       3-- TILE --0
+        #         /   \
+        #        /     \
+        #       4       5
+        #
+        # Der Hafen liegt beim Wasser-Nachbarn in dieser Richtung.
+        #
+        # Das ist für DEINE schräge Axialdarstellung wichtig:
+        # Richtung 0/3 ist NICHT einfach "senkrecht".
+        # =========================================================
+
+        earth_harbors = [
+
+            # =====================================================
+            # NORDAMERIKA / WESTLICHE KÜSTE
+            # =====================================================
+
+            (-2, -4, 3),     # -> (-3,-4)
+            (-6, -2, 3),     # -> (-7,-2)
+            (-6, -1, 4),     # -> (-7, 0)
+            (-5,  1, 4),     # -> (-6, 2)
+            (-6,  4, 4),     # -> (-7, 5)
+
+
+            # =====================================================
+            # SÜDAMERIKA / SÜDLICHER WESTEN
+            # =====================================================
+
+            (-2, 5, 4),      # -> (-3,6)
+            (-6, 5, 5),      # -> (-6,6)
+
+
+            # =====================================================
+            # EUROPA / NORDATLANTIK
+            # =====================================================
+
+            (-5, -3, 2),     # -> (-5,-4)
+            #(-4,  0, 5),     # -> (-4,1)
+            (-2,  2, 5),     # -> (-2,3)
+
+
+            # =====================================================
+            # AFRIKA
+            # =====================================================
+
+            (0, 5, 5),       # -> (0,6)
+            (0, 5, 4),       # -> (-1,6)
+
+
+            # =====================================================
+            # ASIEN - NORD / OST
+            # =====================================================
+
+            (2, -4, 1),      # -> (3,-5)
+            (7, -4, 1),      # -> (8,-5)
+            (9, -2, 1),      # -> (10,-3)
+            (8,  0, 0),      # -> (9,0)
+
+            # =====================================================
+            # SCHMALE WASSERPASSAGE
+            #
+            # Diese beiden dürfen bewusst nebeneinander liegen.
+            # =====================================================
+
+            (8, 0, 5),       # -> (8,1)
+
+
+            # =====================================================
+            # ASIEN / SÜDOSTEN
+            # =====================================================
+
+            (4, 4, 5),       # -> (4,5)
+            (4, 4, 0),       # -> (5,4)
+
+
+            # =====================================================
+            # WESTLICHER ASIEN-BEREICH
+            # =====================================================
+
+
+
+            # =====================================================
+            # ANTARKTIS / SÜDOSTEN
+            # =====================================================
+
+            (3, 5, 4),       # -> (2,6)
+            (4, -4, 0),      # -> (5,-4)
+
+
+            # =====================================================
+            # WEITERE NÖRDLICHE / ÖSTLICHE KÜSTE
+            # =====================================================
+
+            (-1, -4, 1),     # -> (0,-5)
+            (4,  4, 5),      # -> (4,5)
+        ]
+        # =========================================================
+        # HÄFEN ZWISCHEN DEN KONTINENTEN
+        # =========================================================
+
+        earth_harbors += [
+
+            # -----------------------------------------------------
+            # NORDAMERIKA <-> EUROPA / NORDATLANTIK
+            #
+            # Zwei gegenüberliegende Küsten
+            # -----------------------------------------------------
+
+            ( 1, -4, 3),    # Richtung (-1, 0)
+
+
+            # -----------------------------------------------------
+            # EUROPA <-> ASIEN / MITTELMEER-BEREICH
+            # -----------------------------------------------------
+    
+            (0, 0, 2),      # Richtung (0, -1)
+
+
+            # -----------------------------------------------------
+            # AFRIKA <-> EUROPA
+            #
+            # gegenüberliegende Küsten
+            # -----------------------------------------------------
+
+            (-2, 2, 3),     # Richtung (-1, 0)
+
+
+            # -----------------------------------------------------
+            # AFRIKA <-> ASIEN
+            # -----------------------------------------------------
+
+            (3, 3, 1),      # Richtung (1, -1)
+            (5, 1, 4),      # Richtung (-1, 1)
+
+
+            # -----------------------------------------------------
+            # AFRIKA <-> ANTARKTIS / SÜDLICHER OZEAN
+            # -----------------------------------------------------
+
+            (-1, 4, 0),     # Richtung (1, 0)
+
+
+            # -----------------------------------------------------
+            # ASIEN <-> AUSTRALIEN
+            # -----------------------------------------------------
+
+            (6, 0, 5),      # Richtung (0, 1)
+        ]
+
+
+        # =========================================================
+        # HAFENTYPEN
+        # =========================================================
+        #
+        # 2:1 für die fünf Ressourcen
+        # 3:1 für den normalen Hafen
+        #
+        # Bei 24 Häfen:
+        # 3x Holz
+        # 3x Lehm
+        # 3x Schaf
+        # 3x Weizen
+        # 3x Erz
+        # 9x 3:1
+        #
+        # =========================================================
+
+        harbor_types = [
+
+            (Resource.HOLZ,   2),
+            (None,            3),
+            (Resource.LEHM,   2),
+            (None,            3),
+            (Resource.SCHAF,  2),
+            (None,            3),
+            (Resource.WEIZEN, 2),
+            (None,            3),
+            (Resource.ERZ,    2),
+
+            (None,            3),
+            (Resource.HOLZ,   2),
+            (Resource.LEHM,   2),
+            (Resource.SCHAF,  2),
+            (Resource.WEIZEN, 2),
+            (Resource.ERZ,    2),
+
+            (None,            3),
+            (Resource.HOLZ,   2),
+            (None,            3),
+            (Resource.LEHM,   2),
+            (None,            3),
+            (Resource.SCHAF,  2),
+            (None,            3),
+            (Resource.WEIZEN, 2),
+            (Resource.ERZ,    2),
+
+            # =====================================================
+            # INNENHÄFEN ZWISCHEN DEN KONTINENTEN
+            # =====================================================
+
+            # Nordamerika <-> Europa
+            (None,            3),
+            (Resource.HOLZ,   2),
+
+            # Europa <-> Asien
+            (None,            3),
+            (Resource.ERZ,    2),
+
+            # Afrika <-> Europa
+            (Resource.LEHM,   2),
+            (None,            3),
+
+            # Afrika <-> Asien
+            (Resource.WEIZEN, 2),
+            (None,            3),
+
+            # Afrika <-> Antarktis
+            (Resource.SCHAF,  2),
+            (None,            3),
+
+            # Asien <-> Australien
+            (Resource.HOLZ,   2),
+            (Resource.ERZ,    2),
+        ]
+
+
+        # =========================================================
+        # TILE-MAP
+        # =========================================================
+
+        tile_map = {
+            (tile.q, tile.r): tile
+            for tile in self.tiles
+        }
+
+
+        # =========================================================
+        # HÄFEN ERZEUGEN
+        # =========================================================
+
+        for i, (q, r, direction) in enumerate(earth_harbors):
+
+            tile = tile_map.get((q, r))
+
+            if tile is None:
+                print(
+                    "FEHLER: Earth-Hafen-Tile nicht gefunden:",
+                    q, r
+                )
+                continue
+
+
+            # -----------------------------------------------------
+            # Wasserposition
+            # -----------------------------------------------------
+
+            dq, dr = self.HEX_DIRECTIONS[direction]
+
+            harbor_q = q + dq
+            harbor_r = r + dr
+
+
+            # -----------------------------------------------------
+            # Die beiden richtigen Küsten-Vertices
+            #
+            # Das ist genau die Geometrie deiner normalen Häfen.
+            # -----------------------------------------------------
+
+            # -----------------------------------------------------
+            # Die beiden Küsten-Vertices automatisch finden
+            # -----------------------------------------------------
+
+            vertex1 = None
+            vertex2 = None
+
+            # Die beiden Vertices liegen an der Seite in Richtung `direction`.
+            # Wir suchen sie über die beiden Ecken, die an diese Seite grenzen.
+
+            corner1 = direction
+            corner2 = (direction + 1) % 6
+
+            # Die Vertex-Liste eines Tiles enthält nicht zwingend 6 Einträge.
+            # Deshalb suchen wir die passenden Vertices über ihre angrenzenden Tiles.
+
+            for vertex in tile.vertices:
+
+                adjacent_positions = {
+                    (t.q, t.r)
+                    for t in vertex.adjacentTiles
+                }
+
+                # Ecke zwischen direction und direction+1
+                d1 = self.HEX_DIRECTIONS[corner1]
+                d2 = self.HEX_DIRECTIONS[corner2]
+
+                pos1 = (q + d1[0], r + d1[1])
+                pos2 = (q + d2[0], r + d2[1])
+
+                if pos1 in adjacent_positions and pos2 in adjacent_positions:
+                    vertex1 = vertex
+
+                # andere Ecke der gewünschten Seite
+                d1 = self.HEX_DIRECTIONS[(direction - 1) % 6]
+                d2 = self.HEX_DIRECTIONS[direction]
+
+                pos1 = (q + d1[0], r + d1[1])
+                pos2 = (q + d2[0], r + d2[1])
+
+                if pos1 in adjacent_positions and pos2 in adjacent_positions:
+                    vertex2 = vertex
+
+            # Sicherheitsprüfung
+            if vertex1 is None or vertex2 is None:
+                print(
+                    "FEHLER: Küsten-Vertices nicht gefunden:",
+                    q, r, direction
+                )
+                continue
+
+
+            # -----------------------------------------------------
+            # Typ
+            # -----------------------------------------------------
+
+            resource, ratio = harbor_types[i]
+
+
+            vertex1, vertex2 = vertex2, vertex1
+
+            harbor = Harbor(
+                harbor_q,
+                harbor_r,
+                vertex1,
+                vertex2,
+                resource,
+                ratio
+            )
+
+            self.harbors.append(harbor)
+
+
+        print(
+            "EARTH Häfen:",
+            len(self.harbors)
+        )
+    
                 
 
     def canBuildSettlement(self, player, vertex, setupPhase):

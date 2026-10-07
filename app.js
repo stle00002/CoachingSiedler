@@ -909,7 +909,7 @@ for (const v of vs) {
   if (owner) {
     ctx.fillStyle = colorCss(owner.color);
 
-    if (v.isCity) {
+    if (v.isCity && owner != "Mama") {
   ctx.beginPath();
 const buildingSize = zoomedSize * 0.24;
 const offsetY = -zoomedSize * 0.07;
@@ -928,7 +928,163 @@ const offsetY = -zoomedSize * 0.07;
 ctx.lineWidth = zoomedSize * 0.025;
   ctx.stroke();
 
-} else {
+} else if (v.isCity && owner == "Mama") {
+    const buildingSize = zoomedSize * 0.24;
+    const offsetY = -zoomedSize * 0.07;
+
+    // =========================
+    // 🏰 MAMA-SONDERSTADT
+    // =========================
+
+    ctx.save();
+
+    // Hauptgebäude – Spielerfarbe bleibt erhalten
+    ctx.beginPath();
+    ctx.moveTo(p.x - buildingSize, p.y + buildingSize + offsetY);
+    ctx.lineTo(p.x + buildingSize, p.y + buildingSize + offsetY);
+    ctx.lineTo(p.x + buildingSize, p.y + offsetY);
+    ctx.lineTo(p.x, p.y + offsetY);
+    ctx.lineTo(
+        p.x - 0.5 * buildingSize,
+        p.y - buildingSize + offsetY
+    );
+    ctx.lineTo(p.x - buildingSize, p.y + offsetY);
+    ctx.closePath();
+
+    ctx.fillStyle = playerColor;
+    ctx.fill();
+
+    // Weißer Rand
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = zoomedSize * 0.025;
+    ctx.stroke();
+
+
+    // =========================
+    // ✨ GOLDENER RAND
+    // =========================
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        p.x - buildingSize * 0.72,
+        p.y + buildingSize * 0.70 + offsetY
+    );
+
+    ctx.lineTo(
+        p.x + buildingSize * 0.72,
+        p.y + buildingSize * 0.70 + offsetY
+    );
+
+    ctx.lineTo(
+        p.x + buildingSize * 0.72,
+        p.y + buildingSize * 0.35 + offsetY
+    );
+
+    ctx.strokeStyle = "#FFD700";
+    ctx.lineWidth = zoomedSize * 0.018;
+    ctx.stroke();
+
+
+    // =========================
+    // 👑 KRONE
+    // =========================
+
+    const crownY = p.y - buildingSize * 1.12 + offsetY;
+    const crownWidth = buildingSize * 0.9;
+    const crownHeight = buildingSize * 0.45;
+
+    ctx.beginPath();
+
+    // Krone
+    ctx.moveTo(
+        p.x - crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.lineTo(
+        p.x - crownWidth / 2,
+        crownY
+    );
+
+    ctx.lineTo(
+        p.x - crownWidth * 0.20,
+        crownY + crownHeight * 0.55
+    );
+
+    ctx.lineTo(
+        p.x,
+        crownY - crownHeight * 0.15
+    );
+
+    ctx.lineTo(
+        p.x + crownWidth * 0.20,
+        crownY + crownHeight * 0.55
+    );
+
+    ctx.lineTo(
+        p.x + crownWidth / 2,
+        crownY
+    );
+
+    ctx.lineTo(
+        p.x + crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.closePath();
+
+    // Gold
+    ctx.fillStyle = "#FFD700";
+    ctx.fill();
+
+    // Goldene Umrandung
+    ctx.strokeStyle = "#B8860B";
+    ctx.lineWidth = zoomedSize * 0.018;
+    ctx.stroke();
+
+
+    // =========================
+    // 💎 KLEINE GOLDENE PUNKTE
+    // =========================
+
+    ctx.fillStyle = "#FFF0A0";
+
+    const r = zoomedSize * 0.025;
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x - crownWidth * 0.30,
+        crownY + crownHeight * 0.55,
+        r,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x,
+        crownY + crownHeight * 0.35,
+        r,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(
+        p.x + crownWidth * 0.30,
+        crownY + crownHeight * 0.55,
+        r,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.restore();
+}
+else {
   ctx.beginPath();
 const settlementSize = zoomedSize * 0.17;
   // etwas nach oben verschoben
