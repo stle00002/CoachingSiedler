@@ -1022,7 +1022,7 @@ else {
 
     ctx.save();
 
-    const s = buildingSize* 2;
+    const s = buildingSize* 1.75;
     const x = p.x;
     const y = p.y + offsetY;
 
@@ -1542,7 +1542,7 @@ else {
 
 ctx.save();
 
-const s = settlementSize * 2.2;
+const s = settlementSize * 2.5;
 const x = p.x;
 const y = p.y + offsetY;
 
