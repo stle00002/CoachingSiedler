@@ -30,7 +30,7 @@ ROBBER_IMAGE.onload = () => {
     prepareRobberImage();
 };
 
-ROBBER_IMAGE.src = "images/ritter.png";
+ROBBER_IMAGE.src = "images/ritterrotermantel.png";
 
 const RESOURCE_COLORS = {
     HOLZ: "#159413",
@@ -1022,7 +1022,7 @@ else {
 
     ctx.save();
 
-    const s = buildingSize* 1.5;
+    const s = buildingSize* 2;
     const x = p.x;
     const y = p.y + offsetY;
 
@@ -1542,7 +1542,7 @@ else {
 
 ctx.save();
 
-const s = settlementSize * 2.5;
+const s = settlementSize * 2.2;
 const x = p.x;
 const y = p.y + offsetY;
 
