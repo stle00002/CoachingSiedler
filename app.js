@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://bradley-scales-decade-render.trycloudflare.com";
+const WS_URL = "wss://anna-contributed-wendy-lines.trycloudflare.com ";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
