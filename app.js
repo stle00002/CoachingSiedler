@@ -1537,540 +1537,403 @@ else {
         if (owner.name === "Mama"){
 // -----------------------------------------------------
 // 👑 MAMA-SIEDLUNG
+// eigenes Design – kleines rosa/goldenes Haus
 // -----------------------------------------------------
 
+ctx.save();
 
-    ctx.save();
+const s = settlementSize * 1.45;
+const x = p.x;
+const y = p.y + offsetY;
 
-    const s = settlementSize * 1.45;
-    const x = p.x;
-    const y = p.y + offsetY;
 
-    // -------------------------------------------------
-    // ROSA VERLAUF
-    // -------------------------------------------------
+// =====================================================
+// FARBEN
+// =====================================================
 
-    const pink = ctx.createLinearGradient(
-        x - s,
-        y - s,
-        x + s,
-        y + s
-    );
+const pink = ctx.createLinearGradient(
+    x - s,
+    y - s,
+    x + s,
+    y + s
+);
 
-    pink.addColorStop(0, "#ff9fc8");
-    pink.addColorStop(0.45, "#f45b9b");
-    pink.addColorStop(1, "#c92f70");
+pink.addColorStop(0, "#ffb4d4");
+pink.addColorStop(0.45, "#f45b9b");
+pink.addColorStop(1, "#c92f70");
 
 
-    // -------------------------------------------------
-    // GOLDVERLAUF
-    // -------------------------------------------------
+const roof = ctx.createLinearGradient(
+    x - s,
+    y - s,
+    x + s,
+    y
+);
 
-    const gold = ctx.createLinearGradient(
-        x - s,
-        y,
-        x + s,
-        y
-    );
+roof.addColorStop(0, "#fff0a0");
+roof.addColorStop(0.35, "#ffd84a");
+roof.addColorStop(0.65, "#f5b51b");
+roof.addColorStop(1, "#b87500");
 
-    gold.addColorStop(0, "#a96b00");
-    gold.addColorStop(0.3, "#ffd84a");
-    gold.addColorStop(0.5, "#fff2a0");
-    gold.addColorStop(0.7, "#ffd84a");
-    gold.addColorStop(1, "#a96b00");
 
+// =====================================================
+// SCHATTEN
+// =====================================================
 
-    // -------------------------------------------------
-    // SCHATTEN
-    // -------------------------------------------------
+ctx.shadowColor = "rgba(0,0,0,0.28)";
+ctx.shadowBlur = s * 0.20;
+ctx.shadowOffsetY = s * 0.12;
 
-    ctx.shadowColor = "rgba(0,0,0,0.28)";
-    ctx.shadowBlur = s * 0.18;
-    ctx.shadowOffsetY = s * 0.10;
 
+// =====================================================
+// HAUSKÖRPER
+// =====================================================
 
-    // -------------------------------------------------
-    // HAUPTGEBÄUDE
-    // -------------------------------------------------
+ctx.beginPath();
 
-    ctx.beginPath();
+ctx.moveTo(
+    x - s * 0.68,
+    y + s * 0.72
+);
 
-    ctx.moveTo(
-        x - s * 0.72,
-        y + s * 0.72
-    );
+ctx.lineTo(
+    x + s * 0.68,
+    y + s * 0.72
+);
 
-    ctx.lineTo(
-        x + s * 0.72,
-        y + s * 0.72
-    );
+ctx.lineTo(
+    x + s * 0.68,
+    y - s * 0.05
+);
 
-    ctx.lineTo(
-        x + s * 0.72,
-        y - s * 0.10
-    );
+ctx.lineTo(
+    x - s * 0.68,
+    y - s * 0.05
+);
 
-    ctx.lineTo(
-        x + s * 0.35,
-        y - s * 0.10
-    );
+ctx.closePath();
 
-    ctx.lineTo(
-        x,
-        y - s * 0.60
-    );
+ctx.fillStyle = pink;
+ctx.fill();
 
-    ctx.lineTo(
-        x - s * 0.35,
-        y - s * 0.10
-    );
 
-    ctx.lineTo(
-        x - s * 0.72,
-        y - s * 0.10
-    );
+// Schatten ausschalten
+ctx.shadowColor = "transparent";
+ctx.shadowBlur = 0;
+ctx.shadowOffsetY = 0;
 
-    ctx.closePath();
 
-    ctx.fillStyle = pink;
-    ctx.fill();
+// =====================================================
+// WEISSER RAND DES HAUSES
+// =====================================================
 
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = s * 0.085;
+ctx.lineJoin = "round";
+ctx.stroke();
 
 
-    // -------------------------------------------------
-    // WEISSER RAND
-    // -------------------------------------------------
+// =====================================================
+// GROSSES GESCHWUNGENES DACH
+// =====================================================
 
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.10;
-    ctx.lineJoin = "round";
-    ctx.stroke();
+ctx.beginPath();
 
-
-    // -------------------------------------------------
-    // GOLDENER DACHRAND
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - s * 0.36,
-        y - s * 0.08
-    );
-
-    ctx.lineTo(
-        x,
-        y - s * 0.60
-    );
-
-    ctx.lineTo(
-        x + s * 0.36,
-        y - s * 0.08
-    );
-
-    ctx.strokeStyle = gold;
-    ctx.lineWidth = s * 0.065;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // LINKER KLEINER TURM
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x - s * 0.82,
-        y - s * 0.38,
-        s * 0.34,
-        s * 1.10,
-        s * 0.06
-    );
-
-    ctx.fillStyle = pink;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.07;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // RECHTER KLEINER TURM
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x + s * 0.48,
-        y - s * 0.38,
-        s * 0.34,
-        s * 1.10,
-        s * 0.06
-    );
-
-    ctx.fillStyle = pink;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.07;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // LINKES TURMDACH
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - s * 0.90,
-        y - s * 0.35
-    );
-
-    ctx.lineTo(
-        x - s * 0.65,
-        y - s * 0.70
-    );
-
-    ctx.lineTo(
-        x - s * 0.40,
-        y - s * 0.35
-    );
-
-    ctx.closePath();
-
-    ctx.fillStyle = gold;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.06;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // RECHTES TURMDACH
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x + s * 0.40,
-        y - s * 0.35
-    );
-
-    ctx.lineTo(
-        x + s * 0.65,
-        y - s * 0.70
-    );
-
-    ctx.lineTo(
-        x + s * 0.90,
-        y - s * 0.35
-    );
-
-    ctx.closePath();
-
-    ctx.fillStyle = gold;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.06;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // TURM-KUGELN
-    // -------------------------------------------------
-
-    ctx.fillStyle = "#fff0a0";
+ctx.moveTo(
+    x - s * 0.82,
+    y + s * 0.02
+);
+
+ctx.quadraticCurveTo(
+    x - s * 0.52,
+    y - s * 0.18,
+    x,
+    y - s * 0.72
+);
+
+ctx.quadraticCurveTo(
+    x + s * 0.52,
+    y - s * 0.18,
+    x + s * 0.82,
+    y + s * 0.02
+);
+
+ctx.lineTo(
+    x + s * 0.70,
+    y + s * 0.15
+);
+
+ctx.quadraticCurveTo(
+    x + s * 0.42,
+    y - s * 0.02,
+    x,
+    y - s * 0.50
+);
+
+ctx.quadraticCurveTo(
+    x - s * 0.42,
+    y - s * 0.02,
+    x - s * 0.70,
+    y + s * 0.15
+);
+
+ctx.closePath();
+
+ctx.fillStyle = roof;
+ctx.fill();
+
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = s * 0.065;
+ctx.lineJoin = "round";
+ctx.stroke();
+
+
+// =====================================================
+// GOLDENE DACHKANTE
+// =====================================================
+
+ctx.beginPath();
+
+ctx.moveTo(
+    x - s * 0.78,
+    y + s * 0.08
+);
+
+ctx.quadraticCurveTo(
+    x - s * 0.42,
+    y - s * 0.02,
+    x,
+    y - s * 0.62
+);
+
+ctx.quadraticCurveTo(
+    x + s * 0.42,
+    y - s * 0.02,
+    x + s * 0.78,
+    y + s * 0.08
+);
+
+ctx.strokeStyle = "#fff3a6";
+ctx.lineWidth = s * 0.055;
+ctx.stroke();
+
+
+// =====================================================
+// KLEINES RUNDES FENSTER
+// =====================================================
+
+const windowGradient = ctx.createRadialGradient(
+    x,
+    y - s * 0.13,
+    s * 0.02,
+    x,
+    y - s * 0.13,
+    s * 0.19
+);
+
+windowGradient.addColorStop(0, "#fff7cf");
+windowGradient.addColorStop(0.45, "#ffd86a");
+windowGradient.addColorStop(1, "#b87500");
+
+ctx.beginPath();
+
+ctx.arc(
+    x,
+    y - s * 0.13,
+    s * 0.17,
+    0,
+    Math.PI * 2
+);
+
+ctx.fillStyle = windowGradient;
+ctx.fill();
+
+ctx.strokeStyle = "#ffffff";
+ctx.lineWidth = s * 0.045;
+ctx.stroke();
+
+
+// =====================================================
+// FENSTERKREUZ
+// =====================================================
+
+ctx.beginPath();
+
+ctx.moveTo(
+    x,
+    y - s * 0.29
+);
+
+ctx.lineTo(
+    x,
+    y + s * 0.03
+);
+
+ctx.moveTo(
+    x - s * 0.16,
+    y - s * 0.13
+);
+
+ctx.lineTo(
+    x + s * 0.16,
+    y - s * 0.13
+);
+
+ctx.strokeStyle = "#b87500";
+ctx.lineWidth = s * 0.025;
+ctx.stroke();
+
+
+// =====================================================
+// TÜR
+// =====================================================
+
+ctx.beginPath();
+
+ctx.moveTo(
+    x - s * 0.19,
+    y + s * 0.72
+);
+
+ctx.lineTo(
+    x - s * 0.19,
+    y + s * 0.38
+);
+
+ctx.quadraticCurveTo(
+    x,
+    y + s * 0.10,
+    x + s * 0.19,
+    y + s * 0.38
+);
+
+ctx.lineTo(
+    x + s * 0.19,
+    y + s * 0.72
+);
+
+ctx.closePath();
+
+
+const door = ctx.createLinearGradient(
+    x - s * 0.19,
+    y,
+    x + s * 0.19,
+    y
+);
+
+door.addColorStop(0, "#64301e");
+door.addColorStop(0.5, "#a85b32");
+door.addColorStop(1, "#542718");
+
+ctx.fillStyle = door;
+ctx.fill();
+
+ctx.strokeStyle = "#ffd84a";
+ctx.lineWidth = s * 0.045;
+ctx.stroke();
+
+
+// =====================================================
+// GOLDENER TÜRGRIFF
+// =====================================================
+
+ctx.beginPath();
+
+ctx.arc(
+    x + s * 0.08,
+    y + s * 0.52,
+    s * 0.035,
+    0,
+    Math.PI * 2
+);
+
+ctx.fillStyle = "#fff0a0";
+ctx.fill();
+
+
+// =====================================================
+// KLEINE KRONE AUF DEM DACH
+// =====================================================
+
+const crownY = y - s * 0.78;
+const crownWidth = s * 0.42;
+const crownHeight = s * 0.25;
+
+ctx.beginPath();
+
+ctx.moveTo(
+    x - crownWidth / 2,
+    crownY + crownHeight
+);
+
+ctx.lineTo(
+    x - crownWidth / 2,
+    crownY + crownHeight * 0.40
+);
+
+ctx.lineTo(
+    x - crownWidth * 0.25,
+    crownY + crownHeight * 0.68
+);
+
+ctx.lineTo(
+    x,
+    crownY
+);
+
+ctx.lineTo(
+    x + crownWidth * 0.25,
+    crownY + crownHeight * 0.68
+);
+
+ctx.lineTo(
+    x + crownWidth / 2,
+    crownY + crownHeight * 0.40
+);
+
+ctx.lineTo(
+    x + crownWidth / 2,
+    crownY + crownHeight
+);
+
+ctx.closePath();
+
+ctx.fillStyle = roof;
+ctx.fill();
+
+ctx.strokeStyle = "#9c6500";
+ctx.lineWidth = s * 0.03;
+ctx.stroke();
+
+
+// =====================================================
+// KRONEN-JUWELEN
+// =====================================================
+
+ctx.fillStyle = "#fff8c9";
+
+for (const dx of [
+    -crownWidth * 0.28,
+    0,
+    crownWidth * 0.28
+]) {
 
     ctx.beginPath();
 
     ctx.arc(
-        x - s * 0.65,
-        y - s * 0.75,
-        s * 0.055,
+        x + dx,
+        crownY + crownHeight * 0.66,
+        s * 0.022,
         0,
         Math.PI * 2
     );
 
     ctx.fill();
+}
 
 
-    ctx.beginPath();
-
-    ctx.arc(
-        x + s * 0.65,
-        y - s * 0.75,
-        s * 0.055,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fill();
-
-
-    // -------------------------------------------------
-    // MITTLERES FENSTER
-    // -------------------------------------------------
-
-    const windowGradient = ctx.createLinearGradient(
-        x,
-        y - s * 0.30,
-        x,
-        y + s * 0.20
-    );
-
-    windowGradient.addColorStop(0, "#fff4d0");
-    windowGradient.addColorStop(0.35, "#ffd86a");
-    windowGradient.addColorStop(1, "#b87500");
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x - s * 0.14,
-        y - s * 0.25,
-        s * 0.28,
-        s * 0.43,
-        s * 0.05
-    );
-
-    ctx.fillStyle = windowGradient;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = s * 0.025;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // FENSTERKREUZ
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x,
-        y - s * 0.24
-    );
-
-    ctx.lineTo(
-        x,
-        y + s * 0.16
-    );
-
-    ctx.moveTo(
-        x - s * 0.13,
-        y - s * 0.04
-    );
-
-    ctx.lineTo(
-        x + s * 0.13,
-        y - s * 0.04
-    );
-
-    ctx.strokeStyle = "#b87500";
-    ctx.lineWidth = s * 0.025;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // LINKES FENSTER
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x - s * 0.72,
-        y - s * 0.02,
-        s * 0.13,
-        s * 0.27,
-        s * 0.035
-    );
-
-    ctx.fillStyle = "#ffe28a";
-    ctx.fill();
-
-    ctx.strokeStyle = "#b87500";
-    ctx.lineWidth = s * 0.025;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // RECHTES FENSTER
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.roundRect(
-        x + s * 0.59,
-        y - s * 0.02,
-        s * 0.13,
-        s * 0.27,
-        s * 0.035
-    );
-
-    ctx.fillStyle = "#ffe28a";
-    ctx.fill();
-
-    ctx.strokeStyle = "#b87500";
-    ctx.lineWidth = s * 0.025;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // KLEINES TOR
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - s * 0.17,
-        y + s * 0.72
-    );
-
-    ctx.lineTo(
-        x - s * 0.17,
-        y + s * 0.35
-    );
-
-    ctx.quadraticCurveTo(
-        x,
-        y + s * 0.08,
-        x + s * 0.17,
-        y + s * 0.35
-    );
-
-    ctx.lineTo(
-        x + s * 0.17,
-        y + s * 0.72
-    );
-
-    ctx.closePath();
-
-    const door = ctx.createLinearGradient(
-        x - s * 0.17,
-        y,
-        x + s * 0.17,
-        y
-    );
-
-    door.addColorStop(0, "#6b321e");
-    door.addColorStop(0.5, "#a85b32");
-    door.addColorStop(1, "#542718");
-
-    ctx.fillStyle = door;
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffd84a";
-    ctx.lineWidth = s * 0.045;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // GOLDENER TORRING
-    // -------------------------------------------------
-
-    ctx.beginPath();
-
-    ctx.arc(
-        x + s * 0.075,
-        y + s * 0.53,
-        s * 0.035,
-        0,
-        Math.PI * 2
-    );
-
-    ctx.fillStyle = "#ffd84a";
-    ctx.fill();
-
-
-    // -------------------------------------------------
-    // KLEINE KRONE
-    // -------------------------------------------------
-
-    const crownY = y - s * 0.92;
-    const crownWidth = s * 0.58;
-    const crownHeight = s * 0.34;
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-        x - crownWidth / 2,
-        crownY + crownHeight
-    );
-
-    ctx.lineTo(
-        x - crownWidth / 2,
-        crownY + crownHeight * 0.35
-    );
-
-    ctx.lineTo(
-        x - crownWidth * 0.25,
-        crownY + crownHeight * 0.70
-    );
-
-    ctx.lineTo(
-        x,
-        crownY
-    );
-
-    ctx.lineTo(
-        x + crownWidth * 0.25,
-        crownY + crownHeight * 0.70
-    );
-
-    ctx.lineTo(
-        x + crownWidth / 2,
-        crownY + crownHeight * 0.35
-    );
-
-    ctx.lineTo(
-        x + crownWidth / 2,
-        crownY + crownHeight
-    );
-
-    ctx.closePath();
-
-    ctx.fillStyle = gold;
-    ctx.fill();
-
-    ctx.strokeStyle = "#9c6500";
-    ctx.lineWidth = s * 0.035;
-    ctx.stroke();
-
-
-    // -------------------------------------------------
-    // KRONEN-JUWELEN
-    // -------------------------------------------------
-
-    ctx.fillStyle = "#fff5b5";
-
-    for (const dx of [
-        -crownWidth * 0.32,
-        0,
-        crownWidth * 0.32
-    ]) {
-
-        ctx.beginPath();
-
-        ctx.arc(
-            x + dx,
-            crownY + crownHeight * 0.65,
-            s * 0.025,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    }
-
-    ctx.restore();
-        }
+ctx.restore();        }
         else {
 
         ctx.beginPath();
