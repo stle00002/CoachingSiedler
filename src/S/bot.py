@@ -41,11 +41,44 @@ class Bot(Player):
         actions = []
         self.logic = logic
 
-        if self.logic.goldChoices.get(self.name, 0) > 0:
+        if self.logic.goldChoices.get(self, 0) > 0:
+            resource = None
+            missing = self.missingResource(CITY_COST)
+            if missing:
+                resource = missing
+            else:
+                missing = self.missingResource(SETTLEMENT_COST)
+                if missing:
+                    resource = missing
+                else:
+                    missing = self.missingResource(DEVELOPMENT_COST)
+                    if missing:
+                        resource = missing
+            if resource == None:
+                self.updateResourceStrength()
+
+                needed_res = None
+                max_need = -999
+
+                for res in self.resources:
+                    value = (10 - self.resourceStrength[Resource[res]]) - self.resources[res]
+                    if res == "ERZ" or res == "WEIZEN":
+                        value + 1
+                    if value > max_need:
+                        max_need = value
+                        needed_res = res
+                if needed_res == None:
+                    print("NO GOOD RESOURCE TOO NEED")
+                    resource = "WEIZEN"
+                else:
+                    resource = needed_res
+                
+                
+
             return {
                 "action": "chooseGoldResource",
                 "playerName": self.name,
-                "resource": "HOLZ",
+                "resource": resource,
             }
         if self.logic.current_player != self or self.logic.buildPhase:
             if self.logic.playerTrade != None:

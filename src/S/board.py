@@ -153,6 +153,11 @@ class Board:
                 [Resource.WÜSTE] + 
                 [Resource.GOLD] * 3
             )
+            #self.resources = (
+            #    [Resource.WÜSTE] +
+            #    [Resource.GOLD] * 80
+            #)
+
 
 
 

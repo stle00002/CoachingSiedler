@@ -676,6 +676,7 @@ async def handle_message(conn, message):
     if logic.discardResourcesMode:
         if action != "discardResource":
             return
+    print (logic.goldChoices)
     if logic.goldChoices != {}:
         if action != "chooseGoldResource":
             return

@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://appointed-directive-pod-aspect.trycloudflare.com";
+const WS_URL = "wss://bradley-scales-decade-render.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -1015,165 +1015,515 @@ if (owner) {
             ctx.lineWidth = zoomedSize * 0.025;
             ctx.stroke();
         }
+// -----------------------------------------------------
+// 👑 MAMA-SCHLOSS
+// -----------------------------------------------------
+else {
+
+    ctx.save();
+
+    const s = buildingSize;
+    const x = p.x;
+    const y = p.y + offsetY;
+
+    // -------------------------------------------------
+    // SCHATTEN
+    // -------------------------------------------------
+
+    ctx.shadowColor = "rgba(0,0,0,0.28)";
+    ctx.shadowBlur = s * 0.18;
+    ctx.shadowOffsetY = s * 0.10;
+
+    // -------------------------------------------------
+    // ROSA VERLAUF
+    // -------------------------------------------------
+
+    const pink = ctx.createLinearGradient(
+        x - s,
+        y - s,
+        x + s,
+        y + s
+    );
+
+    pink.addColorStop(0, "#ff9fc8");
+    pink.addColorStop(0.45, "#f45b9b");
+    pink.addColorStop(1, "#c92f70");
+
+    // -------------------------------------------------
+    // HAUPTGEBÄUDE
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.78,
+        y + s
+    );
+
+    ctx.lineTo(
+        x + s * 0.78,
+        y + s
+    );
+
+    ctx.lineTo(
+        x + s * 0.78,
+        y - s * 0.05
+    );
+
+    ctx.lineTo(
+        x + s * 0.42,
+        y - s * 0.05
+    );
+
+    ctx.lineTo(
+        x,
+        y - s * 0.62
+    );
+
+    ctx.lineTo(
+        x - s * 0.42,
+        y - s * 0.05
+    );
+
+    ctx.lineTo(
+        x - s * 0.78,
+        y - s * 0.05
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // weißer Rand
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.11;
+    ctx.lineJoin = "round";
+    ctx.stroke();
 
 
-        // -----------------------------------------------------
-        // 👑 MAMA-STADT
-        // -----------------------------------------------------
-        else {
+    // -------------------------------------------------
+    // GOLDENER DACHRAND
+    // -------------------------------------------------
 
-            ctx.save();
+    const gold = ctx.createLinearGradient(
+        x - s,
+        y,
+        x + s,
+        y
+    );
 
-            // Gebäude
-            ctx.beginPath();
+    gold.addColorStop(0, "#a96b00");
+    gold.addColorStop(0.3, "#ffd84a");
+    gold.addColorStop(0.5, "#fff2a0");
+    gold.addColorStop(0.7, "#ffd84a");
+    gold.addColorStop(1, "#a96b00");
 
-            ctx.moveTo(
-                p.x - buildingSize,
-                p.y + buildingSize + offsetY
-            );
+    ctx.beginPath();
 
-            ctx.lineTo(
-                p.x + buildingSize,
-                p.y + buildingSize + offsetY
-            );
+    ctx.moveTo(
+        x - s * 0.43,
+        y - s * 0.04
+    );
 
-            ctx.lineTo(
-                p.x + buildingSize,
-                p.y + offsetY
-            );
+    ctx.lineTo(
+        x,
+        y - s * 0.62
+    );
 
-            ctx.lineTo(
-                p.x,
-                p.y + offsetY
-            );
+    ctx.lineTo(
+        x + s * 0.43,
+        y - s * 0.04
+    );
 
-            ctx.lineTo(
-                p.x - 0.5 * buildingSize,
-                p.y - buildingSize + offsetY
-            );
-
-            ctx.lineTo(
-                p.x - buildingSize,
-                p.y + offsetY
-            );
-
-            ctx.closePath();
-
-            // WICHTIG:
-            // Spielerfarbe
-            ctx.fillStyle = colorCss(owner.color);
-            ctx.fill();
-
-            // weißer Rand
-            ctx.strokeStyle = "#FFD700";
-            ctx.lineWidth = zoomedSize * 0.025;
-            ctx.stroke();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = s * 0.075;
+    ctx.stroke();
 
 
+    // -------------------------------------------------
+    // LINKER TURM
+    // -------------------------------------------------
 
-            // -------------------------------------------------
-            // 👑 Krone
-            // -------------------------------------------------
+    ctx.beginPath();
 
-            const crownY =
-                p.y - buildingSize * 1.12 + offsetY + buildingSize* 0.58;
-            const crownX =
-                p.x + buildingSize * 0.55
+    ctx.roundRect(
+        x - s * 1.02,
+        y - s * 0.38,
+        s * 0.43,
+        s * 1.38,
+        s * 0.08
+    );
 
-            const crownWidth =
-                buildingSize * 0.9;
+    ctx.fillStyle = pink;
+    ctx.fill();
 
-            const crownHeight =
-                buildingSize * 0.45;
-
-
-            ctx.beginPath();
-
-            ctx.moveTo(
-                crownX - crownWidth / 2,
-                crownY + crownHeight
-            );
-
-            ctx.lineTo(
-                crownX - crownWidth / 2,
-                crownY
-            );
-
-            ctx.lineTo(
-                crownX - crownWidth * 0.20,
-                crownY + crownHeight * 0.55
-            );
-
-            ctx.lineTo(
-                crownX,
-                crownY - crownHeight * 0.15
-            );
-
-            ctx.lineTo(
-                crownX + crownWidth * 0.20,
-                crownY + crownHeight * 0.55
-            );
-
-            ctx.lineTo(
-                crownX + crownWidth / 2,
-                crownY
-            );
-
-            ctx.lineTo(
-                crownX + crownWidth / 2,
-                crownY + crownHeight
-            );
-
-            ctx.closePath();
-
-            ctx.fillStyle = "#FFD700";
-            ctx.fill();
-
-            ctx.strokeStyle = "#B8860B";
-            ctx.lineWidth = zoomedSize * 0.018;
-            ctx.stroke();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.08;
+    ctx.stroke();
 
 
-            // -------------------------------------------------
-            // kleine goldene Punkte
-            // -------------------------------------------------
+    // -------------------------------------------------
+    // RECHTER TURM
+    // -------------------------------------------------
 
-            ctx.fillStyle = "#FFF0A0";
+    ctx.beginPath();
 
-            const r = zoomedSize * 0.025;
+    ctx.roundRect(
+        x + s * 0.59,
+        y - s * 0.38,
+        s * 0.43,
+        s * 1.38,
+        s * 0.08
+    );
 
-            ctx.beginPath();
-            ctx.arc(
-                crownX - crownWidth * 0.30,
-                crownY + crownHeight * 0.55,
-                r,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
+    ctx.fillStyle = pink;
+    ctx.fill();
 
-            ctx.beginPath();
-            ctx.arc(
-                crownX,
-                crownY + crownHeight * 0.35,
-                r,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.08;
+    ctx.stroke();
 
-            ctx.beginPath();
-            ctx.arc(
-                crownX + crownWidth * 0.30,
-                crownY + crownHeight * 0.55,
-                r,
-                0,
-                Math.PI * 2
-            );
-            ctx.fill();
 
-            ctx.restore();
-        }
+    // -------------------------------------------------
+    // LINKES TURMDACH
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 1.12,
+        y - s * 0.34
+    );
+
+    ctx.lineTo(
+        x - s * 0.805,
+        y - s * 0.78
+    );
+
+    ctx.lineTo(
+        x - s * 0.50,
+        y - s * 0.34
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.07;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // RECHTES TURMDACH
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + s * 0.50,
+        y - s * 0.34
+    );
+
+    ctx.lineTo(
+        x + s * 0.805,
+        y - s * 0.78
+    );
+
+    ctx.lineTo(
+        x + s * 1.12,
+        y - s * 0.34
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.07;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // TURM-KUGELN
+    // -------------------------------------------------
+
+    ctx.fillStyle = "#fff0a0";
+
+    ctx.beginPath();
+    ctx.arc(
+        x - s * 0.805,
+        y - s * 0.84,
+        s * 0.07,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(
+        x + s * 0.805,
+        y - s * 0.84,
+        s * 0.07,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+
+    // -------------------------------------------------
+    // MITTLERES FENSTER
+    // -------------------------------------------------
+
+    const windowGradient = ctx.createLinearGradient(
+        x,
+        y - s * 0.25,
+        x,
+        y + s * 0.35
+    );
+
+    windowGradient.addColorStop(0, "#fff4d0");
+    windowGradient.addColorStop(0.3, "#ffd86a");
+    windowGradient.addColorStop(1, "#b87500");
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - s * 0.18,
+        y - s * 0.28,
+        s * 0.36,
+        s * 0.56,
+        s * 0.08
+    );
+
+    ctx.fillStyle = windowGradient;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.035;
+    ctx.stroke();
+
+
+    // Fensterkreuz
+    ctx.beginPath();
+
+    ctx.moveTo(x, y - s * 0.27);
+    ctx.lineTo(x, y + s * 0.27);
+
+    ctx.moveTo(
+        x - s * 0.17,
+        y - s * 0.01
+    );
+
+    ctx.lineTo(
+        x + s * 0.17,
+        y - s * 0.01
+    );
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.035;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // LINKES FENSTER
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - s * 0.89,
+        y - s * 0.05,
+        s * 0.16,
+        s * 0.34,
+        s * 0.05
+    );
+
+    ctx.fillStyle = "#ffe28a";
+    ctx.fill();
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.035;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // RECHTES FENSTER
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x + s * 0.73,
+        y - s * 0.05,
+        s * 0.16,
+        s * 0.34,
+        s * 0.05
+    );
+
+    ctx.fillStyle = "#ffe28a";
+    ctx.fill();
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.035;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // GROSSES TOR
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.22,
+        y + s
+    );
+
+    ctx.lineTo(
+        x - s * 0.22,
+        y + s * 0.42
+    );
+
+    ctx.quadraticCurveTo(
+        x,
+        y + s * 0.10,
+        x + s * 0.22,
+        y + s * 0.42
+    );
+
+    ctx.lineTo(
+        x + s * 0.22,
+        y + s
+    );
+
+    ctx.closePath();
+
+    const door = ctx.createLinearGradient(
+        x - s * 0.22,
+        y,
+        x + s * 0.22,
+        y
+    );
+
+    door.addColorStop(0, "#6b321e");
+    door.addColorStop(0.5, "#a85b32");
+    door.addColorStop(1, "#542718");
+
+    ctx.fillStyle = door;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffd84a";
+    ctx.lineWidth = s * 0.055;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // GOLDENER TORRING
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x + s * 0.10,
+        y + s * 0.70,
+        s * 0.045,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = "#ffd84a";
+    ctx.fill();
+
+
+    // -------------------------------------------------
+    // KRONE OBEN
+    // -------------------------------------------------
+
+    const crownY = y - s * 1.03;
+    const crownWidth = s * 0.72;
+    const crownHeight = s * 0.42;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.lineTo(
+        x - crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+
+    ctx.lineTo(
+        x - crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+
+    ctx.lineTo(
+        x,
+        crownY
+    );
+
+    ctx.lineTo(
+        x + crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#9c6500";
+    ctx.lineWidth = s * 0.045;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // KRONEN-JUWELEN
+    // -------------------------------------------------
+
+    ctx.fillStyle = "#fff5b5";
+
+    for (const dx of [
+        -crownWidth * 0.32,
+        0,
+        crownWidth * 0.32
+    ]) {
+        ctx.beginPath();
+
+        ctx.arc(
+            x + dx,
+            crownY + crownHeight * 0.65,
+            s * 0.035,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
 
     }
 
