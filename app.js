@@ -1532,6 +1532,545 @@ else {
     // =========================================================
     else {
 
+        if (owner.name === "Mama"){
+// -----------------------------------------------------
+// 👑 MAMA-SIEDLUNG
+// -----------------------------------------------------
+
+
+    ctx.save();
+
+    const s = settlementSize * 1.45;
+    const x = p.x;
+    const y = p.y + offsetY;
+
+    // -------------------------------------------------
+    // ROSA VERLAUF
+    // -------------------------------------------------
+
+    const pink = ctx.createLinearGradient(
+        x - s,
+        y - s,
+        x + s,
+        y + s
+    );
+
+    pink.addColorStop(0, "#ff9fc8");
+    pink.addColorStop(0.45, "#f45b9b");
+    pink.addColorStop(1, "#c92f70");
+
+
+    // -------------------------------------------------
+    // GOLDVERLAUF
+    // -------------------------------------------------
+
+    const gold = ctx.createLinearGradient(
+        x - s,
+        y,
+        x + s,
+        y
+    );
+
+    gold.addColorStop(0, "#a96b00");
+    gold.addColorStop(0.3, "#ffd84a");
+    gold.addColorStop(0.5, "#fff2a0");
+    gold.addColorStop(0.7, "#ffd84a");
+    gold.addColorStop(1, "#a96b00");
+
+
+    // -------------------------------------------------
+    // SCHATTEN
+    // -------------------------------------------------
+
+    ctx.shadowColor = "rgba(0,0,0,0.28)";
+    ctx.shadowBlur = s * 0.18;
+    ctx.shadowOffsetY = s * 0.10;
+
+
+    // -------------------------------------------------
+    // HAUPTGEBÄUDE
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.72,
+        y + s * 0.72
+    );
+
+    ctx.lineTo(
+        x + s * 0.72,
+        y + s * 0.72
+    );
+
+    ctx.lineTo(
+        x + s * 0.72,
+        y - s * 0.10
+    );
+
+    ctx.lineTo(
+        x + s * 0.35,
+        y - s * 0.10
+    );
+
+    ctx.lineTo(
+        x,
+        y - s * 0.60
+    );
+
+    ctx.lineTo(
+        x - s * 0.35,
+        y - s * 0.10
+    );
+
+    ctx.lineTo(
+        x - s * 0.72,
+        y - s * 0.10
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+
+    // -------------------------------------------------
+    // WEISSER RAND
+    // -------------------------------------------------
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.10;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // GOLDENER DACHRAND
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.36,
+        y - s * 0.08
+    );
+
+    ctx.lineTo(
+        x,
+        y - s * 0.60
+    );
+
+    ctx.lineTo(
+        x + s * 0.36,
+        y - s * 0.08
+    );
+
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = s * 0.065;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // LINKER KLEINER TURM
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - s * 0.82,
+        y - s * 0.38,
+        s * 0.34,
+        s * 1.10,
+        s * 0.06
+    );
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.07;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // RECHTER KLEINER TURM
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x + s * 0.48,
+        y - s * 0.38,
+        s * 0.34,
+        s * 1.10,
+        s * 0.06
+    );
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.07;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // LINKES TURMDACH
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.90,
+        y - s * 0.35
+    );
+
+    ctx.lineTo(
+        x - s * 0.65,
+        y - s * 0.70
+    );
+
+    ctx.lineTo(
+        x - s * 0.40,
+        y - s * 0.35
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.06;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // RECHTES TURMDACH
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x + s * 0.40,
+        y - s * 0.35
+    );
+
+    ctx.lineTo(
+        x + s * 0.65,
+        y - s * 0.70
+    );
+
+    ctx.lineTo(
+        x + s * 0.90,
+        y - s * 0.35
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.06;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // TURM-KUGELN
+    // -------------------------------------------------
+
+    ctx.fillStyle = "#fff0a0";
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x - s * 0.65,
+        y - s * 0.75,
+        s * 0.055,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x + s * 0.65,
+        y - s * 0.75,
+        s * 0.055,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    // -------------------------------------------------
+    // MITTLERES FENSTER
+    // -------------------------------------------------
+
+    const windowGradient = ctx.createLinearGradient(
+        x,
+        y - s * 0.30,
+        x,
+        y + s * 0.20
+    );
+
+    windowGradient.addColorStop(0, "#fff4d0");
+    windowGradient.addColorStop(0.35, "#ffd86a");
+    windowGradient.addColorStop(1, "#b87500");
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - s * 0.14,
+        y - s * 0.25,
+        s * 0.28,
+        s * 0.43,
+        s * 0.05
+    );
+
+    ctx.fillStyle = windowGradient;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.025;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // FENSTERKREUZ
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x,
+        y - s * 0.24
+    );
+
+    ctx.lineTo(
+        x,
+        y + s * 0.16
+    );
+
+    ctx.moveTo(
+        x - s * 0.13,
+        y - s * 0.04
+    );
+
+    ctx.lineTo(
+        x + s * 0.13,
+        y - s * 0.04
+    );
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.025;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // LINKES FENSTER
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x - s * 0.72,
+        y - s * 0.02,
+        s * 0.13,
+        s * 0.27,
+        s * 0.035
+    );
+
+    ctx.fillStyle = "#ffe28a";
+    ctx.fill();
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.025;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // RECHTES FENSTER
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+        x + s * 0.59,
+        y - s * 0.02,
+        s * 0.13,
+        s * 0.27,
+        s * 0.035
+    );
+
+    ctx.fillStyle = "#ffe28a";
+    ctx.fill();
+
+    ctx.strokeStyle = "#b87500";
+    ctx.lineWidth = s * 0.025;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // KLEINES TOR
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - s * 0.17,
+        y + s * 0.72
+    );
+
+    ctx.lineTo(
+        x - s * 0.17,
+        y + s * 0.35
+    );
+
+    ctx.quadraticCurveTo(
+        x,
+        y + s * 0.08,
+        x + s * 0.17,
+        y + s * 0.35
+    );
+
+    ctx.lineTo(
+        x + s * 0.17,
+        y + s * 0.72
+    );
+
+    ctx.closePath();
+
+    const door = ctx.createLinearGradient(
+        x - s * 0.17,
+        y,
+        x + s * 0.17,
+        y
+    );
+
+    door.addColorStop(0, "#6b321e");
+    door.addColorStop(0.5, "#a85b32");
+    door.addColorStop(1, "#542718");
+
+    ctx.fillStyle = door;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffd84a";
+    ctx.lineWidth = s * 0.045;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // GOLDENER TORRING
+    // -------------------------------------------------
+
+    ctx.beginPath();
+
+    ctx.arc(
+        x + s * 0.075,
+        y + s * 0.53,
+        s * 0.035,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fillStyle = "#ffd84a";
+    ctx.fill();
+
+
+    // -------------------------------------------------
+    // KLEINE KRONE
+    // -------------------------------------------------
+
+    const crownY = y - s * 0.92;
+    const crownWidth = s * 0.58;
+    const crownHeight = s * 0.34;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        x - crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.lineTo(
+        x - crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+
+    ctx.lineTo(
+        x - crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+
+    ctx.lineTo(
+        x,
+        crownY
+    );
+
+    ctx.lineTo(
+        x + crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#9c6500";
+    ctx.lineWidth = s * 0.035;
+    ctx.stroke();
+
+
+    // -------------------------------------------------
+    // KRONEN-JUWELEN
+    // -------------------------------------------------
+
+    ctx.fillStyle = "#fff5b5";
+
+    for (const dx of [
+        -crownWidth * 0.32,
+        0,
+        crownWidth * 0.32
+    ]) {
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x + dx,
+            crownY + crownHeight * 0.65,
+            s * 0.025,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+    }
+
+    ctx.restore();
+        }
+        else {
+
         const settlementSize = zoomedSize * 0.17;
         const offsetY = -zoomedSize * 0.04;
 
@@ -1572,6 +2111,7 @@ else {
         ctx.strokeStyle = "#ffffff";
         ctx.lineWidth = zoomedSize * 0.025;
         ctx.stroke();
+    }
     }
 }
 
