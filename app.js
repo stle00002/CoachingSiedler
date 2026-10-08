@@ -1542,7 +1542,7 @@ else {
 
 ctx.save();
 
-const s = settlementSize * 1.45;
+const s = settlementSize * 2.5;
 const x = p.x;
 const y = p.y + offsetY;
 
