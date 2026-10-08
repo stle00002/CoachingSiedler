@@ -1531,6 +1531,8 @@ else {
     // NORMALE SIEDLUNG
     // =========================================================
     else {
+    const settlementSize = zoomedSize * 0.17;
+    const offsetY = -zoomedSize * 0.04;
 
         if (owner.name === "Mama"){
 // -----------------------------------------------------
@@ -2070,9 +2072,6 @@ else {
     ctx.restore();
         }
         else {
-
-        const settlementSize = zoomedSize * 0.17;
-        const offsetY = -zoomedSize * 0.04;
 
         ctx.beginPath();
 
