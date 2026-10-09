@@ -2088,9 +2088,9 @@ $("board").addEventListener("wheel", (ev) => {
     const oldZoom = boardZoom;
 
     if (ev.deltaY < 0) {
-        boardZoom *= 1.01;
+        boardZoom *= 1.03;
     } else {
-        boardZoom /= 1.01;
+        boardZoom /= 1.03;
     }
 
     boardZoom = Math.max(
@@ -4343,7 +4343,7 @@ canvas.addEventListener("pointerup", (ev) => {
             0.6,
             Math.min(
                 2.5,
-                mapBuilder.zoom * (ev.deltaY < 0 ? 1.01 : 1/1.01)
+                mapBuilder.zoom * (ev.deltaY < 0 ? 1.03 : 1/1.03)
             )
         );
 
