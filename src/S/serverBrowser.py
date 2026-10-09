@@ -765,13 +765,14 @@ async def handle_message(conn, message):
         player = client_players.get(conn)
 
         # Nur der Host darf Karten speichern.
-        if player is None or not player.is_host:
+        if player is None:
             await send_json(conn, {
                 "type": "error",
                 "message": "Nur der Host darf Karten speichern."
             })
             return
 
+        print (message.get("tiles"))
         success, result_message = save_custom_map(
             message.get("name"),
             message.get("tiles")
@@ -1407,6 +1408,7 @@ async def broadcast_lobby():
             "color": bot.color
         })
     for client in clients:
+        print (get_saved_map_previews())
         await send_json(client, {
     "action": "lobby_update",
     "players": lobby_data,

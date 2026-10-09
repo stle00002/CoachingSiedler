@@ -3804,6 +3804,13 @@ function createMapBuilderUI() {
     <h3 class="mb-section-title">Karteneditor</h3>
 
     <div class="mb-buttons">
+        <input
+    id="mapName"
+    type="text"
+    placeholder="Name der Karte eingeben"
+    maxlength="60"
+    autocomplete="off"
+/>
         <button class="mb-button" id="mbClear">
             Karte leeren
         </button>
@@ -4134,9 +4141,6 @@ canvas.addEventListener("pointerup", (ev) => {
     }, { passive: false });
 }
 
-// ---------------------------------------------------------
-// FERTIG: KARTE AN SERVER SENDEN
-// ---------------------------------------------------------
 
 function finishMapBuilder() {
     if (!mapBuilder.active) return;
@@ -4146,31 +4150,34 @@ function finishMapBuilder() {
         return;
     }
 
+    const nameInput = document.getElementById("mapName");
+    const name = nameInput?.value.trim();
+
+    // Ohne Namen nichts senden und im Builder bleiben.
+    if (!name) {
+        nameInput?.focus();
+        return;
+    }
+
     const tiles = Array.from(
         mapBuilder.tiles.entries(),
         ([key, resource]) => {
             const [q, r] = key.split(",").map(Number);
-
-return {
-    q,
-    r,
-    resource: resource.resource
-};
+            return { q, r, resource };
         }
     );
 
-    // EINZIGE Servernachricht während des gesamten Editors.
-    // Der Server muss diesen Nachrichtentyp verarbeiten.
     if (!ws || ws.readyState !== WebSocket.OPEN) {
-        alert("Keine Serververbindung. Die Karte wurde nicht gesendet.");
+        alert("Keine Serververbindung. Die Karte wurde nicht gespeichert.");
         return;
     }
 
-    send("custom_map", { tiles });
+    // Name und Felder gemeinsam an den Server senden.
+    send("custom_map", { name, tiles });
+
 
     closeMapBuilder();
 
-    log("Eigene Karte wurde an den Server übergeben.");
 }
 
 const MAP_RESOURCE_IMAGES = {
