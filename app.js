@@ -731,14 +731,23 @@ function drawMapTiles(ctx, tiles, pos, size) {
     for (const t of tiles) {
         const p = pos(+t.q, +t.r);
 
-        const resource = String(t.resource || "").toUpperCase();
+        // Unbekannte Ressource als weißes Feld mit Fragezeichen
+        if (t.resource == null) {
+            drawUnknownTile(ctx, p.x, p.y, size);
+            continue;
+        }
+
+        const resource = String(t.resource || " ").toUpperCase();
         const img = TILE_IMAGES[resource];
+
+        
 
         if (img && img.complete && img.naturalWidth > 0) {
 
             // -------------------------------------------------
             // FELDBILDER
             // -------------------------------------------------
+
 
             if (resource.includes("WASSER")) {
                 ctx.drawImage(
@@ -3632,7 +3641,8 @@ const mapBuilder = {
     dragX: 0,
     dragY: 0,
     startOffsetX: 0,
-    startOffsetY: 0
+    startOffsetY: 0,
+    selectedResource: "HOLZ",
 };
 
 const MAP_BUILDER_RESOURCES = [
@@ -3830,6 +3840,35 @@ function createMapBuilderUI() {
 
     <h3 class="mb-section-title">Karteneditor</h3>
 
+    
+<h3 class="mb-section-title">Rohstoff auswählen</h3>
+
+<div class="mb-resource-grid">
+    <button class="mb-button mb-resource active"
+            data-resource="HOLZ">🌲 Holz</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="LEHM">🧱 Lehm</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="WEIZEN">🌾 Weizen</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="ERZ">⛰️ Erz</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="SCHAF">🐑 Schaf</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="GOLD">🪙 Gold</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="RANDOM">❓ Random</button>
+
+    <button class="mb-button mb-resource"
+            data-resource="WÜSTE">🏜️ Wüste</button>
+</div>
+
     <div class="mb-buttons">
         <input
     id="mapName"
@@ -3858,6 +3897,15 @@ function createMapBuilderUI() {
     `;
 
     document.body.appendChild(screen);
+    screen.querySelectorAll(".mb-resource").forEach(button => {
+    button.addEventListener("click", () => {
+        mapBuilder.selectedResource = button.dataset.resource;
+
+        screen.querySelectorAll(".mb-resource").forEach(btn => {
+            btn.classList.toggle("active", btn === button);
+        });
+    });
+});
 
     mapBuilder.canvas = $("mapBuilderCanvas");
     mapBuilder.ctx = mapBuilder.canvas.getContext("2d");
@@ -3991,22 +4039,57 @@ if (waterImg && waterImg.complete && waterImg.naturalWidth > 0) {
     }
 }
 
-    // Ausschließlich platzierte Landfelder zeichnen.
-    for (const tile of mapBuilder.tiles.values()) {
-        const { q, r, resource } = tile;
-        const p = position(q, r);
-        const img = TILE_IMAGES[resource];
+// Ausschließlich platzierte Landfelder zeichnen.
+for (const tile of mapBuilder.tiles.values()) {
+    const { q, r, resource } = tile;
+    const p = position(q, r);
 
-        if (img && img.complete && img.naturalWidth > 0) {
-            ctx.drawImage(
-                img,
-                p.x - size * 0.9,
-                p.y - size,
-                size * 1.8,
-                size * 2
+    if (resource == null) {
+        // Weißes Feld für eine zufällige Ressource
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y - size);
+
+        for (let i = 1; i < 6; i++) {
+            const angle = (Math.PI / 3) * i;
+            ctx.lineTo(
+                p.x + size * Math.cos(angle - Math.PI / 2),
+                p.y + size * Math.sin(angle - Math.PI / 2)
             );
         }
+
+        ctx.closePath();
+        ctx.fill();
+
+        // Dezente Umrandung
+        ctx.strokeStyle = "#b8b8b8";
+        ctx.lineWidth = Math.max(1, size * 0.025);
+        ctx.stroke();
+
+        // Fragezeichen zentriert zeichnen
+        ctx.fillStyle = "#333333";
+        ctx.font = `bold ${size * 0.85}px Arial`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("?", p.x, p.y);
+
+        continue;
     }
+
+    // Normale Ressourcenfelder
+    const img = TILE_IMAGES[resource];
+
+    if (img && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(
+            img,
+            p.x - size * 0.9,
+            p.y - size,
+            size * 1.8,
+            size * 2
+        );
+    }
+}
+
 
     $("mbTileCount").textContent =
         `${mapBuilder.tiles.size} Landfelder`;
@@ -4059,24 +4142,19 @@ function findMapBuilderTile(x, y) {
 // KLICK: WASSER <-> LAND
 // ---------------------------------------------------------
 
+
 function toggleMapBuilderTile(q, r) {
     const key = `${q},${r}`;
 
     if (mapBuilder.tiles.has(key)) {
-        // Vorhandenes Landfeld entfernen → wieder Wasser
+        // Land anklicken → wieder Wasser
         mapBuilder.tiles.delete(key);
     } else {
-        // Neues Landfeld zufällig auswählen
-        const resources = [
-            "HOLZ",
-            "LEHM",
-            "SCHAF",
-            "WEIZEN",
-            "ERZ"
-        ];
-
+        // Ausgewählte Ressource platzieren
         const resource =
-            resources[Math.floor(Math.random() * resources.length)];
+            mapBuilder.selectedResource === "RANDOM"
+                ? null
+                : mapBuilder.selectedResource;
 
         mapBuilder.tiles.set(key, {
             q,
@@ -4087,6 +4165,7 @@ function toggleMapBuilderTile(q, r) {
 
     drawMapBuilder();
 }
+
 
 // ---------------------------------------------------------
 // MAUS, ZOOM UND VERSCHIEBEN
@@ -4186,13 +4265,19 @@ function finishMapBuilder() {
         return;
     }
 
-    const tiles = Array.from(
-        mapBuilder.tiles.entries(),
-        ([key, resource]) => {
-            const [q, r] = key.split(",").map(Number);
-            return { q, r, resource: resource.resource};
-        }
-    );
+const tiles = Array.from(
+    mapBuilder.tiles.entries(),
+    ([key, tile]) => {
+        const [q, r] = key.split(",").map(Number);
+
+        return {
+            q,
+            r,
+            resource: tile.resource ?? null
+        };
+    }
+);
+
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         alert("Keine Serververbindung. Die Karte wurde nicht gespeichert.");
@@ -4205,6 +4290,44 @@ function finishMapBuilder() {
 
     closeMapBuilder();
 
+}
+
+
+function drawUnknownTile(ctx, x, y, size) {
+    const corners = [];
+
+    // Gleiche Hexagon-Ausrichtung wie bei den anderen Feldern
+    for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 180) * (60 * i - 30);
+
+        corners.push({
+            x: x + size * Math.cos(angle),
+            y: y + size * Math.sin(angle)
+        });
+    }
+
+    ctx.beginPath();
+    corners.forEach((point, i) => {
+        if (i === 0) {
+            ctx.moveTo(point.x, point.y);
+        } else {
+            ctx.lineTo(point.x, point.y);
+        }
+    });
+    ctx.closePath();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+
+    ctx.strokeStyle = "#8a8a8a";
+    ctx.lineWidth = Math.max(1, size * 0.035);
+    ctx.stroke();
+
+    ctx.fillStyle = "#333333";
+    ctx.font = `bold ${size * 0.85}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("?", x, y + size * 0.03);
 }
 
 const MAP_RESOURCE_IMAGES = {

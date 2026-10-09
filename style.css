@@ -1025,3 +1025,48 @@ input {
         grid-template-columns: 1fr;
     }
 }
+
+
+#mapBuilderScreen .mb-resource-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#mapBuilderScreen .mb-resource {
+    width: 100%;
+    min-height: 40px;
+    padding: 10px 13px;
+
+    font: inherit;
+    font-size: 14px;
+
+    border: 0;
+    border-radius: 9px;
+
+    background: #654421;
+    color: #fff;
+
+    box-shadow: none;
+    cursor: pointer;
+    transition: filter 0.12s;
+}
+
+#mapBuilderScreen .mb-resource:hover {
+    filter: brightness(1.2);
+}
+
+#mapBuilderScreen .mb-resource:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #75502e;
+}
+
+/* Ausgewählter Button: gleicher Stil, nur heller */
+#mapBuilderScreen .mb-resource.active {
+    background: #a66b20;
+    color: #fff;
+    outline: 2px solid #e9bf72;
+    outline-offset: -2px;
+}

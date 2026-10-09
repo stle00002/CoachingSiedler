@@ -57,9 +57,13 @@ class Board:
                 for tile in custom_map["tiles"]
             ]
 
-            # Ressourcen anhand der Koordinaten zuordnen.
+
             self.custom_resources = {
-                (tile["q"], tile["r"]): Resource[tile["resource"]]
+                (tile["q"], tile["r"]): (
+                    Resource[tile["resource"]]
+                    if tile["resource"] is not None
+                    else None
+                )
                 for tile in custom_map["tiles"]
             }
 
@@ -359,9 +363,18 @@ class Board:
 
         for q, r in sorted(all_positions):
             if (q, r) in land_positions:
-
                 if self.custom_map is not None:
                     resource = self.custom_resources[(q, r)]
+
+                    # None bedeutet: zufällige Ressource beim Spielstart
+                    if resource is None:
+                        resource = random.choice([
+                            Resource.HOLZ,
+                            Resource.LEHM,
+                            Resource.SCHAF,
+                            Resource.WEIZEN,
+                            Resource.ERZ
+                        ])
                 else:
                     resource = self.resources.pop()
 

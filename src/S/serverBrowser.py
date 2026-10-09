@@ -85,7 +85,8 @@ def save_custom_map(name, tiles):
         if abs(q) > 50 or abs(r) > 50:
             return False, "Die Karte ist zu groß."
 
-        if resource not in valid_resources:
+        # None bedeutet: zufälliges/unbekanntes Feld
+        if resource is not None and resource not in valid_resources:
             return False, f"Ungültige Ressource: {resource}"
 
         position = (q, r)
