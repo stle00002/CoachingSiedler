@@ -3703,7 +3703,7 @@ function loadMapBuilder() {
 
 window.addEventListener("DOMContentLoaded", () => {
     if (loadMapBuilder()) {
-        openMapBuilder();
+        openMapBuilder(true);
     }
 });
 
