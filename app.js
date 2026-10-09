@@ -160,6 +160,9 @@ function connect() {
   ws.onmessage = (e) => {
     try {
       const m = JSON.parse(e.data);
+      if (mapBuilder.active){
+        return
+      }
 
       if (m.type === "state") {
         renderState(m.state);
@@ -3645,6 +3648,70 @@ const mapBuilder = {
     selectedResource: "HOLZ",
 };
 
+const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
+
+function saveMapBuilder() {
+    if (!mapBuilder.active) return;
+
+    const data = {
+        active: mapBuilder.active,
+
+        // Alle bearbeiteten Felder speichern
+        tiles: Array.from(mapBuilder.tiles.entries()),
+
+        // Ansicht speichern
+        zoom: mapBuilder.zoom,
+        offsetX: mapBuilder.offsetX,
+        offsetY: mapBuilder.offsetY
+    };
+
+    localStorage.setItem(
+        MAP_BUILDER_STORAGE_KEY,
+        JSON.stringify(data)
+    );
+}
+
+function loadMapBuilder() {
+    const saved = localStorage.getItem(
+        MAP_BUILDER_STORAGE_KEY
+    );
+
+    if (!saved) return false;
+
+    try {
+        const data = JSON.parse(saved);
+
+        mapBuilder.active = data.active ?? false;
+        mapBuilder.tiles = new Map(data.tiles ?? []);
+
+        mapBuilder.zoom = data.zoom ?? 1;
+        mapBuilder.offsetX = data.offsetX ?? 0;
+        mapBuilder.offsetY = data.offsetY ?? 0;
+
+        return mapBuilder.active;
+    } catch (error) {
+        console.error(
+            "Map Builder konnte nicht geladen werden:",
+            error
+        );
+
+        return false;
+    }
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    if (loadMapBuilder()) {
+        openMapBuilder();
+    }
+});
+
+function onMapBuilderTileChanged() {
+    saveMapBuilder();
+    drawMapBuilder();
+}
+function clearMapBuilderSave() {
+    localStorage.removeItem(MAP_BUILDER_STORAGE_KEY);
+}
 const MAP_BUILDER_RESOURCES = [
     "HOLZ",
     "LEHM",
@@ -3914,7 +3981,7 @@ function createMapBuilderUI() {
 
     $("mbClear").onclick = () => {
         mapBuilder.tiles.clear();
-        drawMapBuilder();
+        onMapBuilderTileChanged()
     };
 
     $("mbFinish").onclick = finishMapBuilder;
@@ -3961,7 +4028,7 @@ function openMapBuilder() {
     // Die normale Spielansicht wird nicht verändert.
     $("mapBuilderScreen").classList.remove("hidden");
 
-    drawMapBuilder();
+    onMapBuilderTileChanged()
 }
 
 function closeMapBuilder() {
@@ -4163,7 +4230,7 @@ function toggleMapBuilderTile(q, r) {
         });
     }
 
-    drawMapBuilder();
+    onMapBuilderTileChanged()
 }
 
 
@@ -4205,7 +4272,7 @@ function setupMapBuilderCanvas() {
             mapBuilder.offsetX = mapBuilder.startOffsetX + dx;
             mapBuilder.offsetY = mapBuilder.startOffsetY + dy;
 
-            drawMapBuilder();
+            onMapBuilderTileChanged()
         }
     });
 
@@ -4243,7 +4310,7 @@ canvas.addEventListener("pointerup", (ev) => {
             )
         );
 
-        drawMapBuilder();
+        onMapBuilderTileChanged()
     }, { passive: false });
 }
 

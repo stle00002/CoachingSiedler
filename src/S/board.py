@@ -408,83 +408,124 @@ class Board:
 
         return False
     
-    def createNumbers(self):
-        if self.custom_map is not None:
-            numbered_tiles = [
-                tile for tile in self.tiles
-                if tile.resource not in (
-                    Resource.WASSER,
-                    Resource.WÜSTE
-                )
-            ]
 
-            # Übliche Häufigkeitsverteilung für Würfelzahlen.
+    def createNumbers(self):
+        numbered_tiles = [
+            tile for tile in self.tiles
+            if tile.resource not in (
+                Resource.WASSER,
+                Resource.WÜSTE
+            )
+        ]
+
+        # Zahlenverteilung bestimmen
+        if self.custom_map is not None:
             number_bag = (
-                [2] * 1 +
-                [3] * 2 +
-                [4] * 3 +
-                [5] * 4 +
-                [6] * 5 +
-                [8] * 5 +
-                [9] * 4 +
-                [10] * 3 +
-                [11] * 2 +
-                [12] * 1
+                [2] + [3] * 2 + [4] * 3 + [5] * 4
+                + [6] * 5 + [8] * 5 + [9] * 4
+                + [10] * 3 + [11] * 2 + [12]
             )
 
             numbers = []
-
             while len(numbers) < len(numbered_tiles):
                 numbers.extend(number_bag)
+            numbers = numbers[:len(numbered_tiles)]
 
-            random.shuffle(numbers)
-
-            for tile, number in zip(numbered_tiles, numbers):
-                tile.number = number
-
-            return
-        if self.earthMap:
-            # 80 Zahlen für 81 Landfelder
-            # Die Wüste bekommt keine Zahl.
+        elif self.earthMap:
             numbers = (
-                [2] * 4 +
-                [3] * 6 +
-                [4] * 8 +
-                [5] * 10 +
-                [6] * 10 +
-                [8] * 10 +
-                [9] * 10 +
-                [10] * 8 +
-                [11] * 8 +
-                [12] * 6
+                [2] * 4 + [3] * 6 + [4] * 8
+                + [5] * 10 + [6] * 10 + [8] * 10
+                + [9] * 10 + [10] * 8 + [11] * 8
+                + [12] * 6
             )
-            
 
         elif self.radius == 3:
             numbers = [
-                2, 3, 3, 4, 4,
-                5, 5, 6, 6,
-                8, 8, 9, 9,
-                10, 10, 11, 11, 12
+                2, 3, 3, 4, 4, 5, 5, 6, 6,
+                8, 8, 9, 9, 10, 10, 11, 11, 12
             ]
 
         else:
             numbers = [
-                2, 2,
-                3, 3, 3,
-                4, 4, 4,
-                5, 5, 5, 5,
-                6, 6, 6, 6, 6,
-                8, 8, 8, 8, 8,
-                9, 9, 9, 9, 9,
-                10, 10, 10,
-                11, 11, 11,
-                12, 12
+                2, 2, 3, 3, 3, 4, 4, 4,
+                5, 5, 5, 5, 6, 6, 6, 6, 6,
+                8, 8, 8, 8, 8, 9, 9, 9, 9, 9,
+                10, 10, 10, 11, 11, 11, 12, 12
             ]
+
+        # Die Anzahl muss exakt zur Zahl der Landfelder passen.
+        numbers = numbers[:len(numbered_tiles)]
         random.shuffle(numbers)
-        for tile in self.tiles:
-            if not tile.resource == Resource.WASSER and not tile.resource == Resource.WÜSTE:
-                tile.number = numbers.pop()
+
+        red_count = numbers.count(6) + numbers.count(8)
+
+        # Benachbarte Landfelder bestimmen
+        neighbours = {tile: set() for tile in numbered_tiles}
+
+        for tile in numbered_tiles:
+            for edge in tile.edges:
+                for other in edge.adjacentTiles:
+                    if other is not None and other is not tile:
+                        if other in neighbours:
+                            neighbours[tile].add(other)
+
+        # Zufällige, konfliktfreie Positionen für rote Zahlen suchen
+        red_tiles = []
+        forbidden = set()
+
+        def place_reds():
+            if len(red_tiles) == red_count:
+                return True
+
+            candidates = [
+                tile for tile in numbered_tiles
+                if tile not in forbidden
+                and tile not in red_tiles
+            ]
+            random.shuffle(candidates)
+
+            for tile in candidates:
+                red_tiles.append(tile)
+
+                old_forbidden = forbidden.copy()
+                forbidden.add(tile)
+                forbidden.update(neighbours[tile])
+
+                if place_reds():
+                    return True
+
+                red_tiles.pop()
+                forbidden.clear()
+                forbidden.update(old_forbidden)
+
+            return False
+
+        if not place_reds():
+            raise ValueError(
+                "Auf dieser Karte können nicht alle roten Zahlen "
+                "konfliktfrei platziert werden."
+            )
+
+        red_numbers = [n for n in numbers if n in (6, 8)]
+        black_numbers = [n for n in numbers if n not in (6, 8)]
+
+        random.shuffle(red_numbers)
+        random.shuffle(black_numbers)
+
+        # Rote Zahlen auf die ausgewählten Felder setzen
+        for tile, number in zip(red_tiles, red_numbers):
+            tile.number = number
+
+        # Übrige Zahlen zufällig verteilen
+        remaining_tiles = [
+            tile for tile in numbered_tiles
+            if tile not in red_tiles
+        ]
+        random.shuffle(remaining_tiles)
+
+        for tile, number in zip(remaining_tiles, black_numbers):
+            tile.number = number
+
 
     def createEdges(self):
         self.tile_map = {(tile.q, tile.r): tile for tile in self.tiles}
