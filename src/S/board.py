@@ -644,7 +644,7 @@ class Board:
                 v2.neighbourVertices.append(v1)
             
     def createHarbors(self):
-        if not self.earthMap:
+        if not self.earthMap and not self.custom_map:
             if self.radius == 3:
                 for tile in self.tiles:
                     if tile.q == 2 and tile.r == -2:

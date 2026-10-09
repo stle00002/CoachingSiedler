@@ -722,6 +722,146 @@ if (s.setupPhase) {
         );
     });
 }
+// =========================================================
+// GEMEINSAME FELD-DARSTELLUNG
+// Wird von drawBoard() und drawMapPreview() verwendet
+// =========================================================
+
+function drawMapTiles(ctx, tiles, pos, size) {
+    for (const t of tiles) {
+        const p = pos(+t.q, +t.r);
+
+        const resource = String(t.resource || "").toUpperCase();
+        const img = TILE_IMAGES[resource];
+
+        if (img && img.complete && img.naturalWidth > 0) {
+
+            // -------------------------------------------------
+            // FELDBILDER
+            // -------------------------------------------------
+
+            if (resource.includes("WASSER")) {
+                ctx.drawImage(
+                    img,
+                    p.x - size * 1.91,
+                    p.y - size * 1.22,
+                    size * 3.82,
+                    size * 2.44
+                );
+
+            } else if (resource.includes("GOLD")) {
+                ctx.drawImage(
+                    img,
+                    p.x - size * 1.54,
+                    p.y - size * 1.05,
+                    size * 3.08,
+                    size * 2.1
+                );
+
+            } else {
+                ctx.drawImage(
+                    img,
+                    p.x - size * 0.9,
+                    p.y - size,
+                    size * 1.8,
+                    size * 2
+                );
+            }
+        }
+
+        // -------------------------------------------------
+        // KEINE ZAHL AUF WASSER ODER WÜSTE
+        // -------------------------------------------------
+
+        if (
+            resource.includes("WASSER") ||
+            resource.includes("WÜSTE")
+        ) {
+            continue;
+        }
+
+        // -------------------------------------------------
+        // ZAHLENKREIS
+        // -------------------------------------------------
+
+        if (t.number == null || t.number === "") {
+            continue;
+        }
+
+        const numberCircleRadius = size * 0.28;
+
+        ctx.fillStyle = "#f2dfbb";
+        ctx.beginPath();
+        ctx.arc(
+            p.x,
+            p.y,
+            numberCircleRadius,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+
+        // -------------------------------------------------
+        // ZAHL
+        // -------------------------------------------------
+
+        ctx.fillStyle =
+            Number(t.number) === 6 ||
+            Number(t.number) === 8
+                ? "#c33"
+                : "#222";
+
+        ctx.font = `bold ${size * 0.25}px Georgia`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillText(
+            t.number,
+            p.x,
+            p.y
+        );
+
+        // -------------------------------------------------
+        // RÄUBER
+        // Nur zeichnen, wenn das Feld den Räuber enthält
+        // und ROBBER_CANVAS geladen wurde.
+        // -------------------------------------------------
+
+        if (t.hasRobber && ROBBER_CANVAS.width > 0) {
+            const robberHeight = size * 1.30;
+            const robberWidth = robberHeight * (512 / 1280);
+
+            const robberX = p.x - robberWidth / 2;
+            const robberY = p.y - robberHeight * 0.55;
+
+            ctx.save();
+
+            ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+            ctx.beginPath();
+            ctx.ellipse(
+                p.x,
+                p.y + robberHeight * 0.50,
+                robberWidth * 0.50,
+                robberHeight * 0.05,
+                0,
+                0,
+                Math.PI * 2
+            );
+            ctx.fill();
+
+            ctx.restore();
+
+            ctx.drawImage(
+                ROBBER_CANVAS,
+                robberX - 3,
+                robberY - 3,
+                robberWidth + 6,
+                robberHeight + 6
+            );
+        }
+    }
+}
+
 function drawBoard(s) {
   const c = $("board"),
     r = c.getBoundingClientRect(),
@@ -793,120 +933,7 @@ const zoomedSize = size * boardZoom;
             }
         }
     }
-  for (const t of tiles) {
-  const p = pos(+t.q, +t.r);
-
-  const resource = String(t.resource || "").toUpperCase();
-  const img = TILE_IMAGES[resource];
-
-  if (img && img.complete && img.naturalWidth > 0) {
-if (resource.includes("WASSER")) {
-    ctx.drawImage(
-        img,
-        p.x - zoomedSize * 1.91,
-        p.y - zoomedSize * 1.22,
-        zoomedSize * 3.82,
-        zoomedSize * 2.44
-    );
-} else if (resource.includes("GOLD")) {
-    ctx.drawImage(
-        img,
-        p.x - zoomedSize * 1.54,
-        p.y - zoomedSize * 1.05,
-        zoomedSize * 3.08,
-        zoomedSize * 2.1
-    );
-} else{
-    ctx.drawImage(
-        img,
-        p.x - zoomedSize * 0.9,
-        p.y - zoomedSize ,
-        zoomedSize * 1.8,
-        zoomedSize * 2
-    );
-}
-  }
-
-  // Keine Zahl auf Wasser oder Wüste
-  if (
-    resource.includes("WASSER") ||
-    resource.includes("WÜSTE")
-  ) {
-    continue;
-  }
-
-// =========================================================
-// ZAHLENKREIS
-// =========================================================
-
-// Größe relativ zum tatsächlichen Hexfeld
-const numberCircleRadius = zoomedSize * 0.28;
-
-ctx.fillStyle = "#f2dfbb";
-ctx.beginPath();
-ctx.arc(
-    p.x,
-    p.y,
-    numberCircleRadius,
-    0,
-    Math.PI * 2
-);
-ctx.fill();
-
-// =========================================================
-// ZAHL
-// =========================================================
-
-ctx.fillStyle =
-    t.number === 6 || t.number === 8
-        ? "#c33"
-        : "#222";
-
-ctx.font = `bold ${zoomedSize * 0.25}px Georgia`;
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-
-ctx.fillText(
-    t.number ?? "",
-    p.x,
-    p.y
-);
-
-if (t.hasRobber) {
-    const robberHeight = zoomedSize * 1.30;
-    const robberWidth = robberHeight * (512 / 1280);
-
-    const robberX = p.x - robberWidth / 2;
-    const robberY = p.y - robberHeight * 0.55;
-
-    // Schatten unter dem Räuber
-ctx.save();
-
-ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
-ctx.beginPath();
-ctx.ellipse(
-    p.x,
-    p.y + robberHeight * 0.50,
-    robberWidth * 0.50,
-    robberHeight * 0.05,
-    0,
-    0,
-    Math.PI * 2
-);
-ctx.fill();
-
-ctx.restore();
-    if (ROBBER_CANVAS.width > 0) {
-    ctx.drawImage(
-        ROBBER_CANVAS,
-        robberX - 3,
-        robberY - 3,
-        robberWidth + 6,
-        robberHeight + 6
-    );  
-}
-}
-}
+  drawMapTiles(ctx, tiles, pos, zoomedSize);
 // =========================================================
 // HÄFEN
 // =========================================================
@@ -4191,11 +4218,16 @@ const MAP_RESOURCE_IMAGES = {
     WASSER: "WASSER"
 };
 
+// =========================================================
+// MAP PREVIEW
+// Verwendet dieselbe Feldzeichnung wie drawBoard()
+// =========================================================
+
 function drawMapPreview(canvas, tiles) {
     const ctx = canvas.getContext("2d");
+
     const width = 340;
     const height = 270;
-    const size = 27;
 
     canvas.width = width;
     canvas.height = height;
@@ -4204,89 +4236,130 @@ function drawMapPreview(canvas, tiles) {
 
     if (!tiles || tiles.length === 0) return;
 
-    // Wasserfelder als Nachbarn der Landfelder bestimmen.
-    const land = new Set(tiles.map(t => `${t.q},${t.r}`));
+    const baseSize = 27;
+
+    // -----------------------------------------------------
+    // WASSERFELDER ALS NACHBARN DER LAND-FELDER ERMITTELN
+    // -----------------------------------------------------
+
+    const land = new Set(
+        tiles.map(t => `${t.q},${t.r}`)
+    );
+
     const directions = [
-        [1, 0], [1, -1], [0, -1],
-        [-1, 0], [-1, 1], [0, 1]
+        [1, 0],
+        [1, -1],
+        [0, -1],
+        [-1, 0],
+        [-1, 1],
+        [0, 1]
     ];
 
     const water = new Set();
 
     for (const tile of tiles) {
         for (const [dq, dr] of directions) {
-            const q = tile.q + dq;
-            const r = tile.r + dr;
+            const q = +tile.q + dq;
+            const r = +tile.r + dr;
             const key = `${q},${r}`;
 
-            if (!land.has(key)) water.add(key);
+            if (!land.has(key)) {
+                water.add(key);
+            }
         }
     }
 
     const allTiles = [
         ...Array.from(water, key => {
             const [q, r] = key.split(",").map(Number);
-            return { q, r, resource: "WASSER" };
+
+            return {
+                q,
+                r,
+                resource: "WASSER"
+            };
         }),
         ...tiles
     ];
 
-    const points = allTiles.map(t => ({
+    // -----------------------------------------------------
+    // HEX-KOORDINATEN
+    // Gleiche Orientierung wie drawBoard()
+    // -----------------------------------------------------
+
+    const rawPos = (q, r) => ({
+        x: baseSize * (
+            Math.sqrt(3) * q +
+            (Math.sqrt(3) / 2) * r
+        ),
+        y: baseSize * 1.5 * r
+    });
+
+    const positions = allTiles.map(t => ({
         tile: t,
-        x: Math.sqrt(3) * size * (t.q + t.r / 2),
-        y: 1.5 * size * t.r
+        ...rawPos(+t.q, +t.r)
     }));
 
-    const minX = Math.min(...points.map(p => p.x));
-    const maxX = Math.max(...points.map(p => p.x));
-    const minY = Math.min(...points.map(p => p.y));
-    const maxY = Math.max(...points.map(p => p.y));
+    // -----------------------------------------------------
+    // BEGRENZUNGSRAHMEN ERMITTELN
+    // -----------------------------------------------------
 
-    const mapWidth = maxX - minX + size * Math.sqrt(3);
-    const mapHeight = maxY - minY + size * 2;
+    const minX = Math.min(...positions.map(p => p.x));
+    const maxX = Math.max(...positions.map(p => p.x));
+    const minY = Math.min(...positions.map(p => p.y));
+    const maxY = Math.max(...positions.map(p => p.y));
+
+    const padding = 12;
+
+    const mapWidth =
+        maxX - minX + baseSize * Math.sqrt(3);
+
+    const mapHeight =
+        maxY - minY + baseSize * 2;
 
     const scale = Math.min(
-        (width - 18) / mapWidth,
-        (height - 18) / mapHeight
+        (width - padding * 2) / mapWidth,
+        (height - padding * 2) / mapHeight
     );
 
-    const hexW = Math.sqrt(3) * size * scale;
-    const hexH = 2 * size * scale;
+    const size = baseSize * scale;
 
-    const offsetX = (width - mapWidth * scale) / 2;
-    const offsetY = (height - mapHeight * scale) / 2;
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-    for (const p of points) {
-        const x = offsetX + (p.x - minX) * scale + hexW / 2;
-        const y = offsetY + (p.y - minY) * scale + hexH / 2;
+    // -----------------------------------------------------
+    // POSITIONEN FÜR DIE GEMEINSAME ZEICHENFUNKTION
+    // -----------------------------------------------------
 
-        const resource = p.tile.resource;
-        const imageKey = MAP_RESOURCE_IMAGES[resource];
+    const pos = (q, r) => {
+        const p = rawPos(q, r);
 
-        const img = TILE_IMAGES[imageKey];
+        return {
+            x: centerX + (p.x - (minX + maxX) / 2) * scale,
+            y: centerY + (p.y - (minY + maxY) / 2) * scale
+        };
+    };
 
-        if (img && img.complete && img.naturalWidth > 0) {
-            ctx.drawImage(img, x - hexW / 2, y - hexH / 2, hexW, hexH);
-        } else {
-            ctx.fillStyle = resource === "WASSER" ? "#80bdcf" : "#a7a078";
-            ctx.beginPath();
+    // -----------------------------------------------------
+    // WASSERHINTERGRUND
+    // -----------------------------------------------------
 
-            for (let i = 0; i < 6; i++) {
-                const angle = Math.PI / 3 * i - Math.PI / 6;
-                const px = x + hexW / 2 * Math.cos(angle);
-                const py = y + hexH / 2 * Math.sin(angle);
+    ctx.fillStyle = "#c7a36b";
+    ctx.fillRect(0, 0, width, height);
 
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
+    // -----------------------------------------------------
+    // FELDER ZEICHNEN
+    // Gemeinsame Funktion aus drawBoard()
+    // -----------------------------------------------------
 
-            ctx.closePath();
-            ctx.fill();
-            ctx.strokeStyle = "#665a45";
-            ctx.stroke();
-        }
-    }
+    drawMapTiles(
+        ctx,
+        allTiles,
+        pos,
+        size
+    );
 }
+
 
 function renderMapPicker(maps, selectedMap) {
     const container = document.getElementById("map-list");
