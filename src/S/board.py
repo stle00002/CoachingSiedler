@@ -317,7 +317,7 @@ class Board:
 
                 print("EARTH Landfelder:", len(self.tiles_positions))
                 print("EARTH Ressourcen:", len(self.resources))
-            self.HEX_DIRECTIONS = [
+        self.HEX_DIRECTIONS = [
         (1, 0),
         (1, -1),
         (0, -1),

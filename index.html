@@ -23,40 +23,41 @@
     </div>
 </div>
     <div id="app">
-      <section id="lobby" class="screen">
-        <div class="lobby-content">
-    <div class="lobby-players">
-        <h3>Spieler</h3>
-        <div id="players"></div>
-    </div>
+      
+<section id="lobby" class="screen">
+    <div class="panel lobby-panel">
+        <h1>COACHING</h1>
+        <p class="sub">Multiplayer</p>
 
-    <div class="lobby-maps">
-        <h3>Karte auswählen</h3>
-        <div id="map-list" class="map-list"></div>
-    </div>
-</div>
-        <div class="panel lobby-panel">
-          <h1>COACHING</h1>
-          <p class="sub">Multiplayer</p>
-          <div id="join-row" class="join-row">
-            <input id="name" placeholder="Dein Name" maxlength="20" /><button
-              id="joinBtn"
-            >
-              Beitreten
-            </button>
-          </div>
-          <div id="connection" class="status">Nicht verbunden</div>
-          <div id="players" class="players"></div>
-          <div id="lobby-actions" class="lobby-actions" style="display: none">
-            <button id="readyBtn">READY</button
-            ><button id="botAddBtn">BOT +</button
-            ><button id="botRemoveBtn">BOT −</button
-            ><button id="startBtn" class="primary">START GAME</button>
-          </div>
-          <div id="colors" class="colors" style="display: none"></div>
+        <div id="join-row" class="join-row">
+            <input id="name" placeholder="Dein Name" maxlength="20" />
+            <button id="joinBtn">Beitreten</button>
         </div>
-      </section>
 
+        <div id="connection" class="status">Nicht verbunden</div>
+
+        <div class="lobby-content">
+            <div class="lobby-players">
+                <h3>Spieler</h3>
+                <div id="players" class="players"></div>
+            </div>
+
+            <div class="lobby-maps">
+                <h3>Karte auswählen</h3>
+                <div id="map-list" class="map-list"></div>
+            </div>
+        </div>
+
+        <div id="lobby-actions" class="lobby-actions" style="display: none">
+            <button id="readyBtn">READY</button>
+            <button id="botAddBtn">BOT +</button>
+            <button id="botRemoveBtn">BOT −</button>
+            <button id="startBtn" class="primary">START GAME</button>
+        </div>
+
+        <div id="colors" class="colors" style="display: none"></div>
+    </div>
+</section>
       <section id="game" class="game-screen hidden">
         <header class="topbar">
           <div><b>COACHING</b><span id="turnText"></span></div>

@@ -4181,13 +4181,14 @@ function finishMapBuilder() {
 }
 
 const MAP_RESOURCE_IMAGES = {
-    HOLZ: "forestBright",
-    LEHM: "hillBright",
-    SCHAF: "pastureBright",
-    WEIZEN: "fieldBright",
-    ERZ: "mountain",
-    WÜSTE: "desert",
-    GOLD: "gold"
+    HOLZ: "HOLZ",
+    LEHM: "LEHM",
+    SCHAF: "SCHAF",
+    WEIZEN: "WEIZEN",
+    ERZ: "ERZ",
+    WÜSTE: "WÜSTE",
+    GOLD: "GOLD",
+    WASSER: "WASSER"
 };
 
 function drawMapPreview(canvas, tiles) {
@@ -4260,9 +4261,7 @@ function drawMapPreview(canvas, tiles) {
         const y = offsetY + (p.y - minY) * scale + hexH / 2;
 
         const resource = p.tile.resource;
-        const imageKey = resource === "WASSER"
-            ? "water"
-            : MAP_RESOURCE_IMAGES[resource];
+        const imageKey = MAP_RESOURCE_IMAGES[resource];
 
         const img = TILE_IMAGES[imageKey];
 
