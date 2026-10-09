@@ -3838,21 +3838,13 @@ function drawMapBuilder() {
     canvas.height = Math.round(rect.height * dpr);
 
     const ctx = mapBuilder.ctx;
-
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const W = rect.width;
     const H = rect.height;
 
-    ctx.fillStyle = "#c7a36b";
-    ctx.fillRect(0, 0, W, H);
-
-    const baseSize = Math.min(
-        W / (mapBuilder.radius * 3.8 + 1),
-        H / (mapBuilder.radius * 3.2 + 1),
-        75
-    );
-
+    // Kachelgröße ist unabhängig von der Kartengröße.
+    const baseSize = Math.min(W / 8, H / 6, 75);
     const size = baseSize * mapBuilder.zoom;
 
     const centerX = W / 2 + mapBuilder.offsetX;
@@ -3868,48 +3860,40 @@ function drawMapBuilder() {
         };
     }
 
-    // Wasser ist der Standardhintergrund jedes Feldes.
-    for (const { q, r } of getMapBuilderCoordinates()) {
+    // Wasser ist nur ein Hintergrund, keine einzelnen Tiles.
+    ctx.fillStyle = "#477f91";
+    ctx.fillRect(0, 0, W, H);
+
+    const water = TILE_IMAGES.WASSER;
+
+    if (water && water.complete && water.naturalWidth > 0) {
+        const pattern = ctx.createPattern(water, "repeat");
+
+        if (pattern) {
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, W, H);
+        }
+    }
+
+    // Ausschließlich platzierte Landfelder zeichnen.
+    for (const tile of mapBuilder.tiles.values()) {
+        const { q, r, resource } = tile;
         const p = position(q, r);
-        const resource = mapBuilder.tiles.get(mapKey(q, r));
+        const img = TILE_IMAGES[resource];
 
-        if (!resource) {
-            const water = TILE_IMAGES.WASSER;
-
-            if (water.complete && water.naturalWidth > 0) {
-                ctx.drawImage(
-                    water,
-                    p.x - size * 1.91,
-                    p.y - size * 1.22,
-                    size * 3.82,
-                    size * 2.44
-                );
-            }
-        } else {
-            const img = TILE_IMAGES[resource];
-
-            if (img && img.complete && img.naturalWidth > 0) {
-                ctx.drawImage(
-                    img,
-                    p.x - size * 0.9,
-                    p.y - size,
-                    size * 1.8,
-                    size * 2
-                );
-            }
-
-            // Dezente Umrandung zur Orientierung.
-            ctx.strokeStyle = "rgba(255,255,255,0.35)";
-            ctx.lineWidth = Math.max(1, size * 0.025);
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, size * 0.82, 0, Math.PI * 2);
-            ctx.stroke();
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(
+                img,
+                p.x - size * 0.9,
+                p.y - size,
+                size * 1.8,
+                size * 2
+            );
         }
     }
 
     $("mbTileCount").textContent =
-        `${mapBuilder.tiles.size} Landfelder · ` +
-        `${getMapBuilderCoordinates().length} mögliche Felder`;
+        `${mapBuilder.tiles.size} Landfelder`;
 }
 
 // ---------------------------------------------------------
@@ -3923,44 +3907,38 @@ function findMapBuilderTile(x, y) {
     const W = rect.width;
     const H = rect.height;
 
-    const baseSize = Math.min(
-        W / (mapBuilder.radius * 3.8 + 1),
-        H / (mapBuilder.radius * 3.2 + 1),
-        75
-    );
-
-    const size = baseSize * mapBuilder.zoom;
+    const size = Math.min(W / 8, H / 6, 75) * mapBuilder.zoom;
 
     const centerX = W / 2 + mapBuilder.offsetX;
     const centerY = H / 2 + mapBuilder.offsetY;
 
-    let nearest = null;
-    let nearestDistance = Infinity;
+    const dx = x - centerX;
+    const dy = y - centerY;
 
-    for (const tile of getMapBuilderCoordinates()) {
-        const px = centerX + size * (
-            Math.sqrt(3) * tile.q +
-            Math.sqrt(3) / 2 * tile.r
-        );
+    // Pixelkoordinaten in axiale Hexkoordinaten umrechnen.
+    const rf = (2 / 3 * dy) / size;
+    const qf = dx / (Math.sqrt(3) * size) - rf / 2;
 
-        const py = centerY + size * 1.5 * tile.r;
+    // Auf das nächstgelegene Hexfeld runden.
+    let q = Math.round(qf);
+    let r = Math.round(rf);
+    const s = Math.round(-qf - rf);
 
-        const distance = Math.hypot(x - px, y - py);
+    const qError = Math.abs(q - qf);
+    const rError = Math.abs(r - rf);
+    const sError = Math.abs(s - (-qf - rf));
 
-        if (distance < nearestDistance) {
-            nearestDistance = distance;
-            nearest = tile;
-        }
+    let correctedQ = q;
+    let correctedR = r;
+
+    if (qError > rError && qError > sError) {
+        correctedQ = -r - s;
+    } else if (rError > sError) {
+        correctedR = -q - s;
     }
 
-    // Klick muss innerhalb des Hexfelds liegen.
-    if (nearest && nearestDistance <= size) {
-        return nearest;
-    }
-
-    return null;
+    return { q: correctedQ, r: correctedR };
 }
-
 // ---------------------------------------------------------
 // KLICK: WASSER <-> LAND
 // ---------------------------------------------------------
@@ -4036,20 +4014,22 @@ function setupMapBuilderCanvas() {
         }
     });
 
-    canvas.addEventListener("pointerup", (ev) => {
-        if (!mapBuilder.active) return;
+canvas.addEventListener("pointerup", (ev) => {
+    if (!mapBuilder.active) return;
 
-        if (!mapBuilder.dragging) {
-            const rect = canvas.getBoundingClientRect();
+    if (!mapBuilder.dragging) {
+        const rect = canvas.getBoundingClientRect();
 
-            toggleMapBuilderTile(
-                ev.clientX - rect.left,
-                ev.clientY - rect.top
-            );
-        }
+        const tile = findMapBuilderTile(
+            ev.clientX - rect.left,
+            ev.clientY - rect.top
+        );
 
-        mapBuilder.dragging = false;
-    });
+        toggleMapBuilderTile(tile.q, tile.r);
+    }
+
+    mapBuilder.dragging = false;
+});
 
     canvas.addEventListener("pointercancel", () => {
         mapBuilder.dragging = false;
@@ -4089,11 +4069,11 @@ function finishMapBuilder() {
         ([key, resource]) => {
             const [q, r] = key.split(",").map(Number);
 
-            return {
-                q,
-                r,
-                resource
-            };
+return {
+    q,
+    r,
+    resource: resource.resource
+};
         }
     );
 
