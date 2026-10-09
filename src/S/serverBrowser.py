@@ -1409,7 +1409,6 @@ async def broadcast_lobby():
             "color": bot.color
         })
     for client in clients:
-        print (get_saved_map_previews())
         await send_json(client, {
     "action": "lobby_update",
     "players": lobby_data,

@@ -71,7 +71,7 @@ let dragStartOffsetX = 0;
 let dragStartOffsetY = 0;
 
 const MIN_BOARD_ZOOM = 0.6;
-const MAX_BOARD_ZOOM = 4;
+const MAX_BOARD_ZOOM = 20;
 
 let touchStartDistance = 0;
 let touchStartZoom = 1;
@@ -2088,9 +2088,9 @@ $("board").addEventListener("wheel", (ev) => {
     const oldZoom = boardZoom;
 
     if (ev.deltaY < 0) {
-        boardZoom *= 1.1;
+        boardZoom *= 1.01;
     } else {
-        boardZoom /= 1.1;
+        boardZoom /= 1.01;
     }
 
     boardZoom = Math.max(
@@ -4343,7 +4343,7 @@ canvas.addEventListener("pointerup", (ev) => {
             0.6,
             Math.min(
                 2.5,
-                mapBuilder.zoom * (ev.deltaY < 0 ? 1.1 : 0.9)
+                mapBuilder.zoom * (ev.deltaY < 0 ? 1.01 : 1/1.01)
             )
         );
 
