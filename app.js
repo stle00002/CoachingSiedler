@@ -3860,20 +3860,29 @@ function drawMapBuilder() {
         };
     }
 
-    // Wasser ist nur ein Hintergrund, keine einzelnen Tiles.
-    ctx.fillStyle = "#477f91";
-    ctx.fillRect(0, 0, W, H);
 
-    const water = TILE_IMAGES.WASSER;
+const waterRadius = 50;
+const waterImg = TILE_IMAGES.WASSER;
 
-    if (water && water.complete && water.naturalWidth > 0) {
-        const pattern = ctx.createPattern(water, "repeat");
+// Wasser genau wie in drawBoard() als einzelne,
+// überlappende Wassertexturen zeichnen.
+if (waterImg && waterImg.complete && waterImg.naturalWidth > 0) {
+    for (let q = -waterRadius; q <= waterRadius; q++) {
+        for (let r = -waterRadius; r <= waterRadius; r++) {
+            if (Math.abs(q + r) > waterRadius) continue;
 
-        if (pattern) {
-            ctx.fillStyle = pattern;
-            ctx.fillRect(0, 0, W, H);
+            const p = position(q, r);
+
+            ctx.drawImage(
+                waterImg,
+                p.x - size * 1.91,
+                p.y - size * 1.22,
+                size * 3.82,
+                size * 2.44
+            );
         }
     }
+}
 
     // Ausschließlich platzierte Landfelder zeichnen.
     for (const tile of mapBuilder.tiles.values()) {
