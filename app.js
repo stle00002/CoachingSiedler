@@ -4163,7 +4163,7 @@ function finishMapBuilder() {
         mapBuilder.tiles.entries(),
         ([key, resource]) => {
             const [q, r] = key.split(",").map(Number);
-            return { q, r, resource };
+            return { q, r, resource: resource.resource};
         }
     );
 
