@@ -3651,7 +3651,7 @@ const mapBuilder = {
 const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
 
 function saveMapBuilder() {
-        data = {
+        const data = {
             active: mapBuilder.active,
 
             // Alle bearbeiteten Felder speichern
@@ -3991,6 +3991,15 @@ function createMapBuilderUI() {
     window.addEventListener("resize", drawMapBuilder);
 
     setupMapBuilderCanvas();
+    Object.values(TILE_IMAGES).forEach(img => {
+    if (!img) return;
+
+    if (!img.complete) {
+        img.addEventListener("load", drawMapBuilder, { once: true });
+    }
+    });
+
+    drawMapBuilder();
 }
 
 // ---------------------------------------------------------
