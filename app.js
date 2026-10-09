@@ -174,6 +174,11 @@ else if (m.action === "lobby_update") {
     // Lobby-Spielerliste aktualisieren
     renderLobby(m.players, m.loading);
 
+    renderMapPicker(
+        m.maps || [],
+        m.selected_map || null
+    );
+
     // Lobby anzeigen
     $("lobby").classList.remove("hidden");
     $("game").classList.add("hidden");
@@ -561,7 +566,7 @@ $("devCards").querySelectorAll(".dev-card-name").forEach((card) => {
 }
 function phaseText(s) {
   if (s.setupPhase) return "Aufbauphase";
-  if (s.buildPhase) return "Sonderbauphase";
+  if (s.buildPhase) return "Baurunde";
   if (s.moveRobberMode) return "Räuber bewegen";
   if (s.stealMode) return "Stehlen";
   if (s.discardResourcesMode) return "Abwerfen";
@@ -3747,17 +3752,6 @@ function createMapBuilderUI() {
     background: #a66b20;
 }
 
-#mapBuilderScreen .mb-help {
-    margin-top: 18px;
-    padding: 12px 10px;
-    background: #302318;
-    border: 1px solid #5d4128;
-    border-radius: 7px;
-    color: #d8bd91;
-    font-size: 12px;
-    line-height: 1.6;
-    text-align: left;
-}
 
 #mapBuilderScreen .mb-spacer {
     flex: 1;
@@ -3817,14 +3811,6 @@ function createMapBuilderUI() {
         <button class="mb-button" id="mbBack">
             Zurück
         </button>
-    </div>
-
-    <div class="mb-help">
-        <strong>Steuerung</strong><br>
-        Klick auf Wasser: Landfeld setzen<br>
-        Klick auf Land: Feld entfernen<br>
-        Ziehen: Karte verschieben<br>
-        Scrollen: Karte zoomen
     </div>
 
     <div class="mb-spacer"></div>
@@ -4185,6 +4171,153 @@ return {
     closeMapBuilder();
 
     log("Eigene Karte wurde an den Server übergeben.");
+}
+
+const MAP_RESOURCE_IMAGES = {
+    HOLZ: "forestBright",
+    LEHM: "hillBright",
+    SCHAF: "pastureBright",
+    WEIZEN: "fieldBright",
+    ERZ: "mountain",
+    WÜSTE: "desert",
+    GOLD: "gold"
+};
+
+function drawMapPreview(canvas, tiles) {
+    const ctx = canvas.getContext("2d");
+    const width = 340;
+    const height = 270;
+    const size = 27;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx.clearRect(0, 0, width, height);
+
+    if (!tiles || tiles.length === 0) return;
+
+    // Wasserfelder als Nachbarn der Landfelder bestimmen.
+    const land = new Set(tiles.map(t => `${t.q},${t.r}`));
+    const directions = [
+        [1, 0], [1, -1], [0, -1],
+        [-1, 0], [-1, 1], [0, 1]
+    ];
+
+    const water = new Set();
+
+    for (const tile of tiles) {
+        for (const [dq, dr] of directions) {
+            const q = tile.q + dq;
+            const r = tile.r + dr;
+            const key = `${q},${r}`;
+
+            if (!land.has(key)) water.add(key);
+        }
+    }
+
+    const allTiles = [
+        ...Array.from(water, key => {
+            const [q, r] = key.split(",").map(Number);
+            return { q, r, resource: "WASSER" };
+        }),
+        ...tiles
+    ];
+
+    const points = allTiles.map(t => ({
+        tile: t,
+        x: Math.sqrt(3) * size * (t.q + t.r / 2),
+        y: 1.5 * size * t.r
+    }));
+
+    const minX = Math.min(...points.map(p => p.x));
+    const maxX = Math.max(...points.map(p => p.x));
+    const minY = Math.min(...points.map(p => p.y));
+    const maxY = Math.max(...points.map(p => p.y));
+
+    const mapWidth = maxX - minX + size * Math.sqrt(3);
+    const mapHeight = maxY - minY + size * 2;
+
+    const scale = Math.min(
+        (width - 18) / mapWidth,
+        (height - 18) / mapHeight
+    );
+
+    const hexW = Math.sqrt(3) * size * scale;
+    const hexH = 2 * size * scale;
+
+    const offsetX = (width - mapWidth * scale) / 2;
+    const offsetY = (height - mapHeight * scale) / 2;
+
+    for (const p of points) {
+        const x = offsetX + (p.x - minX) * scale + hexW / 2;
+        const y = offsetY + (p.y - minY) * scale + hexH / 2;
+
+        const resource = p.tile.resource;
+        const imageKey = resource === "WASSER"
+            ? "water"
+            : MAP_RESOURCE_IMAGES[resource];
+
+        const img = TILE_IMAGES[imageKey];
+
+        if (img && img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, x - hexW / 2, y - hexH / 2, hexW, hexH);
+        } else {
+            ctx.fillStyle = resource === "WASSER" ? "#80bdcf" : "#a7a078";
+            ctx.beginPath();
+
+            for (let i = 0; i < 6; i++) {
+                const angle = Math.PI / 3 * i - Math.PI / 6;
+                const px = x + hexW / 2 * Math.cos(angle);
+                const py = y + hexH / 2 * Math.sin(angle);
+
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+
+            ctx.closePath();
+            ctx.fill();
+            ctx.strokeStyle = "#665a45";
+            ctx.stroke();
+        }
+    }
+}
+
+function renderMapPicker(maps, selectedMap) {
+    const container = document.getElementById("map-list");
+    if (!container) return;
+
+    container.replaceChildren();
+
+    for (const map of maps) {
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "map-card";
+
+        if (map.name === selectedMap) {
+            card.classList.add("selected");
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.setAttribute("aria-label", `Vorschau von ${map.name}`);
+
+        const name = document.createElement("span");
+        name.className = "map-card-name";
+        name.textContent = map.name;
+
+        card.append(canvas, name);
+
+        card.addEventListener("click", () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert("Keine Serververbindung.");
+                return;
+            }
+
+            send("choosemap", { name: map.name });
+        });
+
+        container.appendChild(card);
+        drawMapPreview(canvas, map.tiles);
+    }
 }
 
 // Button hinzufügen, sobald das Script ausgeführt wird.

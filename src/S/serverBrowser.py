@@ -6,9 +6,19 @@ import websockets
 from bot import Bot
 from player import Player
 from logic import Logic
+import os
+import re
+from pathlib import Path
 
 HOST = "0.0.0.0"  # alle Interfaces
 PORT = 5555
+
+
+
+MAPS_DIR = Path(__file__).resolve().parent / "maps"
+MAPS_DIR.mkdir(exist_ok=True)
+
+selected_map_name = None
 
 logic = Logic()
 
@@ -25,6 +35,141 @@ loading = False
 # -------------------------
 
 
+
+
+def get_map_path(name):
+    """Erzeugt einen sicheren Dateinamen für eine Karte."""
+    if not isinstance(name, str):
+        return None
+
+    name = name.strip()
+
+    if not name or len(name) > 60:
+        return None
+
+    if not re.fullmatch(r"[\w äöüÄÖÜß-]+", name):
+        return None
+
+    return MAPS_DIR / f"{name}.json"
+
+
+def save_custom_map(name, tiles):
+    """Speichert eine eigene Karte als JSON-Datei."""
+    path = get_map_path(name)
+
+    if path is None:
+        return False, "Ungültiger Kartenname."
+
+    if not isinstance(tiles, list) or not tiles:
+        return False, "Die Karte enthält keine Landfelder."
+
+    valid_resources = {
+        "HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ",
+        "GOLD", "WÜSTE"
+    }
+
+    cleaned_tiles = []
+    seen_positions = set()
+
+    for tile in tiles:
+        if not isinstance(tile, dict):
+            return False, "Ungültiges Landfeld."
+
+        q = tile.get("q")
+        r = tile.get("r")
+        resource = tile.get("resource")
+
+        if type(q) is not int or type(r) is not int:
+            return False, "Ungültige Hex-Koordinaten."
+
+        if abs(q) > 50 or abs(r) > 50:
+            return False, "Die Karte ist zu groß."
+
+        if resource not in valid_resources:
+            return False, f"Ungültige Ressource: {resource}"
+
+        position = (q, r)
+
+        if position in seen_positions:
+            return False, "Zwei Landfelder haben dieselben Koordinaten."
+
+        seen_positions.add(position)
+
+        cleaned_tiles.append({
+            "q": q,
+            "r": r,
+            "resource": resource
+        })
+
+    data = {
+        "name": name.strip(),
+        "tiles": cleaned_tiles
+    }
+
+    try:
+        with path.open("w", encoding="utf-8") as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
+
+        return True, "Karte gespeichert."
+
+    except OSError as error:
+        print("Fehler beim Speichern der Karte:", error)
+        return False, "Die Karte konnte nicht gespeichert werden."
+
+
+def load_custom_map(name):
+    """Lädt eine gespeicherte Karte."""
+    path = get_map_path(name)
+
+    if path is None or not path.is_file():
+        return None
+
+    try:
+        with path.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        if data.get("name") != name or not isinstance(data.get("tiles"), list):
+            return None
+
+        return data
+
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def get_saved_maps():
+    """Gibt die Namen aller gespeicherten Karten zurück."""
+    result = []
+
+    for path in MAPS_DIR.glob("*.json"):
+        try:
+            with path.open("r", encoding="utf-8") as file:
+                data = json.load(file)
+
+            name = data.get("name")
+
+            if isinstance(name, str) and get_map_path(name) == path:
+                result.append(name)
+
+        except (OSError, json.JSONDecodeError):
+            continue
+
+    return sorted(set(result), key=str.casefold)
+
+
+def get_saved_map_previews():
+    maps = []
+
+    for path in MAPS_DIR.glob("*.json"):
+        custom_map = load_custom_map(path.stem)
+
+        if custom_map is not None:
+            maps.append({
+                "name": custom_map["name"],
+                "tiles": custom_map["tiles"]
+            })
+
+    return sorted(maps, key=lambda m: m["name"].lower())
 
 # makes the logic class into a json
 def getState(obj):
@@ -610,6 +755,71 @@ async def handle_message(conn, message):
     print("Nachricht:", message)
     action = message.get("type") or message.get("action")
 
+    global selected_map_name
+
+    if action == "custom_map":
+        # Eigene Karten nur in der Lobby speichern.
+        if game_state != "lobby":
+            return
+
+        player = client_players.get(conn)
+
+        # Nur der Host darf Karten speichern.
+        if player is None or not player.is_host:
+            await send_json(conn, {
+                "type": "error",
+                "message": "Nur der Host darf Karten speichern."
+            })
+            return
+
+        success, result_message = save_custom_map(
+            message.get("name"),
+            message.get("tiles")
+        )
+
+
+        if success:
+            await broadcast_lobby()
+        return
+
+    elif action == "choosemap":
+        if game_state != "lobby":
+            return
+
+        player = client_players.get(conn)
+
+        # Nur der Host entscheidet, welche Karte gespielt wird.
+        if player is None or not player.is_host:
+            await send_json(conn, {
+                "type": "error",
+                "message": "Nur der Host darf die Karte auswählen."
+            })
+            return
+
+        name = message.get("name")
+        custom_map = load_custom_map(name)
+        await broadcast_lobby()
+
+        if custom_map is None:
+            await send_json(conn, {
+                "type": "error",
+                "message": "Diese Karte existiert nicht."
+            })
+            return
+
+        selected_map_name = custom_map["name"]
+
+        # Allen Clients die Auswahl mitteilen.
+        for client in list(clients):
+            await send_json(client, {
+                "type": "map_selected",
+                "name": selected_map_name,
+                "maps": get_saved_maps()
+            })
+
+        print("Ausgewählte Karte:", selected_map_name)
+        return
+
     if action == "join":
         name = message["name"]
 
@@ -1138,7 +1348,22 @@ async def start_game():
     print("Bots:", len(bots))
     print("Teilnehmer beim Spielstart:", len(all_participants))
 
-    logic.createBoard(len(all_participants))
+    custom_map = None
+
+    if selected_map_name is not None:
+        custom_map = load_custom_map(selected_map_name)
+
+        if custom_map is None:
+            print(
+                "Ausgewählte Karte konnte nicht geladen werden:",
+                selected_map_name
+            )
+            return
+
+    logic.createBoard(
+        len(all_participants),
+        custom_map
+    )
 
     shuffled_players = []
 
@@ -1185,6 +1410,8 @@ async def broadcast_lobby():
         await send_json(client, {
     "action": "lobby_update",
     "players": lobby_data,
+    "maps": get_saved_map_previews(),
+    "selected_map": selected_map_name,
     "loading": loading
 })
 # -------------------------
@@ -1232,7 +1459,11 @@ async def main():
 
         await asyncio.Future()
 
+
+
 # -------------------------
 # Server starten
 # -------------------------
 asyncio.run(main())
+
+

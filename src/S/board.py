@@ -30,7 +30,7 @@ DEVELOPMENT_COST = {
 
 
 class Board:
-    def __init__(self, playerCount):
+    def __init__(self, playerCount, custom_map=None):
         self.secondSetupPhase = False
         self.currentLongestRoad = 0
         self.currentPlayerWithLongestRoad = None
@@ -47,261 +47,285 @@ class Board:
         self.vertices:list[Vertex] = []
         self.edges:list[Edge] = []
         self.harbors:list[Harbor] = []
-        if playerCount <= 1:
-            self.earthMap = False
-            self.radius = 3
+        self.custom_map = custom_map
 
-            self.resources = (
-                [Resource.HOLZ] * 4 +
-                [Resource.LEHM] * 3 +
-                [Resource.SCHAF] * 4 +
-                [Resource.WEIZEN] * 4 +
-                [Resource.ERZ] * 3 +
-                [Resource.WÜSTE]
-            )
+        if custom_map is not None:
+            self.earthMap = False
 
             self.tiles_positions = [
-
-                 (-2, 0), (-2, 1), (-2, 2),
-
-                 (-1, -1), (-1, 0),
-                (-1, 1), (-1, 2),
-
-                (0, -2), (0, -1),
-                (0, 0), (0, 1), (0, 2),
-
-                 (1, -2), (1, -1),
-                (1, 0), (1, 1),
-
-                 (2, -2), (2, -1),
-                (2, 0)
-
+                (tile["q"], tile["r"])
+                for tile in custom_map["tiles"]
             ]
-            print("EARTH Landfelder:", len(self.tiles_positions))
-            print("EARTH Ressourcen:", len(self.resources))
 
-        elif playerCount < 2:
-            self.earthMap = False
-            self.radius = 4
+            # Ressourcen anhand der Koordinaten zuordnen.
+            self.custom_resources = {
+                (tile["q"], tile["r"]): Resource[tile["resource"]]
+                for tile in custom_map["tiles"]
+            }
 
-            self.resources = (
-                [Resource.HOLZ] * 7 +
-                [Resource.LEHM] * 7 +
-                [Resource.SCHAF] * 7 +
-                [Resource.WEIZEN] * 7 +
-                [Resource.ERZ] * 7 +
-                [Resource.WÜSTE] * 2
+            # Genug Platz für alle axialen Hex-Koordinaten.
+            self.radius = max(
+                max(abs(q), abs(r), abs(q + r))
+                for q, r in self.tiles_positions
             )
 
-            self.tiles_positions = [
-                (-3, 0), (-3, 1),
-                (-3, 2), (-3, 3),
-
-                (-2, -1), (-2, 0),
-                (-2, 1), (-2, 2), (-2, 3),
-
-                (-1, -2), (-1, -1),
-                (-1, 0), (-1, 1), (-1, 2),
-                (-1, 3), 
-
-                (0, -3), (0, -2), (0, -1),
-                (0, 0), (0, 1), (0, 2), (0, 3),
-
-                 (1, -3), (1, -2), (1, -1),
-                (1, 0), (1, 1), (1, 2), 
-
-                 (2, -3), (2, -2), (2, -1),
-                (2, 0), (2, 1),
-
-                 (3, -3), (3, -2),
-                (3, -1), (3, 0),
-
-            ]
-            print("EARTH Landfelder:", len(self.tiles_positions))
-            print("EARTH Ressourcen:", len(self.resources))
-
+            self.resources = []
         else:
-            # =========================
-            # EARTH / WORLD MAP
-            # =========================
-            # Aufbau angelehnt an die Weltkarte von Colonist:
-            #
-            #             NORDAMERIKA
-            #
-            #                         EUROPA ---- ASIEN
-            #
-            #       SÜDAMERIKA       AFRIKA             AUSTRALIEN
-            #
-            #                         ANTARKTIS
-            #
-            # Insgesamt genau 81 Landfelder.
-            # Die Wasserfelder werden später automatisch um
-            # die gesamte Landmasse herum erzeugt.
+            if playerCount <= 1:
+                self.earthMap = False
+                self.radius = 3
 
-            self.earthMap = True
-            self.radius = 10
+                self.resources = (
+                    [Resource.HOLZ] * 4 +
+                    [Resource.LEHM] * 3 +
+                    [Resource.SCHAF] * 4 +
+                    [Resource.WEIZEN] * 4 +
+                    [Resource.ERZ] * 3 +
+                    [Resource.WÜSTE]
+                )
 
-            # 81 Landfelder:
-            # 16 Holz + 16 Lehm + 16 Schaf + 16 Weizen
-            # + 16 Erz + 1 Wüste = 81
-            self.resources = (
-                [Resource.HOLZ] * 16 +
-                [Resource.LEHM] * 16 +
-                [Resource.SCHAF] * 15 +
-                [Resource.WEIZEN] * 15 +
-                [Resource.ERZ] * 15 +
-                [Resource.WÜSTE] + 
-                [Resource.GOLD] * 3
-            )
-            #self.resources = (
-            #    [Resource.WÜSTE] +
-            #    [Resource.GOLD] * 80
-            #)
+                self.tiles_positions = [
+
+                    (-2, 0), (-2, 1), (-2, 2),
+
+                    (-1, -1), (-1, 0),
+                    (-1, 1), (-1, 2),
+
+                    (0, -2), (0, -1),
+                    (0, 0), (0, 1), (0, 2),
+
+                    (1, -2), (1, -1),
+                    (1, 0), (1, 1),
+
+                    (2, -2), (2, -1),
+                    (2, 0)
+
+                ]
+                print("EARTH Landfelder:", len(self.tiles_positions))
+                print("EARTH Ressourcen:", len(self.resources))
+
+            elif playerCount < 2:
+                self.earthMap = False
+                self.radius = 4
+
+                self.resources = (
+                    [Resource.HOLZ] * 7 +
+                    [Resource.LEHM] * 7 +
+                    [Resource.SCHAF] * 7 +
+                    [Resource.WEIZEN] * 7 +
+                    [Resource.ERZ] * 7 +
+                    [Resource.WÜSTE] * 2
+                )
+
+                self.tiles_positions = [
+                    (-3, 0), (-3, 1),
+                    (-3, 2), (-3, 3),
+
+                    (-2, -1), (-2, 0),
+                    (-2, 1), (-2, 2), (-2, 3),
+
+                    (-1, -2), (-1, -1),
+                    (-1, 0), (-1, 1), (-1, 2),
+                    (-1, 3), 
+
+                    (0, -3), (0, -2), (0, -1),
+                    (0, 0), (0, 1), (0, 2), (0, 3),
+
+                    (1, -3), (1, -2), (1, -1),
+                    (1, 0), (1, 1), (1, 2), 
+
+                    (2, -3), (2, -2), (2, -1),
+                    (2, 0), (2, 1),
+
+                    (3, -3), (3, -2),
+                    (3, -1), (3, 0),
+
+                ]
+                print("EARTH Landfelder:", len(self.tiles_positions))
+                print("EARTH Ressourcen:", len(self.resources))
+
+            else:
+                # =========================
+                # EARTH / WORLD MAP
+                # =========================
+                # Aufbau angelehnt an die Weltkarte von Colonist:
+                #
+                #             NORDAMERIKA
+                #
+                #                         EUROPA ---- ASIEN
+                #
+                #       SÜDAMERIKA       AFRIKA             AUSTRALIEN
+                #
+                #                         ANTARKTIS
+                #
+                # Insgesamt genau 81 Landfelder.
+                # Die Wasserfelder werden später automatisch um
+                # die gesamte Landmasse herum erzeugt.
+
+                self.earthMap = True
+                self.radius = 10
+
+                # 81 Landfelder:
+                # 16 Holz + 16 Lehm + 16 Schaf + 16 Weizen
+                # + 16 Erz + 1 Wüste = 81
+                self.resources = (
+                    [Resource.HOLZ] * 16 +
+                    [Resource.LEHM] * 16 +
+                    [Resource.SCHAF] * 15 +
+                    [Resource.WEIZEN] * 15 +
+                    [Resource.ERZ] * 15 +
+                    [Resource.WÜSTE] + 
+                    [Resource.GOLD] * 3
+                )
+                #self.resources = (
+                #    [Resource.WÜSTE] +
+                #    [Resource.GOLD] * 80
+                #)
 
 
 
 
-            self.tiles_positions = [
+                self.tiles_positions = [
 
-                # =====================================
-                # NORDAMERIKA
-                # =====================================
-                # Norden / Alaska bis Kanada
-                (-10, 0), (-9, 0), (-8, 0),
+                    # =====================================
+                    # NORDAMERIKA
+                    # =====================================
+                    # Norden / Alaska bis Kanada
+                    (-10, 0), (-9, 0), (-8, 0),
 
-                (-11, 1), (-10, 1), (-9, 1),
-                (-8, 1), (-7, 1),
+                    (-11, 1), (-10, 1), (-9, 1),
+                    (-8, 1), (-7, 1),
 
-                # USA / östliches Kanada
-                (-11, 2), (-10, 2), (-9, 2),
-                (-8, 2), (-7, 2), (-6, 2),
+                    # USA / östliches Kanada
+                    (-11, 2), (-10, 2), (-9, 2),
+                    (-8, 2), (-7, 2), (-6, 2),
 
-                (-10, 3), (-9, 3), (-8, 3),
-                (-7, 3), (-6, 3),
+                    (-10, 3), (-9, 3), (-8, 3),
+                    (-7, 3), (-6, 3),
 
-                # Süden / Mexiko
-                (-9, 4), (-8, 4), (-7, 4), (-6, 4),
+                    # Süden / Mexiko
+                    (-9, 4), (-8, 4), (-7, 4), (-6, 4),
 
-                # Mittelamerika
-                (-7, 5),
+                    # Mittelamerika
+                    (-7, 5),
 
-                # =====================================
-                # EUROPA
-                # =====================================
-                # Westeuropa
-                (-3, -1), (-2, -1),
+                    # =====================================
+                    # EUROPA
+                    # =====================================
+                    # Westeuropa
+                    (-3, -1), (-2, -1),
 
-                # Mitteleuropa
-                (-3, 0), (-2, 0),
+                    # Mitteleuropa
+                    (-3, 0), (-2, 0),
 
-                # Südeuropa
-                (-3, 1),
+                    # Südeuropa
+                    (-3, 1),
 
-                # =====================================
-                # ASIEN
-                # =====================================
-                # Westasien
-                (4, -1), (5, -1), (6, -1),
+                    # =====================================
+                    # ASIEN
+                    # =====================================
+                    # Westasien
+                    (4, -1), (5, -1), (6, -1),
 
-                # Zentralasien
-                (4, 0), (5, 0), (6, 0), (7, 0),
+                    # Zentralasien
+                    (4, 0), (5, 0), (6, 0), (7, 0),
 
-                # Südasien / China
-                (3, 1), (4, 1), (5, 1),
-                (6, 1), (7, 1), (8, 1),
+                    # Südasien / China
+                    (3, 1), (4, 1), (5, 1),
+                    (6, 1), (7, 1), (8, 1),
 
-                # Südostasien
-                (4, 2), (5, 2), (6, 2), (7, 2),
+                    # Südostasien
+                    (4, 2), (5, 2), (6, 2), (7, 2),
 
-                # Indonesien / Ostasien
-                (5, 3), (6, 3),
+                    # Indonesien / Ostasien
+                    (5, 3), (6, 3),
 
-                # =====================================
-                # AFRIKA
-                # =====================================
-                # Nordafrika
-                (0, 3), (1, 3), (2, 3),
+                    # =====================================
+                    # AFRIKA
+                    # =====================================
+                    # Nordafrika
+                    (0, 3), (1, 3), (2, 3),
 
-                # Westafrika bis Zentralafrika
-                (-1, 4), (0, 4), (1, 4),
-                (2, 4), (3, 4),
+                    # Westafrika bis Zentralafrika
+                    (-1, 4), (0, 4), (1, 4),
+                    (2, 4), (3, 4),
 
-                # Zentral- und Ostafrika
-                (-1, 5), (0, 5), (1, 5),
-                (2, 5), (3, 5),
+                    # Zentral- und Ostafrika
+                    (-1, 5), (0, 5), (1, 5),
+                    (2, 5), (3, 5),
 
-                # Südafrika
-                (0, 6), (1, 6), (2, 6),
+                    # Südafrika
+                    (0, 6), (1, 6), (2, 6),
 
-                # =====================================
-                # SÜDAMERIKA
-                # =====================================
-                # Nord-Südamerika
-                (-7, 6), (-6, 6),
+                    # =====================================
+                    # SÜDAMERIKA
+                    # =====================================
+                    # Nord-Südamerika
+                    (-7, 6), (-6, 6),
 
-                (-7, 7), (-6, 7), (-5, 7),
+                    (-7, 7), (-6, 7), (-5, 7),
 
-                # Südamerika
-                (-7, 8), (-6, 8), (-5, 8),
+                    # Südamerika
+                    (-7, 8), (-6, 8), (-5, 8),
 
-                # =====================================
-                # AUSTRALIEN
-                # =====================================
-                (8, 5), (9, 5),
+                    # =====================================
+                    # AUSTRALIEN
+                    # =====================================
+                    (8, 5), (9, 5),
 
-                (8, 6), (9, 6),
+                    (8, 6), (9, 6),
 
-                (9, 7),
+                    (9, 7),
 
-                # =====================================
-                # ANTARKTIS
-                # =====================================
-                (-3, 9), (-2, 9),
-                (-1, 9), (0, 9),
-            ]
-            self.tiles_positions = [
-    # r = -4
-    (-2,-4),(-1,-4),(1,-4),(2,-4),(4,-4),(7,-4),
+                    # =====================================
+                    # ANTARKTIS
+                    # =====================================
+                    (-3, 9), (-2, 9),
+                    (-1, 9), (0, 9),
+                ]
+                self.tiles_positions = [
+        # r = -4
+        (-2,-4),(-1,-4),(1,-4),(2,-4),(4,-4),(7,-4),
 
-    # r = -3
-    (-5,-3),(-4,-3),(-3,-3),(-2,-3),(1,-3),(2,-3),(5,-3),(6,-3),(7,-3),
+        # r = -3
+        (-5,-3),(-4,-3),(-3,-3),(-2,-3),(1,-3),(2,-3),(5,-3),(6,-3),(7,-3),
 
-    # r = -2
-    (-6,-2),(-5,-2),(-4,-2),(-3,-2),(-2,-2),(-1,-2),(1,-2),(3,-2),(4,-2),(5,-2),(6,-2),(7,-2),(8,-2),(9,-2),
+        # r = -2
+        (-6,-2),(-5,-2),(-4,-2),(-3,-2),(-2,-2),(-1,-2),(1,-2),(3,-2),(4,-2),(5,-2),(6,-2),(7,-2),(8,-2),(9,-2),
 
-    # r = -1
-    (-6,-1),(-5,-1),(-4,-1),(-3,-1),(-2,-1),(2,-1),(3,-1),(4,-1),(5,-1),(6,-1),(7,-1),
+        # r = -1
+        (-6,-1),(-5,-1),(-4,-1),(-3,-1),(-2,-1),(2,-1),(3,-1),(4,-1),(5,-1),(6,-1),(7,-1),
 
-    # r = 0
-    (-5,0),(-4,0),(-3,0),(0,0),(1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(8,0),
+        # r = 0
+        (-5,0),(-4,0),(-3,0),(0,0),(1,0),(2,0),(3,0),(4,0),(5,0),(6,0),(8,0),
 
-    # r = 1
-    (-5,1),(-1,1),(0,1),(1,1),(3,1),(5,1),(7,1),
+        # r = 1
+        (-5,1),(-1,1),(0,1),(1,1),(3,1),(5,1),(7,1),
 
-    # r = 2
-    (-5,2),(-4,2),(-2,2),(-1,2),(0,2),(1,2),
+        # r = 2
+        (-5,2),(-4,2),(-2,2),(-1,2),(0,2),(1,2),
 
-    # r = 3
-    (-5,3),(-4,3),(-1,3),(0,3),(3,3),(4,3),
+        # r = 3
+        (-5,3),(-4,3),(-1,3),(0,3),(3,3),(4,3),
 
-    # r = 4
-    (-6,4),(-5,4),(-2,4),(-1,4),(2,4),(3,4),(4,4),
+        # r = 4
+        (-6,4),(-5,4),(-2,4),(-1,4),(2,4),(3,4),(4,4),
 
-    # r = 5
-    (-6,5),(-2,5),(0,5),(3,5),
-            ]
+        # r = 5
+        (-6,5),(-2,5),(0,5),(3,5),
+                ]
 
-            print("EARTH Landfelder:", len(self.tiles_positions))
-            print("EARTH Ressourcen:", len(self.resources))
-        self.HEX_DIRECTIONS = [
-    (1, 0),
-    (1, -1),
-    (0, -1),
-    (-1, 0),
-    (-1, 1),
-    (0, 1)
-]
-        
+                print("EARTH Landfelder:", len(self.tiles_positions))
+                print("EARTH Ressourcen:", len(self.resources))
+            self.HEX_DIRECTIONS = [
+        (1, 0),
+        (1, -1),
+        (0, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, 1)
+    ]
+            
 
         self.createTiles()
         self.createNumbers()
@@ -318,11 +342,10 @@ class Board:
         self.connectNeighbourVertices()
         self.createHarbors()
     def createTiles(self):
-        random.shuffle(self.resources)
+        if self.custom_map is None:
+            random.shuffle(self.resources)
 
         land_positions = set(self.tiles_positions)
-
-        # Alle Wasserfelder direkt um die Landmasse herum
         water_positions = set()
 
         for q, r in land_positions:
@@ -332,13 +355,16 @@ class Board:
                 if neighbour not in land_positions:
                     water_positions.add(neighbour)
 
-        # Land + Wasser
         all_positions = land_positions | water_positions
 
         for q, r in sorted(all_positions):
-
             if (q, r) in land_positions:
-                resource = self.resources.pop()
+
+                if self.custom_map is not None:
+                    resource = self.custom_resources[(q, r)]
+                else:
+                    resource = self.resources.pop()
+
             else:
                 resource = Resource.WASSER
 
@@ -370,6 +396,40 @@ class Board:
         return False
     
     def createNumbers(self):
+        if self.custom_map is not None:
+            numbered_tiles = [
+                tile for tile in self.tiles
+                if tile.resource not in (
+                    Resource.WASSER,
+                    Resource.WÜSTE
+                )
+            ]
+
+            # Übliche Häufigkeitsverteilung für Würfelzahlen.
+            number_bag = (
+                [2] * 1 +
+                [3] * 2 +
+                [4] * 3 +
+                [5] * 4 +
+                [6] * 5 +
+                [8] * 5 +
+                [9] * 4 +
+                [10] * 3 +
+                [11] * 2 +
+                [12] * 1
+            )
+
+            numbers = []
+
+            while len(numbers) < len(numbered_tiles):
+                numbers.extend(number_bag)
+
+            random.shuffle(numbers)
+
+            for tile, number in zip(numbered_tiles, numbers):
+                tile.number = number
+
+            return
         if self.earthMap:
             # 80 Zahlen für 81 Landfelder
             # Die Wüste bekommt keine Zahl.

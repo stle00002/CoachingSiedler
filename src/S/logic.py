@@ -49,8 +49,8 @@ class Logic:
         }
         self.tradeId = 0
 
-    def createBoard(self, playerCount):
-        self.board = Board(playerCount)
+    def createBoard(self, playerCount, custom_map=None):
+        self.board = Board(playerCount, custom_map)
         
     def start(self):
         for player in self.players:

@@ -958,3 +958,70 @@ input {
 .gold-choice:hover {
     transform: scale(1.08);
 }
+.lobby-content {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
+    gap: 18px;
+    align-items: stretch;
+    min-width: 0;
+}
+
+.lobby-players,
+.lobby-maps {
+    min-width: 0;
+}
+
+.map-list {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 4px 14px;
+    scroll-behavior: smooth;
+}
+
+.map-card {
+    flex: 0 0 170px;
+    min-width: 0;
+    padding: 8px;
+    border: 2px solid #594b3a;
+    border-radius: 10px;
+    background: #e7d5b5;
+    color: #382b20;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, transform 0.15s;
+}
+
+.map-card:hover {
+    transform: translateY(-2px);
+    border-color: #a77b42;
+}
+
+.map-card.selected {
+    border-color: #438d35;
+    box-shadow: 0 0 0 2px #438d3540;
+}
+
+.map-card canvas {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1.25;
+    border-radius: 6px;
+    background: #b7d5dc;
+}
+
+.map-card-name {
+    display: block;
+    margin-top: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+@media (max-width: 650px) {
+    .lobby-content {
+        grid-template-columns: 1fr;
+    }
+}
