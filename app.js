@@ -3641,76 +3641,161 @@ function createMapBuilderUI() {
 
     style.textContent = `
         #mapBuilderScreen {
-            position: fixed;
-            inset: 0;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            background: #17231f;
-            color: #f5e8cc;
-            font-family: Georgia, serif;
-        }
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 250px;
+    background: #bd9a65;
+    color: #f7ead1;
+    font-family: system-ui, "Segoe UI", sans-serif;
+}
 
-        #mapBuilderScreen.hidden {
-            display: none !important;
-        }
+#mapBuilderScreen.hidden {
+    display: none !important;
+}
 
-        .mb-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 14px 18px;
-            background: #263b31;
-            border-bottom: 2px solid #b9975b;
-        }
+#mapBuilderCanvas {
+    grid-column: 1;
+    grid-row: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    touch-action: none;
+    cursor: crosshair;
+}
 
-        .mb-title {
-            font-size: 22px;
-            font-weight: bold;
-        }
+#mapBuilderScreen .mb-toolbar {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 0 13px 16px;
+    background: #211810;
+    border-left: 2px solid #5d4128;
+    box-shadow: -5px 0 16px rgba(0, 0, 0, 0.2);
+}
 
-        .mb-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+#mapBuilderScreen .mb-heading {
+    margin: 0 -13px 16px;
+    padding: 18px 13px 14px;
+    text-align: center;
+    background: #241a12;
+    border-bottom: 1px solid #6c4b2c;
+}
 
-        .mb-button {
-            border: 1px solid #c7a36b;
-            border-radius: 8px;
-            padding: 10px 15px;
-            color: #fff1d4;
-            background: #3b5947;
-            cursor: pointer;
-            font-size: 14px;
-        }
+#mapBuilderScreen .mb-title {
+    font-family: Georgia, serif;
+    font-size: 23px;
+    font-weight: bold;
+    color: #e9bf72;
+    text-shadow: 0 2px 0 #432b17;
+}
 
-        .mb-button:hover {
-            background: #50765b;
-        }
+#mapBuilderScreen #mbTileCount {
+    margin-top: 8px;
+    color: #c6a477;
+    font-size: 13px;
+}
 
-        .mb-button.finish {
-            background: #9b6a2e;
-        }
+#mapBuilderScreen .mb-section-title {
+    margin: 0 0 10px;
+    padding-bottom: 7px;
+    border-bottom: 1px solid #5d4128;
+    color: #e9bf72;
+    font-family: Georgia, serif;
+    font-size: 16px;
+}
 
-        .mb-help {
-            padding: 10px 16px;
-            text-align: center;
-            background: #203229;
-            color: #d9d1bc;
-            font-size: 14px;
-        }
+#mapBuilderScreen .mb-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+}
 
-        #mapBuilderCanvas {
-            display: block;
-            width: 100%;
-            flex: 1;
-            min-height: 0;
-            touch-action: none;
-            cursor: crosshair;
-        }
+#mapBuilderScreen .mb-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 40px;
+    padding: 9px 8px;
+    border: 1px solid #b9945d;
+    border-radius: 6px;
+    background: #e8d2a7;
+    color: #382516;
+    box-shadow: 0 2px 0 #75502e;
+    font-family: Georgia, serif;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.12s, transform 0.12s;
+}
+
+#mapBuilderScreen .mb-button:hover {
+    background: #f5e4bf;
+}
+
+#mapBuilderScreen .mb-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #75502e;
+}
+
+#mapBuilderScreen .mb-button.finish {
+    background: #cba66b;
+    border-color: #e0bd80;
+}
+
+#mapBuilderScreen .mb-help {
+    margin-top: 18px;
+    padding: 12px 10px;
+    background: #302318;
+    border: 1px solid #5d4128;
+    border-radius: 7px;
+    color: #d8bd91;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+#mapBuilderScreen .mb-spacer {
+    flex: 1;
+    min-height: 20px;
+}
+
+@media (max-width: 700px) {
+    #mapBuilderScreen {
+        grid-template-columns: minmax(0, 1fr) 190px;
+    }
+
+    #mapBuilderScreen .mb-toolbar {
+        padding-right: 9px;
+        padding-left: 9px;
+    }
+
+    #mapBuilderScreen .mb-heading {
+        margin-right: -9px;
+        margin-left: -9px;
+        padding-right: 9px;
+        padding-left: 9px;
+    }
+
+    #mapBuilderScreen .mb-title {
+        font-size: 19px;
+    }
+
+    #mapBuilderScreen .mb-button {
+        font-size: 12px;
+        padding: 8px 5px;
+    }
+}
     `;
 
     document.head.appendChild(style);
@@ -3720,34 +3805,42 @@ function createMapBuilderUI() {
     screen.className = "hidden";
 
     screen.innerHTML = `
-        <div class="mb-toolbar">
-            <div>
-                <div class="mb-title">🗺️ Map Builder</div>
-                <div id="mbTileCount">0 Landfelder</div>
-            </div>
+<canvas id="mapBuilderCanvas"></canvas>
 
-            <div class="mb-buttons">
-                <button class="mb-button" id="mbClear">
-                    Karte leeren
-                </button>
+<aside class="mb-toolbar">
+    <div class="mb-heading">
+        <div class="mb-title">COACHING</div>
+        <div id="mbTileCount">0 Landfelder</div>
+    </div>
 
-                <button class="mb-button" id="mbBack">
-                    Zurück
-                </button>
+    <h3 class="mb-section-title">Karteneditor</h3>
 
-                <button class="mb-button finish" id="mbFinish">
-                    Fertig
-                </button>
-            </div>
-        </div>
+    <div class="mb-buttons">
+        <button class="mb-button" id="mbClear">
+            Karte leeren
+        </button>
 
-        <div class="mb-help">
-            Klick auf Wasser = zufälliges Landfeld.
-            Klick auf Land = Wasser.
-            Ziehen verschiebt die Karte, Scrollen zoomt.
-        </div>
+        <button class="mb-button" id="mbBack">
+            Zurück
+        </button>
+    </div>
 
-        <canvas id="mapBuilderCanvas"></canvas>
+    <div class="mb-help">
+        <strong>Steuerung</strong><br>
+        Klick auf Wasser: Landfeld setzen<br>
+        Klick auf Land: Feld entfernen<br>
+        Ziehen: Karte verschieben<br>
+        Scrollen: Karte zoomen
+    </div>
+
+    <div class="mb-spacer"></div>
+
+    <div class="mb-buttons">
+        <button class="mb-button finish" id="mbFinish">
+            Karte übernehmen
+        </button>
+    </div>
+</aside>
     `;
 
     document.body.appendChild(screen);
