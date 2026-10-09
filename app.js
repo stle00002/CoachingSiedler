@@ -4070,6 +4070,11 @@ function closeMapBuilder() {
 // ---------------------------------------------------------
 
 function drawMapBuilder() {
+    console.log("drawMapBuilder aufgerufen");
+    console.log("active:", mapBuilder.active);
+    console.log("canvas:", mapBuilder.canvas);
+
+    // Rest deiner bisherigen Funktion ...
     if (!mapBuilder.active || !mapBuilder.canvas) return;
 
     const canvas = mapBuilder.canvas;
@@ -4109,6 +4114,13 @@ function drawMapBuilder() {
 const waterRadius = 50;
 const waterImg = TILE_IMAGES.WASSER;
 
+console.log("Wasser wird gezeichnet:", {
+    complete: TILE_IMAGES.WASSER.complete,
+    width: TILE_IMAGES.WASSER.naturalWidth,
+    size,
+    centerX,
+    centerY
+});
 // Wasser genau wie in drawBoard() als einzelne,
 // überlappende Wassertexturen zeichnen.
 if (waterImg && waterImg.complete && waterImg.naturalWidth > 0) {
@@ -4128,6 +4140,7 @@ if (waterImg && waterImg.complete && waterImg.naturalWidth > 0) {
         }
     }
 }
+console.log("Wasser-Zeichenblock beendet");
 
 // Ausschließlich platzierte Landfelder zeichnen.
 for (const tile of mapBuilder.tiles.values()) {
