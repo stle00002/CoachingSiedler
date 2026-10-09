@@ -3651,19 +3651,25 @@ const mapBuilder = {
 const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
 
 function saveMapBuilder() {
-    if (!mapBuilder.active) return;
+    let data = {}
+    if (!mapBuilder.active) {
+        data = {}
+    }
+    else{
+        data = {
+            active: mapBuilder.active,
 
-    const data = {
-        active: mapBuilder.active,
+            // Alle bearbeiteten Felder speichern
+            tiles: Array.from(mapBuilder.tiles.entries()),
+            selectedResource: mapBuilder.selectedResource,
+            mapName: document.getElementById("mapName")?.value ?? "",
 
-        // Alle bearbeiteten Felder speichern
-        tiles: Array.from(mapBuilder.tiles.entries()),
-
-        // Ansicht speichern
-        zoom: mapBuilder.zoom,
-        offsetX: mapBuilder.offsetX,
-        offsetY: mapBuilder.offsetY
-    };
+            // Ansicht speichern
+            zoom: mapBuilder.zoom,
+            offsetX: mapBuilder.offsetX,
+            offsetY: mapBuilder.offsetY
+        };
+    }
 
     localStorage.setItem(
         MAP_BUILDER_STORAGE_KEY,
@@ -3687,6 +3693,8 @@ function loadMapBuilder() {
         mapBuilder.zoom = data.zoom ?? 1;
         mapBuilder.offsetX = data.offsetX ?? 0;
         mapBuilder.offsetY = data.offsetY ?? 0;
+        mapBuilder.savedMapName = data.mapName ?? "";
+        mapBuilder.selectedResource = data.selectedResource ?? "HOLZ";
 
         return mapBuilder.active;
     } catch (error) {
@@ -4015,24 +4023,31 @@ function installMapBuilderButton() {
 // ÖFFNEN / SCHLIESSEN
 // ---------------------------------------------------------
 
-function openMapBuilder() {
+function openMapBuilder(restore = false) {
     createMapBuilderUI();
 
-    mapBuilder.active = true;
-    mapBuilder.tiles.clear();
+    if (!restore) {
+        mapBuilder.active = true;
+        mapBuilder.tiles.clear();
+        mapBuilder.zoom = 1;
+        mapBuilder.offsetX = 0;
+        mapBuilder.offsetY = 0;
+    }
 
-    mapBuilder.zoom = 1;
-    mapBuilder.offsetX = 0;
-    mapBuilder.offsetY = 0;
-
-    // Die normale Spielansicht wird nicht verändert.
     $("mapBuilderScreen").classList.remove("hidden");
 
-    onMapBuilderTileChanged()
+    const nameInput = document.getElementById("mapName");
+    if (nameInput) {
+        nameInput.value = mapBuilder.savedMapName ?? "";
+    }
+
+    drawMapBuilder();
+    saveMapBuilder();
 }
 
 function closeMapBuilder() {
     mapBuilder.active = false;
+    saveMapBuilder();
 
     $("mapBuilderScreen").classList.add("hidden");
 
