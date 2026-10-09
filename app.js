@@ -4033,6 +4033,7 @@ function installMapBuilderButton() {
 
 function openMapBuilder(restore = false) {
     createMapBuilderUI();
+    mapBuilder.active = true;
 
     if (!restore) {
         mapBuilder.active = true;
