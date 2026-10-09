@@ -3574,4 +3574,543 @@ function chooseGoldResource(resource) {
 
     closeGoldResourceModal();
 }
+
+
+
+
+
+
+// MAPBUILDER
+
+
+/* =========================================================
+   MAP BUILDER
+   Lokaler Editor – keine Servernachrichten beim Bearbeiten
+   ========================================================= */
+
+const mapBuilder = {
+    active: false,
+    tiles: new Map(),
+    canvas: null,
+    ctx: null,
+    zoom: 1,
+    offsetX: 0,
+    offsetY: 0,
+    dragging: false,
+    dragX: 0,
+    dragY: 0,
+    startOffsetX: 0,
+    startOffsetY: 0
+};
+
+const MAP_BUILDER_RESOURCES = [
+    "HOLZ",
+    "LEHM",
+    "SCHAF",
+    "WEIZEN",
+    "ERZ"
+];
+
+function mapKey(q, r) {
+    return `${q},${r}`;
+}
+
+// Alle bebaubaren Positionen der Karte erzeugen.
+function getMapBuilderCoordinates() {
+    const coordinates = [];
+
+    for (let q = -mapBuilder.radius; q <= mapBuilder.radius; q++) {
+        for (let r = -mapBuilder.radius; r <= mapBuilder.radius; r++) {
+            if (Math.abs(q + r) > mapBuilder.radius) continue;
+
+            coordinates.push({ q, r });
+        }
+    }
+
+    return coordinates;
+}
+
+// ---------------------------------------------------------
+// EDITOR-OBERFLÄCHE
+// ---------------------------------------------------------
+
+function createMapBuilderUI() {
+    if ($("mapBuilderScreen")) return;
+
+    const style = document.createElement("style");
+
+    style.textContent = `
+        #mapBuilderScreen {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            background: #17231f;
+            color: #f5e8cc;
+            font-family: Georgia, serif;
+        }
+
+        #mapBuilderScreen.hidden {
+            display: none !important;
+        }
+
+        .mb-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 14px 18px;
+            background: #263b31;
+            border-bottom: 2px solid #b9975b;
+        }
+
+        .mb-title {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .mb-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mb-button {
+            border: 1px solid #c7a36b;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff1d4;
+            background: #3b5947;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .mb-button:hover {
+            background: #50765b;
+        }
+
+        .mb-button.finish {
+            background: #9b6a2e;
+        }
+
+        .mb-help {
+            padding: 10px 16px;
+            text-align: center;
+            background: #203229;
+            color: #d9d1bc;
+            font-size: 14px;
+        }
+
+        #mapBuilderCanvas {
+            display: block;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            touch-action: none;
+            cursor: crosshair;
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    const screen = document.createElement("div");
+    screen.id = "mapBuilderScreen";
+    screen.className = "hidden";
+
+    screen.innerHTML = `
+        <div class="mb-toolbar">
+            <div>
+                <div class="mb-title">🗺️ Map Builder</div>
+                <div id="mbTileCount">0 Landfelder</div>
+            </div>
+
+            <div class="mb-buttons">
+                <button class="mb-button" id="mbClear">
+                    Karte leeren
+                </button>
+
+                <button class="mb-button" id="mbBack">
+                    Zurück
+                </button>
+
+                <button class="mb-button finish" id="mbFinish">
+                    Fertig
+                </button>
+            </div>
+        </div>
+
+        <div class="mb-help">
+            Klick auf Wasser = zufälliges Landfeld.
+            Klick auf Land = Wasser.
+            Ziehen verschiebt die Karte, Scrollen zoomt.
+        </div>
+
+        <canvas id="mapBuilderCanvas"></canvas>
+    `;
+
+    document.body.appendChild(screen);
+
+    mapBuilder.canvas = $("mapBuilderCanvas");
+    mapBuilder.ctx = mapBuilder.canvas.getContext("2d");
+
+    $("mbBack").onclick = closeMapBuilder;
+
+    $("mbClear").onclick = () => {
+        mapBuilder.tiles.clear();
+        drawMapBuilder();
+    };
+
+    $("mbFinish").onclick = finishMapBuilder;
+
+    window.addEventListener("resize", drawMapBuilder);
+
+    setupMapBuilderCanvas();
+}
+
+// ---------------------------------------------------------
+// LOBBY-BUTTON
+// ---------------------------------------------------------
+
+function installMapBuilderButton() {
+    const actions = $("lobby-actions");
+
+    if (!actions || $("mapBuilderOpenBtn")) return;
+
+    const button = document.createElement("button");
+
+    button.id = "mapBuilderOpenBtn";
+    button.className = "mb-button";
+    button.textContent = "🗺️ Map erstellen";
+
+    button.onclick = openMapBuilder;
+
+    actions.appendChild(button);
+}
+
+// ---------------------------------------------------------
+// ÖFFNEN / SCHLIESSEN
+// ---------------------------------------------------------
+
+function openMapBuilder() {
+    createMapBuilderUI();
+
+    mapBuilder.active = true;
+    mapBuilder.tiles.clear();
+
+    mapBuilder.zoom = 1;
+    mapBuilder.offsetX = 0;
+    mapBuilder.offsetY = 0;
+
+    // Die normale Spielansicht wird nicht verändert.
+    $("mapBuilderScreen").classList.remove("hidden");
+
+    drawMapBuilder();
+}
+
+function closeMapBuilder() {
+    mapBuilder.active = false;
+
+    $("mapBuilderScreen").classList.add("hidden");
+
+    // Lobby wieder anzeigen, falls sie vorher aktiv war.
+    if (!lastState || !(lastState.board || lastState.tiles || lastState.vertices)) {
+        $("lobby").classList.remove("hidden");
+    }
+}
+
+// ---------------------------------------------------------
+// ZEICHNEN
+// ---------------------------------------------------------
+
+function drawMapBuilder() {
+    if (!mapBuilder.active || !mapBuilder.canvas) return;
+
+    const canvas = mapBuilder.canvas;
+    const rect = canvas.getBoundingClientRect();
+
+    if (!rect.width || !rect.height) return;
+
+    const dpr = window.devicePixelRatio || 1;
+
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+
+    const ctx = mapBuilder.ctx;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const W = rect.width;
+    const H = rect.height;
+
+    ctx.fillStyle = "#c7a36b";
+    ctx.fillRect(0, 0, W, H);
+
+    const baseSize = Math.min(
+        W / (mapBuilder.radius * 3.8 + 1),
+        H / (mapBuilder.radius * 3.2 + 1),
+        75
+    );
+
+    const size = baseSize * mapBuilder.zoom;
+
+    const centerX = W / 2 + mapBuilder.offsetX;
+    const centerY = H / 2 + mapBuilder.offsetY;
+
+    function position(q, r) {
+        return {
+            x: centerX + size * (
+                Math.sqrt(3) * q +
+                Math.sqrt(3) / 2 * r
+            ),
+            y: centerY + size * 1.5 * r
+        };
+    }
+
+    // Wasser ist der Standardhintergrund jedes Feldes.
+    for (const { q, r } of getMapBuilderCoordinates()) {
+        const p = position(q, r);
+        const resource = mapBuilder.tiles.get(mapKey(q, r));
+
+        if (!resource) {
+            const water = TILE_IMAGES.WASSER;
+
+            if (water.complete && water.naturalWidth > 0) {
+                ctx.drawImage(
+                    water,
+                    p.x - size * 1.91,
+                    p.y - size * 1.22,
+                    size * 3.82,
+                    size * 2.44
+                );
+            }
+        } else {
+            const img = TILE_IMAGES[resource];
+
+            if (img && img.complete && img.naturalWidth > 0) {
+                ctx.drawImage(
+                    img,
+                    p.x - size * 0.9,
+                    p.y - size,
+                    size * 1.8,
+                    size * 2
+                );
+            }
+
+            // Dezente Umrandung zur Orientierung.
+            ctx.strokeStyle = "rgba(255,255,255,0.35)";
+            ctx.lineWidth = Math.max(1, size * 0.025);
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, size * 0.82, 0, Math.PI * 2);
+            ctx.stroke();
+        }
+    }
+
+    $("mbTileCount").textContent =
+        `${mapBuilder.tiles.size} Landfelder · ` +
+        `${getMapBuilderCoordinates().length} mögliche Felder`;
+}
+
+// ---------------------------------------------------------
+// FELD ERMITTELN
+// ---------------------------------------------------------
+
+function findMapBuilderTile(x, y) {
+    const canvas = mapBuilder.canvas;
+    const rect = canvas.getBoundingClientRect();
+
+    const W = rect.width;
+    const H = rect.height;
+
+    const baseSize = Math.min(
+        W / (mapBuilder.radius * 3.8 + 1),
+        H / (mapBuilder.radius * 3.2 + 1),
+        75
+    );
+
+    const size = baseSize * mapBuilder.zoom;
+
+    const centerX = W / 2 + mapBuilder.offsetX;
+    const centerY = H / 2 + mapBuilder.offsetY;
+
+    let nearest = null;
+    let nearestDistance = Infinity;
+
+    for (const tile of getMapBuilderCoordinates()) {
+        const px = centerX + size * (
+            Math.sqrt(3) * tile.q +
+            Math.sqrt(3) / 2 * tile.r
+        );
+
+        const py = centerY + size * 1.5 * tile.r;
+
+        const distance = Math.hypot(x - px, y - py);
+
+        if (distance < nearestDistance) {
+            nearestDistance = distance;
+            nearest = tile;
+        }
+    }
+
+    // Klick muss innerhalb des Hexfelds liegen.
+    if (nearest && nearestDistance <= size) {
+        return nearest;
+    }
+
+    return null;
+}
+
+// ---------------------------------------------------------
+// KLICK: WASSER <-> LAND
+// ---------------------------------------------------------
+
+function toggleMapBuilderTile(q, r) {
+    const key = `${q},${r}`;
+
+    if (mapBuilder.tiles.has(key)) {
+        // Vorhandenes Landfeld entfernen → wieder Wasser
+        mapBuilder.tiles.delete(key);
+    } else {
+        // Neues Landfeld zufällig auswählen
+        const resources = [
+            "HOLZ",
+            "LEHM",
+            "SCHAF",
+            "WEIZEN",
+            "ERZ"
+        ];
+
+        const resource =
+            resources[Math.floor(Math.random() * resources.length)];
+
+        mapBuilder.tiles.set(key, {
+            q,
+            r,
+            resource
+        });
+    }
+
+    drawMapBuilder();
+}
+
+// ---------------------------------------------------------
+// MAUS, ZOOM UND VERSCHIEBEN
+// ---------------------------------------------------------
+
+function setupMapBuilderCanvas() {
+    const canvas = mapBuilder.canvas;
+
+    canvas.addEventListener("pointerdown", (ev) => {
+        if (!mapBuilder.active) return;
+
+        if (ev.button !== 0) return;
+
+        mapBuilder.dragging = false;
+        mapBuilder.dragX = ev.clientX;
+        mapBuilder.dragY = ev.clientY;
+
+        mapBuilder.startOffsetX = mapBuilder.offsetX;
+        mapBuilder.startOffsetY = mapBuilder.offsetY;
+
+        canvas.setPointerCapture(ev.pointerId);
+    });
+
+    canvas.addEventListener("pointermove", (ev) => {
+        if (!mapBuilder.active || !canvas.hasPointerCapture(ev.pointerId)) {
+            return;
+        }
+
+        const dx = ev.clientX - mapBuilder.dragX;
+        const dy = ev.clientY - mapBuilder.dragY;
+
+        if (Math.hypot(dx, dy) > 6) {
+            mapBuilder.dragging = true;
+        }
+
+        if (mapBuilder.dragging) {
+            mapBuilder.offsetX = mapBuilder.startOffsetX + dx;
+            mapBuilder.offsetY = mapBuilder.startOffsetY + dy;
+
+            drawMapBuilder();
+        }
+    });
+
+    canvas.addEventListener("pointerup", (ev) => {
+        if (!mapBuilder.active) return;
+
+        if (!mapBuilder.dragging) {
+            const rect = canvas.getBoundingClientRect();
+
+            toggleMapBuilderTile(
+                ev.clientX - rect.left,
+                ev.clientY - rect.top
+            );
+        }
+
+        mapBuilder.dragging = false;
+    });
+
+    canvas.addEventListener("pointercancel", () => {
+        mapBuilder.dragging = false;
+    });
+
+    canvas.addEventListener("wheel", (ev) => {
+        if (!mapBuilder.active) return;
+
+        ev.preventDefault();
+
+        mapBuilder.zoom = Math.max(
+            0.6,
+            Math.min(
+                2.5,
+                mapBuilder.zoom * (ev.deltaY < 0 ? 1.1 : 0.9)
+            )
+        );
+
+        drawMapBuilder();
+    }, { passive: false });
+}
+
+// ---------------------------------------------------------
+// FERTIG: KARTE AN SERVER SENDEN
+// ---------------------------------------------------------
+
+function finishMapBuilder() {
+    if (!mapBuilder.active) return;
+
+    if (mapBuilder.tiles.size === 0) {
+        alert("Bitte setze zuerst mindestens ein Landfeld.");
+        return;
+    }
+
+    const tiles = Array.from(
+        mapBuilder.tiles.entries(),
+        ([key, resource]) => {
+            const [q, r] = key.split(",").map(Number);
+
+            return {
+                q,
+                r,
+                resource
+            };
+        }
+    );
+
+    // EINZIGE Servernachricht während des gesamten Editors.
+    // Der Server muss diesen Nachrichtentyp verarbeiten.
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert("Keine Serververbindung. Die Karte wurde nicht gesendet.");
+        return;
+    }
+
+    send("custom_map", { tiles });
+
+    closeMapBuilder();
+
+    log("Eigene Karte wurde an den Server übergeben.");
+}
+
+// Button hinzufügen, sobald das Script ausgeführt wird.
+installMapBuilderButton();
 connect();

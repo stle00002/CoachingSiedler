@@ -47,7 +47,7 @@ class Board:
         self.vertices:list[Vertex] = []
         self.edges:list[Edge] = []
         self.harbors:list[Harbor] = []
-        if playerCount <= 4:
+        if playerCount <= 1:
             self.earthMap = False
             self.radius = 3
 
@@ -80,7 +80,7 @@ class Board:
             print("EARTH Landfelder:", len(self.tiles_positions))
             print("EARTH Ressourcen:", len(self.resources))
 
-        elif playerCount < 6:
+        elif playerCount < 2:
             self.earthMap = False
             self.radius = 4
 

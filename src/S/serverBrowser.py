@@ -894,6 +894,8 @@ async def handle_message(conn, message):
 
     elif action == "start_game":
         global loading
+        if game_state != "lobby" or loading:
+            return
         noDoubleColor = True
         colors = []
         players_and_bots = players + bots
@@ -1100,30 +1102,68 @@ async def handle_message(conn, message):
 
 async def start_game():
     global game_state
+
+    # Tatsächlich vorhandene Lobby-Spieler einsammeln.
+    # Pro Spieler nur einen Eintrag verwenden.
+    connected_players = []
+
+    seen_players = set()
+
+    for conn, player in list(client_players.items()):
+        if conn is None:
+            continue
+
+        if conn not in clients:
+            continue
+
+        if player in seen_players:
+            continue
+
+        connected_players.append((conn, player))
+        seen_players.add(player)
+
+    all_participants = connected_players + [
+        (None, bot) for bot in bots
+    ]
+
+    if len(all_participants) < 2:
+        print("Spielstart abgebrochen: Zu wenige Spieler.")
+        return
+
+    # Tatsächliche Teilnehmerzahl verwenden.
+    random.shuffle(all_participants)
+
+    print("Spieler in Lobby:", len(players))
+    print("Verbundene Spieler:", len(connected_players))
+    print("Bots:", len(bots))
+    print("Teilnehmer beim Spielstart:", len(all_participants))
+
+    logic.createBoard(len(all_participants))
+
+    shuffled_players = []
+
+    for i, (conn, player) in enumerate(all_participants):
+        if conn is not None:
+            try:
+                await send_json(conn, {
+                    "action": "welcome",
+                    "player_index": i,
+                    "in_game": True
+                })
+            except websockets.exceptions.ConnectionClosed:
+                print(f"Spieler {player.name} beim Start getrennt.")
+
+        shuffled_players.append(player)
+
+    logic.players = shuffled_players
+
     game_state = "running"
 
-    logic.createBoard(len(players) + len(bots))
-    shuffled_player_connections = []
-    shuffled_players = []
-    for conn, player in client_players.items():
-        shuffled_player_connections.append((conn,player))
-    for bot in bots:
-        shuffled_player_connections.append((None, bot))
-    random.shuffle(shuffled_player_connections)
-    for i in range(len(players)+ len(bots)):
-        conn, player = shuffled_player_connections[i]
-        if conn != None:
-            await send_json(conn, {
-                "action": "welcome",
-                "player_index": i
-            })
-        shuffled_players.append(player)
-        
-    logic.players = shuffled_players
     logic.start()
     logic.startSetupPhase()
 
     await broadcast_state()
+
 
 
 async def broadcast_lobby():
