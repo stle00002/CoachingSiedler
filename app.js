@@ -3651,11 +3651,6 @@ const mapBuilder = {
 const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
 
 function saveMapBuilder() {
-    let data = {}
-    if (!mapBuilder.active) {
-        data = {}
-    }
-    else{
         data = {
             active: mapBuilder.active,
 
@@ -3669,7 +3664,6 @@ function saveMapBuilder() {
             offsetX: mapBuilder.offsetX,
             offsetY: mapBuilder.offsetY
         };
-    }
 
     localStorage.setItem(
         MAP_BUILDER_STORAGE_KEY,
