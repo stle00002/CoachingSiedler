@@ -3991,13 +3991,18 @@ function createMapBuilderUI() {
     window.addEventListener("resize", drawMapBuilder);
 
     setupMapBuilderCanvas();
-    Object.values(TILE_IMAGES).forEach(img => {
+  Object.values(TILE_IMAGES).forEach(img => {
     if (!img) return;
 
-    if (!img.complete) {
-        img.addEventListener("load", drawMapBuilder, { once: true });
+    if (img.complete && img.naturalWidth > 0) {
+        drawMapBuilder();
+    } else {
+        img.addEventListener("load", drawMapBuilder);
+        img.addEventListener("error", () => {
+            console.error("Kachelbild konnte nicht geladen werden:", img.src);
+        });
     }
-    });
+});
 
     drawMapBuilder();
 }
