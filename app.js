@@ -3721,26 +3721,21 @@ function createMapBuilderUI() {
 }
 
 #mapBuilderScreen .mb-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 100%;
     min-height: 40px;
-    padding: 9px 8px;
-    border: 1px solid #b9945d;
-    border-radius: 6px;
-    background: #e8d2a7;
-    color: #382516;
-    box-shadow: 0 2px 0 #75502e;
-    font-family: Georgia, serif;
-    font-size: 14px;
-    font-weight: bold;
+    padding: 10px 13px;
+    font: inherit;
+    border: 0;
+    border-radius: 9px;
+    background: #654421;
+    color: #fff;
+    box-shadow: none;
     cursor: pointer;
-    transition: background 0.12s, transform 0.12s;
+    transition: filter 0.12s;
 }
 
 #mapBuilderScreen .mb-button:hover {
-    background: #f5e4bf;
+    filter: brightness(1.2);
 }
 
 #mapBuilderScreen .mb-button:active {
@@ -3749,8 +3744,7 @@ function createMapBuilderUI() {
 }
 
 #mapBuilderScreen .mb-button.finish {
-    background: #cba66b;
-    border-color: #e0bd80;
+    background: #a66b20;
 }
 
 #mapBuilderScreen .mb-help {
