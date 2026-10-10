@@ -35,12 +35,16 @@ class Board:
         self.currentLongestRoad = 0
         self.currentPlayerWithLongestRoad = None
         self.currentId = 0
+        #self.development_deck = (
+        #    ["RITTER"] * 14 +
+        #    ["1SIEGPUNKT"] * 5 +
+        #    ["STRAßENBAU"] * 2 +
+        #    ["MONOPOL"] * 2 +
+        #    ["ERFINDUNG"] * 2
+        #)
         self.development_deck = (
-            ["RITTER"] * 14 +
-            ["1SIEGPUNKT"] * 5 +
-            ["STRAßENBAU"] * 2 +
-            ["MONOPOL"] * 2 +
-            ["ERFINDUNG"] * 2
+            ["MONOPOL"] * 1 +
+            ["ERFINDUNG"] * 1
         )
         random.shuffle(self.development_deck)
         self.tiles:list[Tile] = []
