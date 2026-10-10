@@ -229,7 +229,7 @@ input {
 .modal {
   position: fixed;
   inset: 0;
-  background: #0009;
+  background: transparent;
   display: grid;
   place-items: center;
 }
@@ -908,7 +908,7 @@ input {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.65);
+    background: transparent;
     backdrop-filter: blur(2px);
 }
 
@@ -1165,7 +1165,7 @@ input {
 
 /* Gold-Auswahl im selben Design */
 .gold-resource-modal {
-    background: rgba(0, 0, 0, 0.6);
+    background: transparent;
     backdrop-filter: blur(2px);
 }
 

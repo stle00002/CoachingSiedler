@@ -889,7 +889,7 @@ async def handle_message(conn, message):
         if action != "discardResource":
             return
     print (logic.goldChoices)
-    if logic.goldChoices != {}:
+    if any(count > 0 for count in logic.goldChoices.values()):
         if action != "chooseGoldResource":
             return
     if action == "join":
@@ -1145,15 +1145,34 @@ async def handle_message(conn, message):
         if logic.setupPhase and success:
             logic.nextStepSetupPhase()
 
+
     elif action == "buildRoad":
+        print("DEBUG: BUILD ROAD HANDLER ERREICHT")
         name = message["playerName"]
-        for p in logic.players:
-            if p.name == name:
-                player = p
+        player = next(
+            (p for p in logic.players if p.name == name),
+            None
+        )
+
         edgeId = message["edgeId"]
-        for e in logic.board.edges:
-            if e.id == edgeId:
-                edge= e
+        edge = next(
+            (e for e in logic.board.edges if e.id == edgeId),
+            None
+        )
+
+        if player is None:
+            print(f"BUILD ROAD ABGELEHNT: Spieler {name} nicht gefunden")
+            return
+
+        if edge is None:
+            print(f"BUILD ROAD ABGELEHNT: Kante {edgeId} nicht gefunden")
+            return
+
+        print(
+            f"BUILD ROAD VERSUCH: Spieler={name}, "
+            f"Kante={edgeId}, Setup={logic.setupPhase}, "
+            f"setUpRoad={logic.setUpRoad}"
+        )
 
         success = logic.board.buildRoad(
             player,
@@ -1161,10 +1180,24 @@ async def handle_message(conn, message):
             logic.setupPhase,
             logic.freeRoads > 0
         )
+
+        print(
+            f"BUILD ROAD ERGEBNIS: success={success}, "
+            f"edge.owner={edge.owner}, "
+            f"Spielerstraßen={len(player.roads)}"
+        )
+
         if success and logic.freeRoads > 0:
             logic.freeRoads -= 1
+
         if logic.setupPhase and success:
             logic.nextStepSetupPhase()
+
+        print(
+            f"SETUP NACH BAU: setUpRoad={logic.setUpRoad}, "
+            f"setUpSettlement={logic.setUpSettlement}"
+        )
+
 
     elif action == "buildCity":
         vertexId = message["vertexId"]
@@ -1433,6 +1466,8 @@ async def broadcast_state():
         clients.discard(client)
 
 async def bot_loop():
+
+    print("DEBUG: NEUER BOT_LOOP AKTIV")
 
     while True:
 
