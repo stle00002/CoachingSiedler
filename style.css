@@ -909,7 +909,7 @@ input {
     align-items: center;
     justify-content: center;
     background: transparent;
-    backdrop-filter: blur(2px);
+    backdrop-filter: none;
 }
 
 .gold-resource-modal.hidden {
@@ -1166,7 +1166,7 @@ input {
 /* Gold-Auswahl im selben Design */
 .gold-resource-modal {
     background: transparent;
-    backdrop-filter: blur(2px);
+    backdrop-filter: none;
 }
 
 .gold-resource-box {

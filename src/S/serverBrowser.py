@@ -1136,12 +1136,19 @@ async def handle_message(conn, message):
             if v.id == vertexId:
                 vertex = v
 
+
+        # Prüfen, ob gerade die zweite Startsiedlung gesetzt wird.
+        second_setup_settlement = (
+            logic.setupPhase
+            and logic.board.secondSetupPhase
+        )
         success, goldChoices = logic.board.buildSettlement(
             player,
             vertex,
             logic.setupPhase
         )
-        logic.goldChoices[player] = goldChoices
+        if second_setup_settlement:
+            logic.goldChoices[player] = goldChoices
         if logic.setupPhase and success:
             logic.nextStepSetupPhase()
 
