@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://journalist-accessing-lobby-focusing.trycloudflare.com";
+const WS_URL = "wss://rice-nine-gig-heart.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -568,8 +568,16 @@ $("devCards").querySelectorAll(".dev-card-name").forEach((card) => {
   updatePrompt(s);
 }
 function phaseText(s) {
+    let goldChoices = false;
+    for (player of s.players){
+        if (player.goldChoices > 0){
+            goldChoices = true;
+        }
+    }
+  if (s.würfelMode) return "Würfeln"
   if (s.setupPhase) return "Aufbauphase";
   if (s.buildPhase) return "Baurunde";
+  if (goldChoices) return "Gold auswählen"
   if (s.moveRobberMode) return "Räuber bewegen";
   if (s.stealMode) return "Stehlen";
   if (s.discardResourcesMode) return "Abwerfen";
@@ -2088,9 +2096,9 @@ $("board").addEventListener("wheel", (ev) => {
     const oldZoom = boardZoom;
 
     if (ev.deltaY < 0) {
-        boardZoom *= 1.03;
+        boardZoom *= 1.02;
     } else {
-        boardZoom /= 1.03;
+        boardZoom /= 1.02;
     }
 
     boardZoom = Math.max(
@@ -4354,7 +4362,7 @@ canvas.addEventListener("pointerup", (ev) => {
             0.6,
             Math.min(
                 2.5,
-                mapBuilder.zoom * (ev.deltaY < 0 ? 1.03 : 1/1.03)
+                mapBuilder.zoom * (ev.deltaY < 0 ? 1.02 : 1/1.02)
             )
         );
 
