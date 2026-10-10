@@ -898,17 +898,18 @@ input {
         transform: rotate(360deg);
     }
 }
+
+/* GOLD-RESSOURCENFENSTER – gleicher Look wie der Handel */
+
 .gold-resource-modal {
     position: fixed;
     inset: 0;
-
+    z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    z-index: 10000;
-
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(2px);
 }
 
 .gold-resource-modal.hidden {
@@ -916,48 +917,74 @@ input {
 }
 
 .gold-resource-box {
-    background: #f3e4c4;
-    border: 2px solid #5c4025;
-    border-radius: 10px;
-
-    padding: 15px 18px;
-
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
-
+    background: #211810;
+    color: #f7ead1;
+    border: 1px solid #9b703d;
+    border-radius: 14px;
+    padding: 24px;
+    min-width: 300px;
+    max-width: 90vw;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
     text-align: center;
 }
 
 .gold-resource-title {
-    font-size: 18px;
+    color: #e9bf72;
+    font-family: Georgia, serif;
+    font-size: 20px;
     font-weight: bold;
-    margin-bottom: 12px;
+    margin-bottom: 18px;
 }
 
 .gold-resource-options {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
     justify-content: center;
 }
 
-.gold-choice {
+/* Gleiche Grundform wie die Ressourcenfelder im Handelsfenster */
+.gold-resource-options .gold-choice {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    box-sizing: border-box;
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
     cursor: pointer;
-
-    width: 50px;
-    height: 50px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-size: 14px;
-    font-weight: bold;
-
-    transition: transform 0.1s;
+    transition: transform 0.1s, border-color 0.1s, filter 0.1s;
 }
 
-.gold-choice:hover {
+.gold-resource-options .gold-choice:hover {
     transform: scale(1.08);
+    border-color: white;
+    filter: brightness(1.1);
 }
+
+/* Kleinere Darstellung auf dem Handy */
+.iphone .gold-resource-box {
+    min-width: 0;
+    width: 230px;
+    padding: 14px;
+}
+
+.iphone .gold-resource-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.iphone .gold-resource-options {
+    gap: 5px;
+}
+
+.iphone .gold-resource-options .gold-choice {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+}
+
 .lobby-content {
     display: grid;
     grid-template-columns: minmax(220px, 1fr) minmax(0, 2fr);
@@ -1069,4 +1096,130 @@ input {
     color: #fff;
     outline: 2px solid #e9bf72;
     outline-offset: -2px;
+}
+
+
+/* =========================================================
+   ENTWICKLUNGSKARTEN: ERFINDUNG, MONOPOL UND GOLD
+   Stil passend zur Handelsleiste
+   ========================================================= */
+
+/* Gemeinsame Ressourcenauswahl für Erfindung und Monopol */
+.dev-resource-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.dev-resource-button {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 5px;
+
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px #000;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    cursor: pointer;
+    transition: transform 0.1s, border-color 0.1s;
+}
+
+.dev-resource-button:hover {
+    transform: scale(1.08);
+    border-color: white;
+    filter: brightness(1.08);
+}
+
+/* Einheitliches dunkles Fenster */
+#modal .modal-card {
+    background: #211810;
+    color: #f7ead1;
+    border: 1px solid #d6b477;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+#modal .modal-card h2 {
+    color: #e9bf72;
+    text-align: center;
+    font-family: Georgia, serif;
+    margin: 0 24px 12px;
+}
+
+#modal .modal-card p {
+    color: #d8bd91;
+    text-align: center;
+}
+
+/* Gold-Auswahl im selben Design */
+.gold-resource-modal {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+}
+
+.gold-resource-box {
+    background: #211810;
+    color: #f7ead1;
+    border: 1px solid #d6b477;
+    border-radius: 12px;
+    padding: 20px;
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.gold-resource-title {
+    color: #e9bf72;
+    font-family: Georgia, serif;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 14px;
+}
+
+.gold-resource-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.gold-choice {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 5px;
+
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: transform 0.1s, border-color 0.1s;
+}
+
+.gold-choice:hover {
+    transform: scale(1.08);
+    border-color: white;
+}
+
+/* Kompakter auf dem iPhone */
+.iphone .dev-resource-button,
+.iphone .gold-choice {
+    width: 32px;
+    height: 32px;
+}
+
+.iphone .dev-resource-grid,
+.iphone .gold-resource-options {
+    gap: 5px;
 }

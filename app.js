@@ -2790,12 +2790,14 @@ function openDevelopmentResourceModal(title, text, callback) {
 
             <div class="dev-resource-grid">
                 ${resources.map(resource => `
-                    <button
-                        class="dev-resource-button"
-                        data-resource="${resource}"
-                    >
-                        ${resource}
-                    </button>
+<button
+    class="dev-resource-button"
+    data-resource="${resource}"
+    style="background:${RESOURCE_COLORS[resource] || "#888"}"
+    title="${resource}"
+    aria-label="${resource}"
+>
+</button>
                 `).join("")}
             </div>
         `
@@ -2833,12 +2835,14 @@ function openInventionModal() {
 
             <div class="dev-resource-grid">
                 ${resources.map(resource => `
-                    <button
-                        class="dev-resource-button"
-                        data-resource="${resource}"
-                    >
-                        ${resource}
-                    </button>
+<button
+    class="dev-resource-button"
+    data-resource="${resource}"
+    style="background:${RESOURCE_COLORS[resource] || "#888"}"
+    title="${resource}"
+    aria-label="${resource}"
+>
+</button>
                 `).join("")}
             </div>
         `
@@ -2920,7 +2924,22 @@ function updateActionButtons(s) {
 
     const buildRoundButton = $("buildRoundBtn");
 
+    
+    let goldChoices = false;
+    for (player of s.players){
+        if (player.goldChoices > 0){
+            goldChoices = true;
+        }
+    }
+    
+
 if (buildRoundButton) {
+    if (s.players.length()> 4){
+        buildRoundButton.style.display = "";
+    }
+    else{
+        buildRoundButton.style.display = "none";
+    }
     if (s.buildPhase) {
         // Wir sind gerade in der Sonderbauphase
 
@@ -2931,7 +2950,7 @@ if (buildRoundButton) {
 
         // Nur Spieler, die Baurunde gewählt haben,
         // dürfen FERTIG drücken.
-        buildRoundButton.disabled = !raised || inSetup;
+        buildRoundButton.disabled = !raised || inSetup || goldChoices || s.würfelMode
 
     } else {
         // Normale Spielphase
@@ -2939,7 +2958,7 @@ if (buildRoundButton) {
             s.raisedHands?.[String(player_index)] === true;
 
         buildRoundButton.textContent = "Baurunde";
-        buildRoundButton.disabled = raised || inSetup;
+        buildRoundButton.disabled = raised || inSetup || goldChoices || s.würfelMode;
     }
 }
 
@@ -2982,7 +3001,7 @@ if (buildRoundButton) {
     // Würfeln nur wenn man selbst dran ist
     if (buttons.roll_dice) {
         buttons.roll_dice.disabled = 
-            (!myTurn || !s.würfelMode);
+            (!myTurn || !s.würfelMode || goldChoices);
     }
 
 
@@ -2990,9 +3009,9 @@ if (buildRoundButton) {
     // In der Setup-Phase kostenlos
     if (buttons.buildSettlement) {
         buttons.buildSettlement.disabled =
-            (!(darfBauenBaurunde && !inSetup) || !hasSettlementResources)&&
-            (!myTurn || discarding|| mustRoll ||
-            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources));
+            ((!(darfBauenBaurunde && !inSetup) || !hasSettlementResources)&&
+            (!myTurn || discarding|| mustRoll || 
+            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources)))|| goldChoices;
     }
 
 
@@ -3007,42 +3026,42 @@ if (buildRoundButton) {
             );
 
         buttons.buildRoad.disabled =
-            (!(darfBauenBaurunde && !inSetup) || !hasRoadResources) &&
+            ((!(darfBauenBaurunde && !inSetup) || !hasRoadResources) &&
             (!myTurn || discarding|| mustRoll||
-            (!hasRoadResources && !canBuildFreeRoad));
+            (!hasRoadResources && !canBuildFreeRoad)))|| goldChoices;
     }
 
 
     // CITY gibt es in der Setup-Phase nicht
     if (buttons.buildCity) {
         buttons.buildCity.disabled =
-            (!(darfBauenBaurunde && !inSetup)|| !hasCityResources) &&
+            ((!(darfBauenBaurunde && !inSetup)|| !hasCityResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll ||
-            !hasCityResources);
+            !hasCityResources))|| goldChoices;
     }
 
 
     // Entwicklungskarte gibt es in der Setup-Phase nicht
     if (buttons.buyDevelopmentCard) {
         buttons.buyDevelopmentCard.disabled =
-            (!(darfBauenBaurunde && !inSetup) || !hasDevelopmentResources) &&
+            ((!(darfBauenBaurunde && !inSetup) || !hasDevelopmentResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll||
-            !hasDevelopmentResources);
+            !hasDevelopmentResources))|| goldChoices;
     }
 
    const tradeButton = document.getElementById("tradeButton");
 
 if (tradeButton) {
-    tradeButton.disabled = !myTurn || mustFinishAction(s);
+    tradeButton.disabled = !myTurn || mustFinishAction(s)|| goldChoices;
 } 
 
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
             !myTurn || discarding|| s.buildPhase||
-            mustFinishAction(s);
+            mustFinishAction(s)|| goldChoices;
     }
 }
 function checkVictory(s) {
@@ -3576,33 +3595,25 @@ function prepareRobberImage() {
 
     ROBBER_CTX.restore();
 }
+
 function openGoldResourceModal() {
+    const modal = document.getElementById("goldResourceModal");
     const options = document.getElementById("goldResourceOptions");
 
-    const resources = [
-        "HOLZ",
-        "LEHM",
-        "SCHAF",
-        "WEIZEN",
-        "ERZ"
-    ];
+    const resources = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 
-    options.innerHTML = resources
-        .map(resource => `
-            <div
-                class="resource-box gold-choice"
-                style="background:${RESOURCE_COLORS[resource] || "#888"}"
-                title="${resource}"
-                onclick="chooseGoldResource('${resource}')"
-            >
-            </div>
-        `)
-        .join("");
+    options.innerHTML = resources.map(resource => `
+        <div
+            class="resource-box gold-choice"
+            style="background:${RESOURCE_COLORS[resource] || "#888"}"
+            title="${resource}"
+            onclick="chooseGoldResource('${resource}')"
+        ></div>
+    `).join("");
 
-    document
-        .getElementById("goldResourceModal")
-        .classList.remove("hidden");
+    modal.classList.remove("hidden");
 }
+
 
 function closeGoldResourceModal() {
     document

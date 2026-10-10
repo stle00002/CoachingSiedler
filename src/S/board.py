@@ -1149,9 +1149,9 @@ class Board:
         
     def buildSettlement(self, player, vertex, setupPhase):
         if not self.canBuildSettlement(player, vertex, setupPhase):
-            return False
+            return False, 0
         if not self.has_resources(player, SETTLEMENT_COST) and not setupPhase:
-            return False
+            return False, 0
         if not setupPhase:
             self.pay_resources(player, SETTLEMENT_COST)
         elif self.secondSetupPhase:
@@ -1163,10 +1163,18 @@ class Board:
         vertex.owner = player
         player.settlements.append(vertex)
         player.victoryPoints += 1
+        goldChoices = 0
+        for tile in vertex.adjacentTiles:
+            if tile.resource == Resource.GOLD:
+                goldChoices += 1
         pygame.mixer.init()
         pygame.mixer.music.load("src/S/Siedlung.mp3")
         pygame.mixer.music.play()
-        return True
+        if setupPhase:
+            return True, goldChoices
+        else:
+            return True, 0
+        
 
     def canBuildCity(self, player, vertex):
         if len(player.cities) == 4:

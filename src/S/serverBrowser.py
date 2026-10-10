@@ -1136,11 +1136,12 @@ async def handle_message(conn, message):
             if v.id == vertexId:
                 vertex = v
 
-        success = logic.board.buildSettlement(
+        success, goldChoices = logic.board.buildSettlement(
             player,
             vertex,
             logic.setupPhase
         )
+        logic.goldChoices[player] = goldChoices
         if logic.setupPhase and success:
             logic.nextStepSetupPhase()
 
