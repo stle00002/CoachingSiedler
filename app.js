@@ -2934,7 +2934,7 @@ function updateActionButtons(s) {
     
 
 if (buildRoundButton) {
-    if (s.players.length()> 4){
+    if (s.players.length> 4){
         buildRoundButton.style.display = "";
     }
     else{
