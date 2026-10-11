@@ -118,6 +118,8 @@ def save_custom_map(name, tiles, harbors=None):
         q = harbor.get("q")
         r = harbor.get("r")
         direction = harbor.get("direction")
+        resource = harbor.get("resource")
+        ratio = harbor.get("ratio")
 
         if type(q) is not int or type(r) is not int:
             return False, "Ungültige Hafenkoordinaten."
@@ -136,8 +138,8 @@ def save_custom_map(name, tiles, harbors=None):
             "q": q,
             "r": r,
             "direction": direction,
-            "resource": None,
-            "ratio": 3
+            "resource": resource,
+            "ratio": ratio
         })
 
     data = {

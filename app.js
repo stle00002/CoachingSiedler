@@ -3686,6 +3686,9 @@ const mapBuilder = {
     selectedResource: "HOLZ",
     harbors: new Map(),
     harborMode: false,
+    touchStartDistance: 0,
+    touchStartZoom: 1,
+    touchCenter: null,
 };
 
 const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
@@ -4505,6 +4508,66 @@ canvas.addEventListener("pointerup", (ev) => {
 
         onMapBuilderTileChanged()
     }, { passive: false });
+        // Handy: Zoom mit zwei Fingern (Pinch-to-Zoom)
+    canvas.addEventListener("touchstart", (ev) => {
+        if (!mapBuilder.active || ev.touches.length !== 2) return;
+
+        ev.preventDefault();
+
+        const t1 = ev.touches[0];
+        const t2 = ev.touches[1];
+
+        mapBuilder.touchStartDistance = Math.hypot(
+            t2.clientX - t1.clientX,
+            t2.clientY - t1.clientY
+        );
+
+        mapBuilder.touchStartZoom = mapBuilder.zoom;
+
+        mapBuilder.touchCenter = {
+            x: (t1.clientX + t2.clientX) / 2,
+            y: (t1.clientY + t2.clientY) / 2
+        };
+    }, { passive: false });
+
+    canvas.addEventListener("touchmove", (ev) => {
+        if (
+            !mapBuilder.active ||
+            ev.touches.length !== 2 ||
+            !mapBuilder.touchStartDistance
+        ) return;
+
+        ev.preventDefault();
+
+        const t1 = ev.touches[0];
+        const t2 = ev.touches[1];
+
+        const distance = Math.hypot(
+            t2.clientX - t1.clientX,
+            t2.clientY - t1.clientY
+        );
+
+        const factor = distance / mapBuilder.touchStartDistance;
+
+        mapBuilder.zoom = Math.max(
+            0.6,
+            Math.min(2.5, mapBuilder.touchStartZoom * factor)
+        );
+
+        drawMapBuilder();
+    }, { passive: false });
+
+    canvas.addEventListener("touchend", (ev) => {
+        if (ev.touches.length < 2) {
+            mapBuilder.touchStartDistance = 0;
+            saveMapBuilder();
+        }
+    });
+
+    canvas.addEventListener("touchcancel", () => {
+        mapBuilder.touchStartDistance = 0;
+        saveMapBuilder();
+    });
 }
 
 
