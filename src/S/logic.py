@@ -169,51 +169,77 @@ class Logic:
 
 
     def getHarborVertices(self, harbor):
-        """Findet die beiden Eckpunkte der Hafenseite."""
-        direction = (harbor.direction - 1) % 6
-
-        tile = next(
-            (
-                tile for tile in self.board.tiles
-                if tile.q == harbor.q and tile.r == harbor.r
-            ),
-            None
-        )
-
-        if tile is None:
-            return None, None
+        """Findet die zwei Vertices der Küstenkante eines Wasser-Hafens."""
 
         directions = self.board.HEX_DIRECTIONS
+        harbor_pos = (harbor.q, harbor.r)
 
-        # Die beiden Ecken an der Hafenseite bestimmen.
-        corner_pairs = [
-            (direction, (direction + 1) % 6),
-            ((direction - 1) % 6, direction)
-        ]
+        tile_map = {
+            (tile.q, tile.r): tile
+            for tile in self.board.tiles
+        }
 
-        found_vertices = []
+        # Das Land-Tile suchen, dessen Nachbarposition der Hafen ist.
+        for tile in self.board.tiles:
+            if tile.resource is Resource.WASSER:
+                continue
 
-        for corner_a, corner_b in corner_pairs:
-            da = directions[corner_a]
-            db = directions[corner_b]
+            for direction, (dq, dr) in enumerate(directions):
+                water_pos = (tile.q + dq, tile.r + dr)
 
-            pos_a = (tile.q + da[0], tile.r + da[1])
-            pos_b = (tile.q + db[0], tile.r + db[1])
+                if water_pos != harbor_pos:
+                    continue
 
-            vertex_found = None
+                # Die Küstenkante liegt zwischen den beiden Ecken
+                # direction-1 und direction.
+                corner_indices = (
+                    (direction - 1) % 6,
+                    direction
+                )
 
-            for vertex in tile.vertices:
-                adjacent_positions = {
-                    (t.q, t.r) for t in vertex.adjacentTiles
-                }
+                found_vertices = []
 
-                if pos_a in adjacent_positions and pos_b in adjacent_positions:
-                    vertex_found = vertex
-                    break
+                for corner_index in corner_indices:
+                    # Ein Vertex aus createVertices() wird über die
+                    # beiden benachbarten Tile-Positionen identifiziert.
+                    prev_direction = corner_index
+                    next_direction = (corner_index + 1) % 6
 
-            found_vertices.append(vertex_found)
+                    d1 = directions[prev_direction]
+                    d2 = directions[next_direction]
 
-        return found_vertices[0], found_vertices[1]
+                    pos1 = (tile.q + d1[0], tile.r + d1[1])
+                    pos2 = (tile.q + d2[0], tile.r + d2[1])
+
+                    vertex_found = None
+
+                    for vertex in tile.vertices:
+                        adjacent_positions = {
+                            (t.q, t.r)
+                            for t in vertex.adjacentTiles
+                        }
+
+                        if pos1 in adjacent_positions and pos2 in adjacent_positions:
+                            vertex_found = vertex
+                            break
+
+                    found_vertices.append(vertex_found)
+
+                if all(v is not None for v in found_vertices):
+                    return found_vertices[0], found_vertices[1]
+
+                print(
+                    "Küstenkante gefunden, aber Vertices fehlen:",
+                    "Land-Tile =", (tile.q, tile.r),
+                    "Wasser =", harbor_pos,
+                    "Richtung =", direction + 1
+                )
+
+        print(
+            "Kein angrenzendes Land-Tile für Hafen gefunden:",
+            harbor_pos
+        )
+        return None, None
 
     def getRatio(self, giveResource, player):
         """Berechnet das beste Tauschverhältnis des Spielers."""
@@ -225,7 +251,7 @@ class Logic:
         for harbor in self.board.harbors:
             vertex1, vertex2 = self.getHarborVertices(harbor)
 
-            if vertex1 is None or vertex2 is None:
+            if vertex1 is None and vertex2 is None:
                 continue
 
             # Der Spieler muss an mindestens einem Hafen-Eckpunkt

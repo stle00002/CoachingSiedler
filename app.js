@@ -2633,7 +2633,7 @@ else if (s.buildPhase) {
     if (raised) {
         t = "Du bist in der Baurunde – du kannst bauen";
     } else {
-        t = "Baurunde";
+        t = "";
     }
 }
   else if (mode)

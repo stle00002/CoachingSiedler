@@ -125,10 +125,6 @@ def save_custom_map(name, tiles, harbors=None):
         if type(direction) is not int or direction not in range(1, 7):
             return False, "Ungültige Hafenrichtung."
 
-        # Der Hafen muss auf einem vorhandenen Landfeld liegen.
-        if (q, r) not in seen_positions:
-            return False, "Ein Hafen liegt nicht auf einem Landfeld."
-
         # Pro Landfeld nur ein Hafen.
         if (q, r) in seen_harbors:
             return False, "Auf einem Landfeld liegen mehrere Häfen."
@@ -796,6 +792,11 @@ async def handle_message(conn, message):
     global selected_map_name
 
     if action == "custom_map":
+        print("=== CUSTOM MAP EMPFANGEN ===")
+        print("Name:", repr(message.get("name")))
+        print("Tiles:", len(message.get("tiles") or []))
+        print("Harbors:", message.get("harbors"))
+        print("Speicherordner:", MAPS_DIR.resolve())
         # Eigene Karten nur in der Lobby speichern.
         if game_state != "lobby":
             return
@@ -816,6 +817,10 @@ async def handle_message(conn, message):
             message.get("tiles"),
             message.get("harbors", [])
         )
+        print("Speichern erfolgreich:", success)
+        print("Speicherergebnis:", result_message)
+        print("Dateipfad:", get_map_path(message.get("name")))
+        print("Datei existiert:", get_map_path(message.get("name")).exists())
 
         if not success:
             await send_json(conn, {

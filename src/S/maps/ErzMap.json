@@ -1,0 +1,56 @@
+{
+    "name": "ErzMap",
+    "tiles": [
+        {
+            "q": 1,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 2,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -3,
+            "resource": "ERZ"
+        }
+    ],
+    "harbors": [
+        {
+            "q": 3,
+            "r": -3,
+            "direction": 3,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -1,
+            "r": -1,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        }
+    ]
+}
