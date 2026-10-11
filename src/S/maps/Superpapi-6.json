@@ -1,0 +1,286 @@
+{
+    "name": "Superpapi-6",
+    "tiles": [
+        {
+            "q": -2,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": 1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -3,
+            "r": 3,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": -2,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": -3,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 0,
+            "r": 2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 1,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 2,
+            "r": -1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 0,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -2,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -1,
+            "r": -1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": -2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -2,
+            "r": 1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 0,
+            "r": 1,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": 2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": 2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -3,
+            "r": 2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": 0,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 1,
+            "r": 0,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 3,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": 3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -1,
+            "r": 3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -4,
+            "r": 3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 0,
+            "r": 3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 1,
+            "r": 2,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 3,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 2,
+            "r": 1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -3,
+            "r": 0,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -4,
+            "r": 2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -3,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -4,
+            "r": 0,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -4,
+            "r": 1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 3,
+            "r": 0,
+            "resource": "WÜSTE"
+        }
+    ],
+    "harbors": [
+        {
+            "q": 4,
+            "r": -1,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 4,
+            "r": -3,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 2,
+            "r": -3,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 0,
+            "r": -3,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -2,
+            "r": -3,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -4,
+            "r": -1,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -5,
+            "r": 2,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -5,
+            "r": 4,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -3,
+            "r": 4,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -1,
+            "r": 4,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 1,
+            "r": 3,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 3,
+            "r": 1,
+            "direction": 3,
+            "resource": null,
+            "ratio": 3
+        }
+    ]
+}
