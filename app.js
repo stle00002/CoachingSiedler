@@ -309,6 +309,7 @@ function renderLobby(players, loading) {
   // ==========================================
   if (loading) {
 
+    enterFullscreen()
     // Keine Spielerliste
     $("players").innerHTML = `
       <div class="lobby-loading">
@@ -3791,6 +3792,17 @@ function renderDiceStatistics(dices) {
     });
 }
 
+
+function enterFullscreen() {
+    const element = document.documentElement;
+
+    if (element.requestFullscreen) {
+        element.requestFullscreen();
+    } else if (element.webkitRequestFullscreen) {
+        // Safari-Unterstützung
+        element.webkitRequestFullscreen();
+    }
+}
 
 
 
