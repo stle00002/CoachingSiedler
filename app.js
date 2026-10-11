@@ -3325,13 +3325,14 @@ function drawHarbor(ctx, harbor, p1, p2, boardCenter, size) {
     let ny = edgeX / edgeLength;
 
     // Richtige Außenseite bestimmen
-    const outwardX = mx - boardCenter.x;
-    const outwardY = my - boardCenter.y;
+// Normale immer nach innen ins Hexfeld richten
+const inwardX = boardCenter.x - mx;
+const inwardY = boardCenter.y - my;
 
-    if (nx * outwardX + ny * outwardY < 0) {
-        nx = -nx;
-        ny = -ny;
-    }
+if (nx * inwardX + ny * inwardY < 0) {
+    nx = -nx;
+    ny = -ny;
+}
 
     // ------------------------------------------------
     // GEOMETRIE
@@ -4311,19 +4312,12 @@ function findMapBuilderTile(x, y) {
     return { q: correctedQ, r: correctedR };
 }
 
-
 function cycleMapBuilderHarbor(q, r) {
     const key = mapKey(q, r);
-
-    // Häfen können nur auf vorhandenen Landfeldern liegen.
-    if (!mapBuilder.tiles.has(key)) {
-        return;
-    }
-
     const existing = mapBuilder.harbors.get(key);
 
     if (!existing) {
-        // Erster Klick: allgemeiner Hafen 3:1
+        // Erster Klick: Hafen in Richtung 1
         mapBuilder.harbors.set(key, {
             q,
             r,
@@ -4332,7 +4326,7 @@ function cycleMapBuilderHarbor(q, r) {
             ratio: 3
         });
     } else if (existing.direction < 6) {
-        // Weitere Klicks: nächste Richtung
+        // Weitere Klicks: Richtung 2 bis 6
         mapBuilder.harbors.set(key, {
             ...existing,
             direction: existing.direction + 1
@@ -4346,7 +4340,6 @@ function cycleMapBuilderHarbor(q, r) {
     drawMapBuilder();
 }
 
-
 function drawMapBuilderHarbors(ctx, position, size) {
     const directionCorners = {
         1: [5, 0], // oben rechts
@@ -4358,10 +4351,7 @@ function drawMapBuilderHarbors(ctx, position, size) {
     };
 
     for (const harbor of mapBuilder.harbors.values()) {
-        // Keine Häfen auf nicht mehr vorhandenen Feldern zeichnen.
-        if (!mapBuilder.tiles.has(mapKey(harbor.q, harbor.r))) {
-            continue;
-        }
+
 
         const center = position(harbor.q, harbor.r);
 
@@ -4539,11 +4529,10 @@ const harbors = Array.from(
         q: harbor.q,
         r: harbor.r,
         direction: harbor.direction,
-        resource: null,
-        ratio: 3
+        resource: harbor.resource,
+        ratio: harbor.ratio
     })
 );
-
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         alert("Keine Serververbindung. Die Karte wurde nicht gespeichert.");
