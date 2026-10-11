@@ -1187,18 +1187,23 @@ async def handle_message(conn, message):
 
     
     elif action == "chat_message":
-        message = str(data.get("message", "")).strip()
 
-        if not message:
+        text = message["message"]
+        if not text:
             return
 
-        message = message[:500]
+        text = text[:500]
 
+
+        name = message["playerName"]
+        for p in logic.players:
+            if p.name == name:
+                player = p       
         # Den tatsächlichen Absender aus der bestehenden
         # Verbindung bzw. Spielerzuordnung verwenden.
         chat_entry = {
             "player": player.name,
-            "message": message
+            "message": text
         }
 
         chat_history.append(chat_entry)

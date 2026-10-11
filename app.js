@@ -3679,6 +3679,7 @@ function sendChatMessage() {
 
     // Nachricht an den Python-Server schicken
     send("chat_message", {
+        playerName: me,
         message: message
     });
 
