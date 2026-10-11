@@ -4182,25 +4182,67 @@ function drawMapBuilder() {
         };
     }
 
-
 const waterRadius = 50;
 const waterImg = TILE_IMAGES.WASSER;
 
-console.log("Wasser wird gezeichnet:", {
-    complete: TILE_IMAGES.WASSER.complete,
-    width: TILE_IMAGES.WASSER.naturalWidth,
-    size,
-    centerX,
-    centerY
-});
-// Wasser genau wie in drawBoard() als einzelne,
-// überlappende Wassertexturen zeichnen.
 if (waterImg && waterImg.complete && waterImg.naturalWidth > 0) {
-    for (let q = -waterRadius; q <= waterRadius; q++) {
-        for (let r = -waterRadius; r <= waterRadius; r++) {
+    // Nur Wasserfelder innerhalb des sichtbaren Canvas-Bereichs zeichnen.
+    // Zusätzlicher Rand verhindert sichtbare Lücken beim Verschieben.
+    const margin = size * 3;
+
+    const minX = -margin;
+    const maxX = W + margin;
+    const minY = -margin;
+    const maxY = H + margin;
+
+    // Sichtbare Pixelgrenzen zurück in ungefähre Hexkoordinaten umrechnen.
+    const corners = [
+        { x: minX, y: minY },
+        { x: maxX, y: minY },
+        { x: minX, y: maxY },
+        { x: maxX, y: maxY }
+    ];
+
+    const visibleHexes = corners.map(({ x, y }) => {
+        const dx = x - centerX;
+        const dy = y - centerY;
+
+        const r = (2 / 3 * dy) / size;
+        const q = dx / (Math.sqrt(3) * size) - r / 2;
+
+        return { q, r };
+    });
+
+    const minQ = Math.max(
+        -waterRadius,
+        Math.floor(Math.min(...visibleHexes.map(p => p.q)) - 3)
+    );
+    const maxQ = Math.min(
+        waterRadius,
+        Math.ceil(Math.max(...visibleHexes.map(p => p.q)) + 3)
+    );
+    const minR = Math.max(
+        -waterRadius,
+        Math.floor(Math.min(...visibleHexes.map(p => p.r)) - 3)
+    );
+    const maxR = Math.min(
+        waterRadius,
+        Math.ceil(Math.max(...visibleHexes.map(p => p.r)) + 3)
+    );
+
+    for (let q = minQ; q <= maxQ; q++) {
+        for (let r = minR; r <= maxR; r++) {
             if (Math.abs(q + r) > waterRadius) continue;
 
             const p = position(q, r);
+
+            // Felder außerhalb des sichtbaren Bereichs überspringen.
+            if (
+                p.x < minX - size * 2 ||
+                p.x > maxX + size * 2 ||
+                p.y < minY - size * 2 ||
+                p.y > maxY + size * 2
+            ) continue;
 
             ctx.drawImage(
                 waterImg,
@@ -4499,7 +4541,7 @@ canvas.addEventListener("pointerup", (ev) => {
         ev.preventDefault();
 
         mapBuilder.zoom = Math.max(
-            0.6,
+            0.2,
             Math.min(
                 2.5,
                 mapBuilder.zoom * (ev.deltaY < 0 ? 1.02 : 1/1.02)
@@ -4550,7 +4592,7 @@ canvas.addEventListener("pointerup", (ev) => {
         const factor = distance / mapBuilder.touchStartDistance;
 
         mapBuilder.zoom = Math.max(
-            0.6,
+            0.2,
             Math.min(2.5, mapBuilder.touchStartZoom * factor)
         );
 
