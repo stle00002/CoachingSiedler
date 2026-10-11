@@ -137,6 +137,7 @@ function connect() {
     if (me) {
       send("join", { name: me });
     }
+    enterFullscreen()
   };
 
   ws.onclose = () => {
