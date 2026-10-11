@@ -3501,61 +3501,66 @@ if (!harbor.resource) {
 // ALLE HÄFEN ZEICHNEN
 // Funktioniert auch ohne Tiles und Vertices
 // =========================================================
-
 function drawHarbors(ctx, boardState, pos, size, boardCenter) {
 
-    if (!boardState || !boardState.harbors) {
+    if (!boardState || !Array.isArray(boardState.harbors)) {
+        console.error("Keine Häfen gefunden!", boardState);
         return;
     }
 
-    // Die sechs Ecken eines pointy-top Hexagons.
-    // Muss zur Ausrichtung deiner pos()-Geometrie passen.
-    const cornerAngles = [
-        -30, 30, 90, 150, 210, 270
-    ];
-
-    // Richtungen:
-    // 1 = oben links
-    // 2 = oben rechts
-    // 3 = rechts
-    // 4 = unten rechts
-    // 5 = unten links
-    // 6 = links
-    //
-    // Jede Richtung bezeichnet eine Kante zwischen
-    // zwei benachbarten Hexagon-Eckpunkten.
-
-    const directionCorners = {
-        1: [2, 3],
-        2: [1, 2],
-        3: [0, 1],
-        4: [5, 0],
-        5: [4, 5],
-        6: [3, 4]
-    };
+    console.log("HÄFEN:", boardState.harbors.length);
 
     for (const harbor of boardState.harbors) {
 
-        const indices = directionCorners[Number(harbor.direction)];
+        const q = Number(harbor.q);
+        const r = Number(harbor.r);
+        const direction = Number(harbor.direction);
 
-        if (!indices) continue;
+        if (!Number.isFinite(q) ||
+            !Number.isFinite(r) ||
+            !Number.isFinite(direction)) {
+            console.warn("Ungültiger Hafen:", harbor);
+            continue;
+        }
 
-        // Hexagon-Mittelpunkt direkt aus den Koordinaten.
-        // pos() berücksichtigt Zoom und Verschiebung bereits.
-        const p = pos(Number(harbor.q), Number(harbor.r));
+        // Hexagon-Mittelpunkt aus deiner vorhandenen pos()-Funktion
+        const p = pos(q, r);
 
-        // Eckpunkte unabhängig von vorhandenen Tiles erzeugen.
-        const corners = cornerAngles.map(angle => {
-            const rad = angle * Math.PI / 180;
+        // Kantenpunkte berechnen
+        const corners = [];
 
-            return {
-                x: p.x + size * Math.cos(rad),
-                y: p.y + size * Math.sin(rad)
-            };
-        });
+        for (let i = 0; i < 6; i++) {
+            const angle = (60 * i - 30) * Math.PI / 180;
+
+            corners.push({
+                x: p.x + size * Math.cos(angle),
+                y: p.y + size * Math.sin(angle)
+            });
+        }
+
+        // Richtung 1 zunächst auf einer Kante testen
+        const directionCorners = {
+            1: [2, 3],
+            2: [1, 2],
+            3: [0, 1],
+            4: [5, 0],
+            5: [4, 5],
+            6: [3, 4]
+        };
+
+        const indices = directionCorners[direction];
+
+        if (!indices) {
+            console.warn("Unbekannte Hafenrichtung:", direction);
+            continue;
+        }
 
         const p1 = corners[indices[0]];
         const p2 = corners[indices[1]];
+
+        console.log("Zeichne Hafen:", {
+            q, r, direction, p1, p2
+        });
 
         drawHarbor(
             ctx,
@@ -3567,6 +3572,7 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         );
     }
 }
+
 $("buildRoundBtn").onclick = () => {
     if (!lastState) return;
 
