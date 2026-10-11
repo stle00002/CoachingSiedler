@@ -932,6 +932,35 @@ async def handle_message(conn, message):
             })
 
             return
+
+        
+    if action == "chat_message":
+
+        text = message["message"]
+        if not text:
+            return
+
+        text = text[:500]
+
+
+        name = message["playerName"]
+        for p in logic.players:
+            if p.name == name:
+                player = p       
+        # Den tatsächlichen Absender aus der bestehenden
+        # Verbindung bzw. Spielerzuordnung verwenden.
+        chat_entry = {
+            "player": player.name,
+            "message": text
+        }
+
+        chat_history.append(chat_entry)
+
+        # Nur die letzten 100 Nachrichten behalten
+        del chat_history[:-MAX_CHAT_MESSAGES]
+        await broadcast_state()
+        return
+
     # Während der Würfelphase darf noch keine normale Aktion
     # ausgeführt werden.
     if logic.würfelMode and not logic.setupPhase:
@@ -1184,32 +1213,6 @@ async def handle_message(conn, message):
     if action == "roll_dice":
         if logic.würfelMode:
             dice = logic.roll_dice()
-
-    
-    elif action == "chat_message":
-
-        text = message["message"]
-        if not text:
-            return
-
-        text = text[:500]
-
-
-        name = message["playerName"]
-        for p in logic.players:
-            if p.name == name:
-                player = p       
-        # Den tatsächlichen Absender aus der bestehenden
-        # Verbindung bzw. Spielerzuordnung verwenden.
-        chat_entry = {
-            "player": player.name,
-            "message": text
-        }
-
-        chat_history.append(chat_entry)
-
-        # Nur die letzten 100 Nachrichten behalten
-        del chat_history[:-MAX_CHAT_MESSAGES]
 
 
 

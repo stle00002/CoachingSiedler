@@ -1368,8 +1368,8 @@ input {
     min-width: 0;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding-left: 6px;
+    justify-content: flex-end;
+    padding-right: 6px;
     box-sizing: border-box;
     background: #a77b49;
     color: #fff4df;
@@ -1378,6 +1378,7 @@ input {
     transition: width 0.25s ease;
     white-space: nowrap;
 }
+
 
 .dice-bar.empty {
     padding-left: 0;
