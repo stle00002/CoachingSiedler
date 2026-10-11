@@ -3686,8 +3686,6 @@ const mapBuilder = {
     selectedResource: "HOLZ",
     harbors: new Map(),
     harborMode: false,
-    touchStartDistance: 0,
-    touchStartZoom: 1,
     touchCenter: null,
     pinching: false,
 suppressNextTap: false,
@@ -4174,11 +4172,19 @@ if (
 }
 
 
-    const ctx = mapBuilder.ctx;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+const ctx = mapBuilder.ctx;
+ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const W = rect.width;
-    const H = rect.height;
+const W = rect.width;
+const H = rect.height;
+
+// Vor jedem Neuzeichnen die vorherigen Zoomstufen entfernen.
+ctx.clearRect(0, 0, W, H);
+
+// Hintergrund für den Karteneditor
+ctx.fillStyle = "#bd9a65";
+ctx.fillRect(0, 0, W, H);
+
 
     // Kachelgröße ist unabhängig von der Kartengröße.
     const baseSize = Math.min(W / 8, H / 6, 75);
