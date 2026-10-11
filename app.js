@@ -3556,8 +3556,8 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         drawHarbor(
             ctx,
             harbor,
-            corners[i1],
             corners[i2],
+            corners[i1],
             center, // Mittelpunkt des zugehörigen Hexfeldes
             size
         );

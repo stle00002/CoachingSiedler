@@ -165,106 +165,192 @@ class Logic:
             if player.victoryPoints >= 10:
                 return player
         return None
-    def can_trade_with_bank(self, player, give_resource):
+
+
+
+    def getHarborVertices(self, harbor):
+        """Findet die beiden Eckpunkte der Hafenseite."""
+        direction = (harbor.direction - 1) % 6
+
+        tile = next(
+            (
+                tile for tile in self.board.tiles
+                if tile.q == harbor.q and tile.r == harbor.r
+            ),
+            None
+        )
+
+        if tile is None:
+            return None, None
+
+        directions = self.board.HEX_DIRECTIONS
+
+        # Die beiden Ecken an der Hafenseite bestimmen.
+        corner_pairs = [
+            (direction, (direction + 1) % 6),
+            ((direction - 1) % 6, direction)
+        ]
+
+        found_vertices = []
+
+        for corner_a, corner_b in corner_pairs:
+            da = directions[corner_a]
+            db = directions[corner_b]
+
+            pos_a = (tile.q + da[0], tile.r + da[1])
+            pos_b = (tile.q + db[0], tile.r + db[1])
+
+            vertex_found = None
+
+            for vertex in tile.vertices:
+                adjacent_positions = {
+                    (t.q, t.r) for t in vertex.adjacentTiles
+                }
+
+                if pos_a in adjacent_positions and pos_b in adjacent_positions:
+                    vertex_found = vertex
+                    break
+
+            found_vertices.append(vertex_found)
+
+        return found_vertices[0], found_vertices[1]
+
+    def getRatio(self, giveResource, player):
+        """Berechnet das beste Tauschverhältnis des Spielers."""
+        if giveResource not in Resource.__members__:
+            return 4
+
         cost = 4
+
         for harbor in self.board.harbors:
-            if harbor.resource == Resource[give_resource] and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-            if harbor.resource == None and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-        return player.resources.get(give_resource, 0) >= cost
+            vertex1, vertex2 = self.getHarborVertices(harbor)
 
-    def tradeWithBank(self, trade_request, trade_offer):
-        player = self.current_player
+            if vertex1 is None or vertex2 is None:
+                continue
 
-        # Genau eine Ressource abgeben
-        giveResource = None
-        giveCount = 0
-
-        for resource, count in trade_offer.items():
-            if count > 0:
-                if giveResource is not None:
-                    return False
-                giveResource = resource
-                giveCount = count
-
-        if giveResource is None:
-            return False
-
-        # Genau eine Ressource erhalten
-        getResource = None
-        getCount = 0
-
-        for resource, count in trade_request.items():
-            if count > 0:
-                if getResource is not None:
-                    return False
-                getResource = resource
-                getCount = count
-
-        if getResource is None or getCount != 1:
-            return False
-
-        # Dieselbe Ressource tauschen ist nicht erlaubt
-        if giveResource == getResource:
-            return False
-
-        # Standardtausch: 4:1
-        cost = 4
-
-        # Prüfen, welche Häfen der Spieler besitzt
-        for harbor in self.board.harbors:
+            # Der Spieler muss an mindestens einem Hafen-Eckpunkt
+            # eine Siedlung oder Stadt besitzen.
             owns_harbor = (
-                harbor.vertex1.owner == player
-                or harbor.vertex2.owner == player
+                vertex1.owner == player
+                or vertex2.owner == player
             )
 
             if not owns_harbor:
                 continue
 
-            # Ressourcenspezifischer Hafen, z. B. Holz 2:1
-            if harbor.resource is not None:
-                if harbor.resource == Resource[giveResource]:
-                    cost = min(cost, harbor.ratio)
-
             # Allgemeiner Hafen, z. B. 3:1
-            else:
+            if harbor.resource is None:
                 cost = min(cost, harbor.ratio)
 
-        # Die genaue erforderliche Anzahl muss abgegeben werden
-        if giveCount != cost:
+            # Ressourcenspezifischer Hafen, z. B. Holz 2:1
+            elif harbor.resource == Resource[giveResource]:
+                cost = min(cost, harbor.ratio)
+
+        return cost
+
+
+    def can_trade_with_bank(self, player, give_resource):
+        """Prüft, ob der Spieler genug Ressourcen abgeben kann."""
+        if give_resource not in player.resources:
             return False
 
-        return self.trade_with_bank(giveResource, getResource)
+        cost = self.getRatio(give_resource, player)
 
-    
-    def tradeWithBank(self, trade_request, trade_offer):
+        return player.resources[give_resource] >= cost
+
+
+    def trade_with_bank(self, give_resource, get_resource):
+        """Führt den Banktausch tatsächlich aus."""
         player = self.current_player
-        giveResource = None
+
+        if player is None:
+            return False
+
+        if give_resource is None or get_resource is None:
+            return False
+
+        if give_resource == get_resource:
+            return False
+
+        if (
+            give_resource not in player.resources
+            or get_resource not in player.resources
+        ):
+            return False
+
+        cost = self.getRatio(give_resource, player)
+
+        # Genug Ressourcen vorhanden?
+        if player.resources[give_resource] < cost:
+            return False
+
+        # Tausch durchführen
+        player.resources[give_resource] -= cost
+        player.resources[get_resource] += 1
+
+        return True
+
+
+    def tradeWithBank(self, trade_request, trade_offer):
+        """Prüft die Handelsanfrage und führt den Banktausch aus."""
+        player = self.current_player
+
+        if player is None:
+            return False
+
+        give_resource = None
+        give_count = 0
+
+        # Genau eine Ressourcenart abgeben
         for resource, count in trade_offer.items():
+            if count < 0:
+                return False
+
             if count > 0:
-                if giveResource is not None:
+                if give_resource is not None:
                     return False
-                giveResource = resource
-                cost = 4
-                for harbor in self.board.harbors:
-                    if harbor.resource == Resource[giveResource] and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                        cost = min(harbor.ratio, cost)
-                    if harbor.resource == None and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                        cost = min(harbor.ratio, cost)
-                if count != cost:
-                    return False
-        getResource = None   
+
+                give_resource = resource
+                give_count = count
+
+        if give_resource is None:
+            return False
+
+        if give_resource not in player.resources:
+            return False
+
+        # Genau eine Ressource erhalten
+        get_resource = None
+        get_count = 0
+
         for resource, count in trade_request.items():
+            if count < 0:
+                return False
+
             if count > 0:
-                if getResource is not None:
+                if get_resource is not None:
                     return False
-                getResource = resource
-                if count != 1:
-                    return False
-        return self.trade_with_bank(giveResource, getResource)
 
+                get_resource = resource
+                get_count = count
 
+        if get_resource is None or get_count != 1:
+            return False
+
+        if get_resource not in player.resources:
+            return False
+
+        if give_resource == get_resource:
+            return False
+
+        # Die angebotene Anzahl muss exakt dem Tauschverhältnis entsprechen.
+        cost = self.getRatio(give_resource, player)
+
+        if give_count != cost:
+            return False
+
+        return self.trade_with_bank(give_resource, get_resource)
+    
     def canTradeWithPlayer(self, player, trade_request, trade_offer):
         for resource,count in trade_offer.items():
             if self.current_player.resources[resource] < count:
@@ -365,14 +451,6 @@ class Logic:
         if ready:
             self.next_turn()
 
-    def getRatio(self, giveResource, player):
-        cost = 4
-        for harbor in self.board.harbors:
-            if harbor.resource == Resource[giveResource] and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-            if harbor.resource == None and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-        return cost
     def chooseGoldResource(self, player, resource):
         valid_resources = [
             "HOLZ",

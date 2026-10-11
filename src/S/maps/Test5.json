@@ -1,0 +1,235 @@
+{
+    "name": "Test5",
+    "tiles": [
+        {
+            "q": 0,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": 1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 1,
+            "r": -2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 3,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 3,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 3,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -3,
+            "resource": "GOLD"
+        },
+        {
+            "q": 2,
+            "r": -3,
+            "resource": "GOLD"
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "resource": "GOLD"
+        },
+        {
+            "q": -1,
+            "r": -1,
+            "resource": "GOLD"
+        },
+        {
+            "q": -2,
+            "r": 0,
+            "resource": "GOLD"
+        },
+        {
+            "q": -2,
+            "r": 1,
+            "resource": "GOLD"
+        },
+        {
+            "q": 0,
+            "r": 1,
+            "resource": "GOLD"
+        },
+        {
+            "q": -1,
+            "r": 2,
+            "resource": "GOLD"
+        },
+        {
+            "q": 0,
+            "r": 2,
+            "resource": "GOLD"
+        },
+        {
+            "q": 1,
+            "r": 2,
+            "resource": "GOLD"
+        },
+        {
+            "q": 2,
+            "r": 1,
+            "resource": "GOLD"
+        },
+        {
+            "q": 1,
+            "r": 1,
+            "resource": "GOLD"
+        },
+        {
+            "q": 3,
+            "r": 0,
+            "resource": "GOLD"
+        },
+        {
+            "q": 4,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 4,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 3,
+            "r": -4,
+            "resource": "ERZ"
+        },
+        {
+            "q": 2,
+            "r": -4,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -4,
+            "resource": "ERZ"
+        }
+    ],
+    "harbors": [
+        {
+            "q": 3,
+            "r": -2,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 3,
+            "r": -3,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 3,
+            "r": -4,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 1,
+            "r": 0,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 2,
+            "r": 0,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 0,
+            "r": 0,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        }
+    ]
+}
