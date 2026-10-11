@@ -1404,5 +1404,7 @@ input {
 .sidebar::-webkit-scrollbar {
     display: none;              /* Chrome, Safari und Opera */
 }
-
+#tradeButton {
+    margin-bottom: 15px;
+}
 
