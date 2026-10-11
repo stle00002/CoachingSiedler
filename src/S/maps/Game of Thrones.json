@@ -1,0 +1,1105 @@
+{
+    "name": "Game of Thrones",
+    "tiles": [
+        {
+            "q": -4,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": -3,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": -4,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": -14,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -3,
+            "r": -14,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -3,
+            "r": -13,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": -13,
+            "resource": "ERZ"
+        },
+        {
+            "q": -2,
+            "r": -12,
+            "resource": "ERZ"
+        },
+        {
+            "q": -3,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -4,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -5,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -6,
+            "r": -11,
+            "resource": "LEHM"
+        },
+        {
+            "q": -5,
+            "r": -11,
+            "resource": "LEHM"
+        },
+        {
+            "q": -4,
+            "r": -11,
+            "resource": "ERZ"
+        },
+        {
+            "q": -3,
+            "r": -11,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -8,
+            "r": -10,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -7,
+            "r": -10,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -6,
+            "r": -10,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -5,
+            "r": -10,
+            "resource": "LEHM"
+        },
+        {
+            "q": -4,
+            "r": -10,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -7,
+            "r": -9,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -6,
+            "r": -9,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -5,
+            "r": -9,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -4,
+            "r": -9,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -6,
+            "r": -8,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -7,
+            "r": -7,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -8,
+            "r": -7,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -9,
+            "r": -7,
+            "resource": "LEHM"
+        },
+        {
+            "q": -8,
+            "r": -6,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -7,
+            "r": -6,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -6,
+            "r": -6,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -5,
+            "r": -5,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -6,
+            "r": -5,
+            "resource": "LEHM"
+        },
+        {
+            "q": -8,
+            "r": -5,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -8,
+            "r": -4,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -9,
+            "r": -3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -10,
+            "r": -3,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -11,
+            "r": -2,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -11,
+            "r": -1,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -11,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -11,
+            "r": 1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -10,
+            "r": 1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -9,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": -8,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": -9,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -8,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -8,
+            "r": -2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -9,
+            "r": -2,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -10,
+            "r": -2,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -10,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -9,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -10,
+            "r": 0,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -7,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -7,
+            "r": -4,
+            "resource": "LEHM"
+        },
+        {
+            "q": -7,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": -10,
+            "r": -4,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -11,
+            "r": -3,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -9,
+            "r": -4,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -9,
+            "r": -8,
+            "resource": "LEHM"
+        },
+        {
+            "q": -7,
+            "r": -8,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -4,
+            "r": -7,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -4,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -5,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": -14,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -14,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -13,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -6,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -3,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": -6,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -3,
+            "r": -7,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -3,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -4,
+            "r": -5,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -11,
+            "r": -4,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -12,
+            "r": -3,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -12,
+            "r": -2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -13,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": -12,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -7,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 1,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 2,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 3,
+            "r": -7,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 3,
+            "r": -6,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 4,
+            "r": -6,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 4,
+            "r": -5,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 5,
+            "r": -5,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 6,
+            "r": -5,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": -6,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -6,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 9,
+            "r": -6,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 10,
+            "r": -6,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 10,
+            "r": -5,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 10,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 10,
+            "r": -3,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 10,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 11,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 9,
+            "r": 0,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 9,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 5,
+            "r": 2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 4,
+            "r": 2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 3,
+            "r": 2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 3,
+            "r": 1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 4,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 5,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 5,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 4,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 3,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 2,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": 1,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 0,
+            "r": 2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 0,
+            "r": 3,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": 2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -2,
+            "r": 3,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -1,
+            "r": 1,
+            "resource": "LEHM"
+        },
+        {
+            "q": -1,
+            "r": 0,
+            "resource": "LEHM"
+        },
+        {
+            "q": -2,
+            "r": 0,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -3,
+            "r": 1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -4,
+            "r": 1,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -4,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -3,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -2,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -3,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -2,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -2,
+            "r": -4,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -1,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 0,
+            "r": -5,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -5,
+            "r": 0,
+            "resource": "SCHAF"
+        },
+        {
+            "q": -4,
+            "r": -1,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -3,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -2,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -1,
+            "r": -1,
+            "resource": "LEHM"
+        },
+        {
+            "q": -1,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": -1,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 0,
+            "r": -4,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": -5,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 3,
+            "r": -5,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 2,
+            "r": -5,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": -4,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 2,
+            "r": -4,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 1,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -3,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 1,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 3,
+            "r": -2,
+            "resource": "LEHM"
+        },
+        {
+            "q": 2,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 0,
+            "r": -1,
+            "resource": "LEHM"
+        },
+        {
+            "q": 0,
+            "r": 0,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 1,
+            "r": 0,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": 1,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 2,
+            "r": -3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 3,
+            "r": -4,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 3,
+            "r": -3,
+            "resource": "LEHM"
+        },
+        {
+            "q": 4,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 5,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 5,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 6,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -3,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 9,
+            "r": -3,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 9,
+            "r": -2,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 8,
+            "r": -2,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 6,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 6,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -1,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -2,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": 0,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": 0,
+            "resource": "LEHM"
+        },
+        {
+            "q": 5,
+            "r": 0,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 4,
+            "r": 1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 5,
+            "r": 1,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": -5,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": -4,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -5,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 8,
+            "r": -4,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 9,
+            "r": -5,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 9,
+            "r": -4,
+            "resource": "HOLZ"
+        },
+        {
+            "q": -8,
+            "r": -3,
+            "resource": "WEIZEN"
+        }
+    ],
+    "harbors": [
+        {
+            "q": -5,
+            "r": -6,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -6,
+            "r": -4,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -5,
+            "r": -3,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -7,
+            "r": 0,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -8,
+            "r": 2,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -13,
+            "r": 2,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -13,
+            "r": 0,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -12,
+            "r": -4,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -9,
+            "r": -6,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -8,
+            "r": -8,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -5,
+            "r": -8,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -1,
+            "r": -12,
+            "direction": 3,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -4,
+            "r": -13,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -6,
+            "r": -13,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -2,
+            "r": -7,
+            "direction": 3,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -4,
+            "r": -2,
+            "direction": 5,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": 4,
+            "direction": 2,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -1,
+            "r": 4,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 2,
+            "r": 1,
+            "direction": 2,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": 0,
+            "direction": 5,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 4,
+            "r": -7,
+            "direction": 4,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -1,
+            "r": -5,
+            "direction": 4,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -4,
+            "r": 2,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 6,
+            "r": 2,
+            "direction": 2,
+            "resource": "HOLZ",
+            "ratio": 2
+        }
+    ]
+}

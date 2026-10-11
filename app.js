@@ -475,6 +475,7 @@ function declinePlayerTrade() {
 }
 function renderState(s) {
   lastState = s;
+  renderChatHistory(s.chat_history || []);
     const mep2 = (s.players || []).find(p => p.name === me);
 
     console.log("MEP:", mep2);
@@ -3655,6 +3656,86 @@ function chooseGoldResource(resource) {
     });
 
     closeGoldResourceModal();
+}
+
+
+
+/* ========================================
+   CHAT
+   ======================================== */
+
+let lastRenderedChat = "";
+
+function sendChatMessage() {
+    const input = $("chatInput");
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Ohne Verbindung nicht senden
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return;
+    }
+
+    // Nachricht an den Python-Server schicken
+    send("chat_message", {
+        message: message
+    });
+
+    input.value = "";
+    input.focus();
+}
+
+// Absenden-Button und Enter-Taste
+$("chatForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    sendChatMessage();
+});
+
+function renderChatHistory(messages) {
+    const container = $("chatMessages");
+
+    if (!container || !Array.isArray(messages)) return;
+
+    // Nicht bei jedem State den gesamten Chat neu zeichnen
+    const signature = JSON.stringify(messages);
+
+    if (signature === lastRenderedChat) return;
+
+    // War der Spieler bereits am Ende des Chats?
+    const wasAtBottom =
+        container.scrollHeight -
+        container.scrollTop -
+        container.clientHeight < 40;
+
+    lastRenderedChat = signature;
+
+    // Sicher aufbauen, kein HTML aus Chatnachrichten ausführen
+    const fragment = document.createDocumentFragment();
+
+    for (const message of messages) {
+        const entry = document.createElement("div");
+        entry.className = "chat-message";
+
+        const name = document.createElement("span");
+        name.className = "chat-message-name";
+        name.textContent = message.player || "Unbekannt";
+
+        const text = document.createElement("div");
+        text.className = "chat-message-text";
+        text.textContent = message.message || "";
+
+        entry.append(name, text);
+        fragment.appendChild(entry);
+    }
+
+    container.replaceChildren(fragment);
+
+    // Nur automatisch nach unten scrollen,
+    // wenn man vorher schon am Ende war.
+    if (wasAtBottom) {
+        container.scrollTop = container.scrollHeight;
+    }
 }
 
 

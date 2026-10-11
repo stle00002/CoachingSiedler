@@ -109,6 +109,30 @@
   <aside class="sidebar left">
     <h3>Spieler</h3>
     <div id="playerList"></div>
+    
+<div id="playerList"></div>
+
+<!-- CHAT -->
+<div id="chat">
+    <h3>Chat</h3>
+
+    <div id="chatMessages" aria-live="polite"></div>
+
+    <form id="chatForm">
+        <input
+            id="chatInput"
+            type="text"
+            maxlength="500"
+            placeholder="Nachricht schreiben..."
+            autocomplete="off"
+        >
+
+        <button type="submit" id="chatSendBtn">
+            Senden
+        </button>
+    </form>
+</div>
+
     <div id="log" class="log"></div>
   </aside>
 

@@ -1223,3 +1223,97 @@ input {
 .iphone .gold-resource-options {
     gap: 5px;
 }
+
+/* ========================================
+   CHAT IN DER LINKEN SIDEBAR
+   ======================================== */
+
+#chat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px;
+    min-height: 0;
+    color: #f7ead1;
+    background: #211b16;
+    border: 1px solid #6d5740;
+    border-radius: 10px;
+}
+
+#chat h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+#chatMessages {
+    height: 220px;
+    min-height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 8px;
+    background: #17130f;
+    border: 1px solid #493a2c;
+    border-radius: 6px;
+    overflow-wrap: anywhere;
+    scrollbar-width: thin;
+    scrollbar-color: #8a7054 #17130f;
+}
+
+.chat-message {
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.chat-message-name {
+    display: block;
+    color: #e8c18c;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.chat-message-text {
+    color: #f7ead1;
+    white-space: pre-wrap;
+}
+
+#chatForm {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+#chatInput {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+    padding: 9px;
+    color: #f7ead1;
+    background: #17130f;
+    border: 1px solid #6d5740;
+    border-radius: 6px;
+    outline: none;
+}
+
+#chatInput:focus {
+    border-color: #d5a76a;
+}
+
+#chatSendBtn {
+    padding: 8px 10px;
+    color: #f7ead1;
+    background: #654b32;
+    border: 1px solid #9b7953;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#chatSendBtn:hover {
+    background: #80603e;
+}
+
+#chatSendBtn:disabled {
+    opacity: 0.5;
+    cursor: default;
+}

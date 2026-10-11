@@ -35,6 +35,9 @@ loading = False
 # -------------------------
 
 
+chat_history = []
+MAX_CHAT_MESSAGES = 100
+
 
 
 def get_map_path(name):
@@ -727,7 +730,11 @@ def getState(obj):
 
         "currentPlayerWithMostKnights": most_knights_player,
 
-        "mostKnightsCount": most_knights_count
+        "mostKnightsCount": most_knights_count,
+
+        "chat_history": list(chat_history),
+
+
     }
 
     return state
@@ -1171,10 +1178,35 @@ async def handle_message(conn, message):
             await broadcast_lobby()
             await start_game()
         return
+
+    
     
     if action == "roll_dice":
         if logic.würfelMode:
             dice = logic.roll_dice()
+
+    
+    elif action == "chat_message":
+        message = str(data.get("message", "")).strip()
+
+        if not message:
+            return
+
+        message = message[:500]
+
+        # Den tatsächlichen Absender aus der bestehenden
+        # Verbindung bzw. Spielerzuordnung verwenden.
+        chat_entry = {
+            "player": player.name,
+            "message": message
+        }
+
+        chat_history.append(chat_entry)
+
+        # Nur die letzten 100 Nachrichten behalten
+        del chat_history[:-MAX_CHAT_MESSAGES]
+
+
 
     elif action == "buildSettlement":
         name = message["playerName"]
