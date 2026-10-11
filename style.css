@@ -1394,3 +1394,15 @@ input {
     direction: ltr;
 }
 
+
+/* Scrollleisten beider Sidebars ausblenden */
+.sidebar {
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* Ältere Edge-Versionen */
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;              /* Chrome, Safari und Opera */
+}
+
+
