@@ -4492,100 +4492,148 @@ function toggleMapBuilderTile(q, r) {
 // ---------------------------------------------------------
 // MAUS, ZOOM UND VERSCHIEBEN
 // ---------------------------------------------------------
-
 function setupMapBuilderCanvas() {
     const canvas = mapBuilder.canvas;
 
+    // Verhindert Browser-Gesten, die den Canvas beeinflussen.
+    canvas.style.touchAction = "none";
 
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerStartOffsetX = 0;
+    let pointerStartOffsetY = 0;
+    let activePointerId = null;
+    let pointerMoved = false;
 
+    const DRAG_THRESHOLD = 6;
+
+    canvas.addEventListener("pointerdown", (ev) => {
+        if (!mapBuilder.active) return;
+        if (mapBuilder.pinching || mapBuilder.suppressNextTap) return;
+
+        // Nur linke Maustaste; Touch und Stift ebenfalls erlauben.
+        if (ev.pointerType === "mouse" && ev.button !== 0) return;
+
+        activePointerId = ev.pointerId;
+        pointerStartX = ev.clientX;
+        pointerStartY = ev.clientY;
+
+        pointerStartOffsetX = mapBuilder.offsetX;
+        pointerStartOffsetY = mapBuilder.offsetY;
+
+        pointerMoved = false;
+        mapBuilder.dragging = false;
+
+        canvas.setPointerCapture(ev.pointerId);
+    });
 
     canvas.addEventListener("pointermove", (ev) => {
         if (!mapBuilder.active) return;
+        if (ev.pointerId !== activePointerId) return;
+        if (mapBuilder.pinching || mapBuilder.suppressNextTap) return;
 
-        // Während und direkt nach dem Pinch-Zoom
-        // darf das normale Ziehen die Position nicht verändern.
-        if (mapBuilder.pinching || mapBuilder.suppressNextTap) {
-            return;
-        }
+        const dx = ev.clientX - pointerStartX;
+        const dy = ev.clientY - pointerStartY;
 
-
-        const dx = ev.clientX - mapBuilder.dragX;
-        const dy = ev.clientY - mapBuilder.dragY;
-
-        if (Math.hypot(dx, dy) > 6) {
+        if (
+            Math.hypot(dx, dy) > DRAG_THRESHOLD
+        ) {
+            pointerMoved = true;
             mapBuilder.dragging = true;
         }
 
-        if (mapBuilder.dragging) {
-            mapBuilder.offsetX = mapBuilder.startOffsetX + dx;
-            mapBuilder.offsetY = mapBuilder.startOffsetY + dy;
+        if (pointerMoved) {
+            mapBuilder.offsetX = pointerStartOffsetX + dx;
+            mapBuilder.offsetY = pointerStartOffsetY + dy;
 
-            onMapBuilderTileChanged()
+            drawMapBuilder();
         }
     });
 
-    canvas.addEventListener("pointerdown", (ev) => {
-    if (!mapBuilder.active || mapBuilder.pinching ||
-        mapBuilder.suppressNextTap) return;
+    function finishPointer(ev) {
+        if (ev.pointerId !== activePointerId) return;
 
-    if (ev.button !== 0) return;
+        if (
+            mapBuilder.active &&
+            !mapBuilder.pinching &&
+            !mapBuilder.suppressNextTap &&
+            !pointerMoved
+        ) {
+            const rect = canvas.getBoundingClientRect();
 
-    mapBuilder.dragging = false;
-    mapBuilder.dragX = ev.clientX;
-    mapBuilder.dragY = ev.clientY;
+            const tile = findMapBuilderTile(
+                ev.clientX - rect.left,
+                ev.clientY - rect.top
+            );
 
-    mapBuilder.startOffsetX = mapBuilder.offsetX;
-    mapBuilder.startOffsetY = mapBuilder.offsetY;
-
-    canvas.setPointerCapture(ev.pointerId);
-});
-
-canvas.addEventListener("pointerup", (ev) => {
-    if (!mapBuilder.active) return;
-
-    if (mapBuilder.pinching || mapBuilder.suppressNextTap) {
-        mapBuilder.dragging = false;
-        return;
-    }
-
-    if (!mapBuilder.dragging) {
-        const rect = canvas.getBoundingClientRect();
-
-        const tile = findMapBuilderTile(
-            ev.clientX - rect.left,
-            ev.clientY - rect.top
-        );
-
-        if (mapBuilder.harborMode) {
-            cycleMapBuilderHarbor(tile.q, tile.r);
-        } else {
-            toggleMapBuilderTile(tile.q, tile.r);
+            if (mapBuilder.harborMode) {
+                cycleMapBuilderHarbor(tile.q, tile.r);
+            } else {
+                toggleMapBuilderTile(tile.q, tile.r);
+            }
         }
+
+        activePointerId = null;
+        pointerMoved = false;
+        mapBuilder.dragging = false;
     }
 
-    mapBuilder.dragging = false;
-});
+    canvas.addEventListener("pointerup", finishPointer);
 
     canvas.addEventListener("pointercancel", () => {
+        activePointerId = null;
+        pointerMoved = false;
         mapBuilder.dragging = false;
     });
 
+    canvas.addEventListener("lostpointercapture", () => {
+        activePointerId = null;
+        pointerMoved = false;
+        mapBuilder.dragging = false;
+    });
+
+    // Mausrad-Zoom um die Mitte des sichtbaren Canvas.
     canvas.addEventListener("wheel", (ev) => {
         if (!mapBuilder.active) return;
 
         ev.preventDefault();
 
-        mapBuilder.zoom = Math.max(
+        const rect = canvas.getBoundingClientRect();
+
+        const mouseX = ev.clientX - rect.left;
+        const mouseY = ev.clientY - rect.top;
+
+        const oldZoom = mapBuilder.zoom;
+
+        const factor = ev.deltaY < 0 ? 1.02 : 1 / 1.02;
+
+        const newZoom = Math.max(
             0.2,
-            Math.min(
-                2.5,
-                mapBuilder.zoom * (ev.deltaY < 0 ? 1.02 : 1/1.02)
-            )
+            Math.min(2.5, oldZoom * factor)
         );
 
-        onMapBuilderTileChanged()
+        // Den Punkt unter dem Mauszeiger festhalten.
+        const worldX =
+            (mouseX - rect.width / 2 - mapBuilder.offsetX) /
+            oldZoom;
+
+        const worldY =
+            (mouseY - rect.height / 2 - mapBuilder.offsetY) /
+            oldZoom;
+
+        mapBuilder.zoom = newZoom;
+
+        mapBuilder.offsetX =
+            mouseX - rect.width / 2 - worldX * newZoom;
+
+        mapBuilder.offsetY =
+            mouseY - rect.height / 2 - worldY * newZoom;
+
+        saveMapBuilder();
+        drawMapBuilder();
     }, { passive: false });
-       // Stabiler Touch-Zoom: Beide Finger bilden eine gemeinsame Geste.
+
+    // Touch-Zoom mit zwei Fingern.
     function getTouchDistance(touches) {
         return Math.hypot(
             touches[1].clientX - touches[0].clientX,
@@ -4609,55 +4657,61 @@ canvas.addEventListener("pointerup", (ev) => {
         mapBuilder.suppressNextTap = true;
         mapBuilder.dragging = false;
 
-        mapBuilder.touchStartDistance = getTouchDistance(ev.touches);
-        mapBuilder.touchStartZoom = mapBuilder.zoom;
+        activePointerId = null;
+        pointerMoved = false;
 
+        const rect = canvas.getBoundingClientRect();
+
+        mapBuilder.touchStartDistance =
+            getTouchDistance(ev.touches);
+
+        mapBuilder.touchStartZoom = mapBuilder.zoom;
         mapBuilder.touchStartOffsetX = mapBuilder.offsetX;
         mapBuilder.touchStartOffsetY = mapBuilder.offsetY;
 
-        mapBuilder.touchCenter = getTouchCenter(
-            ev.touches,
-            canvas.getBoundingClientRect()
-        );
+        mapBuilder.touchCenter =
+            getTouchCenter(ev.touches, rect);
     }, { passive: false });
 
     canvas.addEventListener("touchmove", (ev) => {
-        if (!mapBuilder.active || !mapBuilder.pinching ||
-            ev.touches.length !== 2) return;
+        if (
+            !mapBuilder.active ||
+            !mapBuilder.pinching ||
+            ev.touches.length !== 2
+        ) return;
 
         ev.preventDefault();
 
-        const distance = getTouchDistance(ev.touches);
         const rect = canvas.getBoundingClientRect();
         const center = getTouchCenter(ev.touches, rect);
+        const distance = getTouchDistance(ev.touches);
 
-        const factor = distance / Math.max(
-            1,
-            mapBuilder.touchStartDistance
-        );
-
-        const oldZoom = mapBuilder.zoom;
+        const factor =
+            distance / Math.max(1, mapBuilder.touchStartDistance);
 
         const newZoom = Math.max(
             0.2,
             Math.min(2.5, mapBuilder.touchStartZoom * factor)
         );
 
-        // Den Punkt unter der Mitte der Finger möglichst festhalten.
+        // Weltkoordinate unter dem ursprünglichen Fingermittelpunkt.
         const worldX =
-            (mapBuilder.touchCenter.x -
+            (
+                mapBuilder.touchCenter.x -
                 rect.width / 2 -
-                mapBuilder.touchStartOffsetX) /
-            mapBuilder.touchStartZoom;
+                mapBuilder.touchStartOffsetX
+            ) / mapBuilder.touchStartZoom;
 
         const worldY =
-            (mapBuilder.touchCenter.y -
+            (
+                mapBuilder.touchCenter.y -
                 rect.height / 2 -
-                mapBuilder.touchStartOffsetY) /
-            mapBuilder.touchStartZoom;
+                mapBuilder.touchStartOffsetY
+            ) / mapBuilder.touchStartZoom;
 
         mapBuilder.zoom = newZoom;
 
+        // Aktuellen Mittelpunkt der Finger berücksichtigen.
         mapBuilder.offsetX =
             center.x - rect.width / 2 - worldX * newZoom;
 
@@ -4671,21 +4725,25 @@ canvas.addEventListener("pointerup", (ev) => {
         if (ev.touches.length < 2 && mapBuilder.pinching) {
             mapBuilder.pinching = false;
             mapBuilder.dragging = false;
-            mapBuilder.touchStartDistance = 0;
-
-            // Kurze Sperre gegen einen versehentlichen Klick nach dem Zoomen.
-            setTimeout(() => {
-                mapBuilder.suppressNextTap = false;
-            }, 250);
+            activePointerId = null;
 
             saveMapBuilder();
+
+            // Pointer-Ereignisse erst nach Ende der Geste zulassen.
+            window.setTimeout(() => {
+                mapBuilder.suppressNextTap = false;
+            }, 300);
         }
     }
 
-    canvas.addEventListener("touchend", endPinch, { passive: false });
-    canvas.addEventListener("touchcancel", endPinch, { passive: false });
-}
+    canvas.addEventListener("touchend", endPinch, {
+        passive: false
+    });
 
+    canvas.addEventListener("touchcancel", endPinch, {
+        passive: false
+    });
+}
 
 function finishMapBuilder() {
     if (!mapBuilder.active) return;
