@@ -4323,7 +4323,7 @@ function cycleMapBuilderHarbor(q, r) {
             ? selected
             : null;
 
-    if (!existing) {
+    if (!existing || existing.resource != harborResource) {
         // Erster Klick: Hafen in Richtung 1
         mapBuilder.harbors.set(key, {
             q,
@@ -4389,22 +4389,30 @@ function drawMapBuilderHarbors(ctx, position, size) {
 // ---------------------------------------------------------
 
 
-
 function toggleMapBuilderTile(q, r) {
-    const key = `${q},${r}`;
+    const key = mapKey(q, r);
+    const existing = mapBuilder.tiles.get(key);
 
-    if (mapBuilder.tiles.has(key)) {
-        // Land anklicken → wieder Wasser
-        mapBuilder.tiles.delete(key);
-        mapBuilder.harbors.delete(key);
+    const resource =
+        mapBuilder.selectedResource === "RANDOM"
+            ? null
+            : mapBuilder.selectedResource;
 
+    if (existing) {
+        if (existing.resource !== resource) {
+            // Vorhandenes Feld in die ausgewählte Ressource umwandeln.
+            mapBuilder.tiles.set(key, {
+                q,
+                r,
+                resource
+            });
+        } else {
+            // Dieselbe Ressource erneut anklicken → Feld entfernen.
+            mapBuilder.tiles.delete(key);
+            mapBuilder.harbors.delete(key);
+        }
     } else {
-        // Ausgewählte Ressource platzieren
-        const resource =
-            mapBuilder.selectedResource === "RANDOM"
-                ? null
-                : mapBuilder.selectedResource;
-
+        // Neues Landfeld platzieren.
         mapBuilder.tiles.set(key, {
             q,
             r,
@@ -4412,9 +4420,8 @@ function toggleMapBuilderTile(q, r) {
         });
     }
 
-    onMapBuilderTileChanged()
+    onMapBuilderTileChanged();
 }
-
 
 // ---------------------------------------------------------
 // MAUS, ZOOM UND VERSCHIEBEN
