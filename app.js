@@ -3793,14 +3793,26 @@ function renderDiceStatistics(dices) {
 }
 
 
-function enterFullscreen() {
+
+async function enterFullscreen() {
     const element = document.documentElement;
 
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-        // Safari-Unterstützung
-        element.webkitRequestFullscreen();
+    try {
+        if (element.requestFullscreen) {
+            await element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) {
+            // Ältere Safari-Versionen
+            element.webkitRequestFullscreen();
+        } else {
+            // Beispielsweise iPhone-Safari:
+            // Vollbild ist hier nicht per JS verfügbar.
+            alert(
+                "Bitte öffne das Spiel über 'Zum Home-Bildschirm hinzufügen', " +
+                "um es möglichst im Vollbild zu spielen."
+            );
+        }
+    } catch (error) {
+        console.log("Vollbild konnte nicht aktiviert werden:", error);
     }
 }
 
