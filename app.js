@@ -137,7 +137,6 @@ function connect() {
     if (me) {
       send("join", { name: me });
     }
-    enterFullscreen()
   };
 
   ws.onclose = () => {
@@ -5188,4 +5187,5 @@ function renderMapPicker(maps, selectedMap) {
 
 // Button hinzufügen, sobald das Script ausgeführt wird.
 installMapBuilderButton();
+enterFullscreen();
 connect();
