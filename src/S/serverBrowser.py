@@ -434,17 +434,7 @@ def getState(obj):
 
                 "ratio": harbor.ratio,
 
-                "vertex1": (
-                    harbor.vertex1.id
-                    if harbor.vertex1 is not None
-                    else None
-                ),
-
-                "vertex2": (
-                    harbor.vertex2.id
-                    if harbor.vertex2 is not None
-                    else None
-                ),
+                "direction": harbor.direction,
 
                 # Die Position des Hafens kennst du aus deinem
                 # Harbor-Konstruktor:

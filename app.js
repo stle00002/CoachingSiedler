@@ -3499,6 +3499,7 @@ if (!harbor.resource) {
 }
 // =========================================================
 // ALLE HÄFEN ZEICHNEN
+// Funktioniert auch ohne Tiles und Vertices
 // =========================================================
 
 function drawHarbors(ctx, boardState, pos, size, boardCenter) {
@@ -3507,33 +3508,54 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         return;
     }
 
-    const vertices = boardState.vertices || [];
+    // Die sechs Ecken eines pointy-top Hexagons.
+    // Muss zur Ausrichtung deiner pos()-Geometrie passen.
+    const cornerAngles = [
+        -30, 30, 90, 150, 210, 270
+    ];
 
+    // Richtungen:
+    // 1 = oben links
+    // 2 = oben rechts
+    // 3 = rechts
+    // 4 = unten rechts
+    // 5 = unten links
+    // 6 = links
+    //
+    // Jede Richtung bezeichnet eine Kante zwischen
+    // zwei benachbarten Hexagon-Eckpunkten.
+
+    const directionCorners = {
+        1: [2, 3],
+        2: [1, 2],
+        3: [0, 1],
+        4: [5, 0],
+        5: [4, 5],
+        6: [3, 4]
+    };
 
     for (const harbor of boardState.harbors) {
 
-        const vertex1 = vertices.find(
-            v => v.id === harbor.vertex1
-        );
+        const indices = directionCorners[Number(harbor.direction)];
 
-        const vertex2 = vertices.find(
-            v => v.id === harbor.vertex2
-        );
+        if (!indices) continue;
 
+        // Hexagon-Mittelpunkt direkt aus den Koordinaten.
+        // pos() berücksichtigt Zoom und Verschiebung bereits.
+        const p = pos(Number(harbor.q), Number(harbor.r));
 
-        if (!vertex1 || !vertex2) {
-            continue;
-        }
+        // Eckpunkte unabhängig von vorhandenen Tiles erzeugen.
+        const corners = cornerAngles.map(angle => {
+            const rad = angle * Math.PI / 180;
 
+            return {
+                x: p.x + size * Math.cos(rad),
+                y: p.y + size * Math.sin(rad)
+            };
+        });
 
-        const p1 = vertexPoint(vertex1, boardState, pos);
-        const p2 = vertexPoint(vertex2, boardState, pos);
-
-
-        if (!p1 || !p2) {
-            continue;
-        }
-
+        const p1 = corners[indices[0]];
+        const p2 = corners[indices[1]];
 
         drawHarbor(
             ctx,
@@ -3545,7 +3567,6 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         );
     }
 }
-
 $("buildRoundBtn").onclick = () => {
     if (!lastState) return;
 

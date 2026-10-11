@@ -1120,8 +1120,7 @@ class Board:
             harbor = Harbor(
                 harbor_q,
                 harbor_r,
-                vertex1,
-                vertex2,
+                1,
                 resource,
                 ratio
             )
