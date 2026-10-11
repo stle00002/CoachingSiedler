@@ -1383,3 +1383,14 @@ input {
 .dice-bar.empty {
     padding-left: 0;
 }
+
+
+/* Scrollleiste der linken Sidebar nach links verschieben */
+.sidebar:not(.right) {
+    direction: rtl;
+}
+
+.sidebar:not(.right) > * {
+    direction: ltr;
+}
+
