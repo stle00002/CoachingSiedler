@@ -1408,3 +1408,32 @@ input {
     margin-bottom: 15px;
 }
 
+
+/* Ressourcen in einer horizontalen Reihe */
+.resources {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 7px;
+}
+
+.resources .res {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 3px;
+    text-align: center;
+}
+
+.iphone .resources {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+}
+
+.iphone .resources .res {
+    flex: 1;
+    min-width: 0;
+    padding: 5px 2px;
+    font-size: 11px;
+}
+
+
