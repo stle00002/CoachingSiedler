@@ -3777,6 +3777,8 @@ function renderDiceStatistics(dices) {
 
         const bar = document.createElement("div");
         bar.className = "dice-bar" + (count === 0 ? " empty" : "");
+        bar.style.width = percentage + "%";
+
         bar.style.display = count === 0 ? "none" : "flex";
         // Anzahl steht innerhalb des Balkens
         if (count > 0) {
