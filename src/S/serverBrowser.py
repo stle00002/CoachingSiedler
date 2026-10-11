@@ -426,6 +426,9 @@ def getState(obj):
                 # Da wir deine Harbor-Klasse noch nicht gesehen
                 # haben, benutze ich zunächst keinen ID-Wert.
 
+                "q": harbor.q,
+                "r": harbor.r,
+
                 "resource": (
                     harbor.resource.name
                     if harbor.resource is not None

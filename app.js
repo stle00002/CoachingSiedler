@@ -3501,73 +3501,64 @@ if (!harbor.resource) {
 // ALLE HÄFEN ZEICHNEN
 // Funktioniert auch ohne Tiles und Vertices
 // =========================================================
+// =========================================================
+// ALLE HÄFEN ZEICHNEN
+// =========================================================
 function drawHarbors(ctx, boardState, pos, size, boardCenter) {
-
     if (!boardState || !Array.isArray(boardState.harbors)) {
         console.error("Keine Häfen gefunden!", boardState);
         return;
     }
 
-    console.log("HÄFEN:", boardState.harbors.length);
+    // Ecken entsprechend deiner Hexagon-Zeichnung:
+    // 0 = rechts oben, 1 = rechts unten,
+    // 2 = unten, 3 = links unten,
+    // 4 = links oben, 5 = oben
+    //
+    // Tatsächliche Winkel: -30°, 30°, 90°, 150°, 210°, 270°
+    // Kanten werden gegen den Uhrzeigersinn durchlaufen.
+    const directionCorners = {
+        1: [5, 0], // oben rechts
+        2: [4, 5], // oben links
+        3: [3, 4], // links
+        4: [2, 3], // unten links
+        5: [1, 2], // unten rechts
+        6: [0, 1]  // rechts
+    };
 
     for (const harbor of boardState.harbors) {
-
         const q = Number(harbor.q);
         const r = Number(harbor.r);
         const direction = Number(harbor.direction);
 
-        if (!Number.isFinite(q) ||
+        if (
+            !Number.isFinite(q) ||
             !Number.isFinite(r) ||
-            !Number.isFinite(direction)) {
+            !directionCorners[direction]
+        ) {
             console.warn("Ungültiger Hafen:", harbor);
             continue;
         }
 
-        // Hexagon-Mittelpunkt aus deiner vorhandenen pos()-Funktion
-        const p = pos(q, r);
+        const center = pos(q, r);
 
-        // Kantenpunkte berechnen
-        const corners = [];
-
-        for (let i = 0; i < 6; i++) {
+        const corners = Array.from({ length: 6 }, (_, i) => {
             const angle = (60 * i - 30) * Math.PI / 180;
 
-            corners.push({
-                x: p.x + size * Math.cos(angle),
-                y: p.y + size * Math.sin(angle)
-            });
-        }
-
-        // Richtung 1 zunächst auf einer Kante testen
-        const directionCorners = {
-            1: [2, 3],
-            2: [1, 2],
-            3: [0, 1],
-            4: [5, 0],
-            5: [4, 5],
-            6: [3, 4]
-        };
-
-        const indices = directionCorners[direction];
-
-        if (!indices) {
-            console.warn("Unbekannte Hafenrichtung:", direction);
-            continue;
-        }
-
-        const p1 = corners[indices[0]];
-        const p2 = corners[indices[1]];
-
-        console.log("Zeichne Hafen:", {
-            q, r, direction, p1, p2
+            return {
+                x: center.x + size * Math.cos(angle),
+                y: center.y + size * Math.sin(angle)
+            };
         });
+
+        const [i1, i2] = directionCorners[direction];
 
         drawHarbor(
             ctx,
             harbor,
-            p1,
-            p2,
-            boardCenter,
+            corners[i1],
+            corners[i2],
+            center, // Mittelpunkt des zugehörigen Hexfeldes
             size
         );
     }
