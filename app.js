@@ -3683,6 +3683,8 @@ const mapBuilder = {
     startOffsetX: 0,
     startOffsetY: 0,
     selectedResource: "HOLZ",
+    harbors: new Map(),
+    harborMode: false,
 };
 
 const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
@@ -3690,6 +3692,9 @@ const MAP_BUILDER_STORAGE_KEY = "catanMapBuilder";
 function saveMapBuilder() {
         const data = {
             active: mapBuilder.active,
+
+            harbors: Array.from(mapBuilder.harbors.entries()),
+            harborMode: mapBuilder.harborMode,
 
             // Alle bearbeiteten Felder speichern
             tiles: Array.from(mapBuilder.tiles.entries()),
@@ -3726,6 +3731,8 @@ function loadMapBuilder() {
         mapBuilder.offsetY = data.offsetY ?? 0;
         mapBuilder.savedMapName = data.mapName ?? "";
         mapBuilder.selectedResource = data.selectedResource ?? "HOLZ";
+        mapBuilder.harbors = new Map(data.harbors ?? []);
+        mapBuilder.harborMode = data.harborMode ?? false;
 
         return mapBuilder.active;
     } catch (error) {
@@ -3983,6 +3990,9 @@ function createMapBuilderUI() {
     maxlength="60"
     autocomplete="off"
 />
+        <button class="mb-button" id="mbHarborMode">
+            ⚓ Häfen: Aus
+        </button>
         <button class="mb-button" id="mbClear">
             Karte leeren
         </button>
@@ -4018,11 +4028,26 @@ function createMapBuilderUI() {
 
     $("mbBack").onclick = closeMapBuilder;
 
-    $("mbClear").onclick = () => {
-        mapBuilder.tiles.clear();
-        onMapBuilderTileChanged()
-    };
+$("mbClear").onclick = () => {
+    mapBuilder.tiles.clear();
+    mapBuilder.harbors.clear();
+    onMapBuilderTileChanged();
+};
 
+    $("mbHarborMode").onclick = () => {
+    mapBuilder.harborMode = !mapBuilder.harborMode;
+
+    $("mbHarborMode").textContent = mapBuilder.harborMode
+        ? "⚓ Häfen: An"
+        : "⚓ Häfen: Aus";
+
+    mapBuilder.canvas.style.cursor = mapBuilder.harborMode
+        ? "crosshair"
+        : "default";
+
+    saveMapBuilder();
+    drawMapBuilder();
+};
     $("mbFinish").onclick = finishMapBuilder;
 
     window.addEventListener("resize", drawMapBuilder);
@@ -4078,9 +4103,14 @@ function openMapBuilder(restore = false) {
         mapBuilder.zoom = 1;
         mapBuilder.offsetX = 0;
         mapBuilder.offsetY = 0;
+        mapBuilder.harbors.clear();
+        mapBuilder.harborMode = false;
     }
 
     $("mapBuilderScreen").classList.remove("hidden");
+    $("mbHarborMode").textContent = mapBuilder.harborMode
+    ? "⚓ Häfen: An"
+    : "⚓ Häfen: Aus";
 
     const nameInput = document.getElementById("mapName");
     if (nameInput) {
@@ -4232,6 +4262,7 @@ for (const tile of mapBuilder.tiles.values()) {
 }
 
 
+    drawMapBuilderHarbors(ctx, position, size);
     $("mbTileCount").textContent =
         `${mapBuilder.tiles.size} Landfelder`;
 }
@@ -4279,9 +4310,87 @@ function findMapBuilderTile(x, y) {
 
     return { q: correctedQ, r: correctedR };
 }
+
+
+function cycleMapBuilderHarbor(q, r) {
+    const key = mapKey(q, r);
+
+    // Häfen können nur auf vorhandenen Landfeldern liegen.
+    if (!mapBuilder.tiles.has(key)) {
+        return;
+    }
+
+    const existing = mapBuilder.harbors.get(key);
+
+    if (!existing) {
+        // Erster Klick: allgemeiner Hafen 3:1
+        mapBuilder.harbors.set(key, {
+            q,
+            r,
+            direction: 1,
+            resource: null,
+            ratio: 3
+        });
+    } else if (existing.direction < 6) {
+        // Weitere Klicks: nächste Richtung
+        mapBuilder.harbors.set(key, {
+            ...existing,
+            direction: existing.direction + 1
+        });
+    } else {
+        // Nach Richtung 6: Hafen entfernen
+        mapBuilder.harbors.delete(key);
+    }
+
+    saveMapBuilder();
+    drawMapBuilder();
+}
+
+
+function drawMapBuilderHarbors(ctx, position, size) {
+    const directionCorners = {
+        1: [5, 0], // oben rechts
+        2: [4, 5], // oben links
+        3: [3, 4], // links
+        4: [2, 3], // unten links
+        5: [1, 2], // unten rechts
+        6: [0, 1]  // rechts
+    };
+
+    for (const harbor of mapBuilder.harbors.values()) {
+        // Keine Häfen auf nicht mehr vorhandenen Feldern zeichnen.
+        if (!mapBuilder.tiles.has(mapKey(harbor.q, harbor.r))) {
+            continue;
+        }
+
+        const center = position(harbor.q, harbor.r);
+
+        const corners = Array.from({ length: 6 }, (_, i) => {
+            const angle = (60 * i - 30) * Math.PI / 180;
+
+            return {
+                x: center.x + size * Math.cos(angle),
+                y: center.y + size * Math.sin(angle)
+            };
+        });
+
+        const indices = directionCorners[harbor.direction];
+        if (!indices) continue;
+
+        drawHarbor(
+            ctx,
+            harbor,
+            corners[indices[0]],
+            corners[indices[1]],
+            center,
+            size
+        );
+    }
+}
 // ---------------------------------------------------------
 // KLICK: WASSER <-> LAND
 // ---------------------------------------------------------
+
 
 
 function toggleMapBuilderTile(q, r) {
@@ -4290,6 +4399,8 @@ function toggleMapBuilderTile(q, r) {
     if (mapBuilder.tiles.has(key)) {
         // Land anklicken → wieder Wasser
         mapBuilder.tiles.delete(key);
+        mapBuilder.harbors.delete(key);
+
     } else {
         // Ausgewählte Ressource platzieren
         const resource =
@@ -4361,7 +4472,11 @@ canvas.addEventListener("pointerup", (ev) => {
             ev.clientY - rect.top
         );
 
-        toggleMapBuilderTile(tile.q, tile.r);
+        if (mapBuilder.harborMode) {
+            cycleMapBuilderHarbor(tile.q, tile.r);
+        } else {
+            toggleMapBuilderTile(tile.q, tile.r);
+        }
     }
 
     mapBuilder.dragging = false;
@@ -4418,6 +4533,16 @@ const tiles = Array.from(
         };
     }
 );
+const harbors = Array.from(
+    mapBuilder.harbors.values(),
+    harbor => ({
+        q: harbor.q,
+        r: harbor.r,
+        direction: harbor.direction,
+        resource: null,
+        ratio: 3
+    })
+);
 
 
     if (!ws || ws.readyState !== WebSocket.OPEN) {
@@ -4426,8 +4551,11 @@ const tiles = Array.from(
     }
 
     // Name und Felder gemeinsam an den Server senden.
-    send("custom_map", { name, tiles });
-
+send("custom_map", {
+    name,
+    tiles,
+    harbors
+});
 
     closeMapBuilder();
 

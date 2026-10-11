@@ -174,27 +174,69 @@ class Logic:
                 cost = min(harbor.ratio, cost)
         return player.resources.get(give_resource, 0) >= cost
 
-    def trade_with_bank(self, give_resource, get_resource):
-        if give_resource == None or get_resource == None:
-            return False
+    def tradeWithBank(self, trade_request, trade_offer):
         player = self.current_player
 
-        if give_resource == get_resource:
+        # Genau eine Ressource abgeben
+        giveResource = None
+        giveCount = 0
+
+        for resource, count in trade_offer.items():
+            if count > 0:
+                if giveResource is not None:
+                    return False
+                giveResource = resource
+                giveCount = count
+
+        if giveResource is None:
             return False
 
-        if not self.can_trade_with_bank(player, give_resource):
+        # Genau eine Ressource erhalten
+        getResource = None
+        getCount = 0
+
+        for resource, count in trade_request.items():
+            if count > 0:
+                if getResource is not None:
+                    return False
+                getResource = resource
+                getCount = count
+
+        if getResource is None or getCount != 1:
             return False
+
+        # Dieselbe Ressource tauschen ist nicht erlaubt
+        if giveResource == getResource:
+            return False
+
+        # Standardtausch: 4:1
         cost = 4
+
+        # Prüfen, welche Häfen der Spieler besitzt
         for harbor in self.board.harbors:
-            if harbor.resource == Resource[give_resource] and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-            if harbor.resource == None and (harbor.vertex1.owner == player or harbor.vertex2.owner == player):
-                cost = min(harbor.ratio, cost)
-        player.resources[give_resource] -= cost
+            owns_harbor = (
+                harbor.vertex1.owner == player
+                or harbor.vertex2.owner == player
+            )
 
-        player.resources[get_resource] += 1
+            if not owns_harbor:
+                continue
 
-        return True
+            # Ressourcenspezifischer Hafen, z. B. Holz 2:1
+            if harbor.resource is not None:
+                if harbor.resource == Resource[giveResource]:
+                    cost = min(cost, harbor.ratio)
+
+            # Allgemeiner Hafen, z. B. 3:1
+            else:
+                cost = min(cost, harbor.ratio)
+
+        # Die genaue erforderliche Anzahl muss abgegeben werden
+        if giveCount != cost:
+            return False
+
+        return self.trade_with_bank(giveResource, getResource)
+
     
     def tradeWithBank(self, trade_request, trade_offer):
         player = self.current_player

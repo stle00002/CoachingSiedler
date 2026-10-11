@@ -700,8 +700,39 @@ class Board:
 
             if v1 not in v2.neighbourVertices:
                 v2.neighbourVertices.append(v1)
-            
+
+
+    
+    def createCustomHarbors(self):
+        """Übernimmt die Häfen aus einer benutzerdefinierten Karte."""
+        self.harbors = []
+
+        if not self.custom_map:
+            return
+
+        for harbor_data in self.custom_map.get("harbors", []):
+            q = int(harbor_data["q"])
+            r = int(harbor_data["r"])
+            direction = int(harbor_data["direction"])
+            ratio = int(harbor_data.get("ratio", 3))
+
+            resource_name = harbor_data.get("resource")
+            resource = (
+                Resource[resource_name]
+                if resource_name is not None
+                else None
+            )
+
+            self.harbors.append(
+                Harbor(q, r, direction, resource, ratio)
+            )
+
+        print(f"Eigene Karte: {len(self.harbors)} Häfen übernommen.")
+
     def createHarbors(self):
+        if self.custom_map is not None:
+            self.createCustomHarbors()
+            return
         if not self.earthMap and not self.custom_map:
             if self.radius == 3:
                 for tile in self.tiles:

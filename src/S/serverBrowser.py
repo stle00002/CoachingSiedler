@@ -53,8 +53,8 @@ def get_map_path(name):
     return MAPS_DIR / f"{name}.json"
 
 
-def save_custom_map(name, tiles):
-    """Speichert eine eigene Karte als JSON-Datei."""
+def save_custom_map(name, tiles, harbors=None):
+    """Speichert eine eigene Karte mit Landfeldern und Häfen."""
     path = get_map_path(name)
 
     if path is None:
@@ -85,7 +85,6 @@ def save_custom_map(name, tiles):
         if abs(q) > 50 or abs(r) > 50:
             return False, "Die Karte ist zu groß."
 
-        # None bedeutet: zufälliges/unbekanntes Feld
         if resource is not None and resource not in valid_resources:
             return False, f"Ungültige Ressource: {resource}"
 
@@ -102,9 +101,53 @@ def save_custom_map(name, tiles):
             "resource": resource
         })
 
+    # Häfen validieren
+    if harbors is None:
+        harbors = []
+
+    if not isinstance(harbors, list):
+        return False, "Ungültige Hafendaten."
+
+    cleaned_harbors = []
+    seen_harbors = set()
+
+    for harbor in harbors:
+        if not isinstance(harbor, dict):
+            return False, "Ungültiger Hafen."
+
+        q = harbor.get("q")
+        r = harbor.get("r")
+        direction = harbor.get("direction")
+
+        if type(q) is not int or type(r) is not int:
+            return False, "Ungültige Hafenkoordinaten."
+
+        if type(direction) is not int or direction not in range(1, 7):
+            return False, "Ungültige Hafenrichtung."
+
+        # Der Hafen muss auf einem vorhandenen Landfeld liegen.
+        if (q, r) not in seen_positions:
+            return False, "Ein Hafen liegt nicht auf einem Landfeld."
+
+        # Pro Landfeld nur ein Hafen.
+        if (q, r) in seen_harbors:
+            return False, "Auf einem Landfeld liegen mehrere Häfen."
+
+        seen_harbors.add((q, r))
+
+        # Vorerst sind alle neu erstellten Häfen 3:1.
+        cleaned_harbors.append({
+            "q": q,
+            "r": r,
+            "direction": direction,
+            "resource": None,
+            "ratio": 3
+        })
+
     data = {
         "name": name.strip(),
-        "tiles": cleaned_tiles
+        "tiles": cleaned_tiles,
+        "harbors": cleaned_harbors
     }
 
     try:
@@ -167,7 +210,8 @@ def get_saved_map_previews():
         if custom_map is not None:
             maps.append({
                 "name": custom_map["name"],
-                "tiles": custom_map["tiles"]
+                "tiles": custom_map["tiles"],
+                "harbors": custom_map.get("harbors", [])
             })
 
     return sorted(maps, key=lambda m: m["name"].lower())
@@ -769,12 +813,18 @@ async def handle_message(conn, message):
         print (message.get("tiles"))
         success, result_message = save_custom_map(
             message.get("name"),
-            message.get("tiles")
+            message.get("tiles"),
+            message.get("harbors", [])
         )
 
+        if not success:
+            await send_json(conn, {
+                "type": "error",
+                "message": result_message
+            })
+            return
 
-        if success:
-            await broadcast_lobby()
+        await broadcast_lobby()
         return
 
     elif action == "choosemap":
