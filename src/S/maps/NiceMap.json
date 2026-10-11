@@ -1,0 +1,522 @@
+{
+    "name": "NiceMap",
+    "tiles": [
+        {
+            "q": 9,
+            "r": -13,
+            "resource": "ERZ"
+        },
+        {
+            "q": 9,
+            "r": -14,
+            "resource": "ERZ"
+        },
+        {
+            "q": 10,
+            "r": -14,
+            "resource": "ERZ"
+        },
+        {
+            "q": 9,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": 10,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": 11,
+            "r": -15,
+            "resource": "ERZ"
+        },
+        {
+            "q": 9,
+            "r": -12,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 10,
+            "r": -13,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 10,
+            "r": -12,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 11,
+            "r": -13,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 11,
+            "r": -14,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 12,
+            "r": -13,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 11,
+            "r": -12,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 12,
+            "r": -14,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 12,
+            "r": -15,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 8,
+            "r": -11,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 8,
+            "r": -10,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 9,
+            "r": -11,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 9,
+            "r": -10,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 10,
+            "r": -11,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 8,
+            "r": -9,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 11,
+            "r": -11,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 10,
+            "r": -10,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 9,
+            "r": -9,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 8,
+            "r": -8,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": 12,
+            "r": -12,
+            "resource": "SCHAF"
+        },
+        {
+            "q": 9,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": 10,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": 11,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": 12,
+            "r": -16,
+            "resource": "ERZ"
+        },
+        {
+            "q": 7,
+            "r": -11,
+            "resource": "LEHM"
+        },
+        {
+            "q": 7,
+            "r": -10,
+            "resource": "LEHM"
+        },
+        {
+            "q": 7,
+            "r": -9,
+            "resource": "LEHM"
+        },
+        {
+            "q": 7,
+            "r": -8,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": -8,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": -9,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": -10,
+            "resource": "LEHM"
+        },
+        {
+            "q": 5,
+            "r": -9,
+            "resource": "LEHM"
+        },
+        {
+            "q": 4,
+            "r": -8,
+            "resource": "LEHM"
+        },
+        {
+            "q": 5,
+            "r": -8,
+            "resource": "LEHM"
+        },
+        {
+            "q": 6,
+            "r": -11,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 7,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 4,
+            "r": -9,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 5,
+            "r": -10,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 4,
+            "r": -10,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 5,
+            "r": -11,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 6,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 5,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 4,
+            "r": -12,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 4,
+            "r": -11,
+            "resource": "HOLZ"
+        },
+        {
+            "q": 8,
+            "r": -12,
+            "resource": "GOLD"
+        },
+        {
+            "q": 8,
+            "r": -13,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -13,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -14,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -15,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -14,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 8,
+            "r": -16,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 7,
+            "r": -15,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 6,
+            "r": -14,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 5,
+            "r": -13,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": 6,
+            "r": -13,
+            "resource": "WÜSTE"
+        }
+    ],
+    "harbors": [
+        {
+            "q": 9,
+            "r": -17,
+            "direction": 5,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 10,
+            "r": -17,
+            "direction": 5,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 11,
+            "r": -17,
+            "direction": 5,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 12,
+            "r": -17,
+            "direction": 5,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -17,
+            "direction": 4,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -16,
+            "direction": 4,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -15,
+            "direction": 4,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -14,
+            "direction": 4,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -13,
+            "direction": 4,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 13,
+            "r": -12,
+            "direction": 3,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 12,
+            "r": -11,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 11,
+            "r": -10,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 10,
+            "r": -9,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 9,
+            "r": -8,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 8,
+            "r": -7,
+            "direction": 2,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 7,
+            "r": -7,
+            "direction": 2,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 6,
+            "r": -7,
+            "direction": 2,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 5,
+            "r": -7,
+            "direction": 2,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 4,
+            "r": -7,
+            "direction": 2,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -7,
+            "direction": 1,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -8,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -9,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -10,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -11,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -12,
+            "direction": 6,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": 4,
+            "r": -13,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 5,
+            "r": -14,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 6,
+            "r": -15,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 7,
+            "r": -16,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 8,
+            "r": -17,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        }
+    ]
+}

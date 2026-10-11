@@ -169,7 +169,7 @@ function connect() {
       }
 
       else if (m.type === "error") {
-        log(m.message || "Fehler");
+        console.log(m.message || "Fehler");
       }
 else if (m.action === "lobby_update") {
     console.log("LOBBY UPDATE:", m.players);
@@ -205,7 +205,7 @@ else if (m.action === "welcome") {
     document.getElementById("colors").style.display = "block";
   }
 
-  log("Verbunden");
+  console.log("Verbunden");
 }
 
     } catch (err) {
