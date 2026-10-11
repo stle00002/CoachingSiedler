@@ -4498,10 +4498,16 @@ function setupMapBuilderCanvas() {
 
 
 
+
     canvas.addEventListener("pointermove", (ev) => {
-        if (!mapBuilder.active || !canvas.hasPointerCapture(ev.pointerId)) {
+        if (!mapBuilder.active) return;
+
+        // Während und direkt nach dem Pinch-Zoom
+        // darf das normale Ziehen die Position nicht verändern.
+        if (mapBuilder.pinching || mapBuilder.suppressNextTap) {
             return;
         }
+
 
         const dx = ev.clientX - mapBuilder.dragX;
         const dy = ev.clientY - mapBuilder.dragY;
