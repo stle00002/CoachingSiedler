@@ -4534,6 +4534,14 @@ const harbors = Array.from(
     })
 );
 
+
+console.log("MAPBUILDER: Karte übernehmen gestartet");
+console.log("Name:", name);
+console.log("Landfelder:", tiles.length);
+console.log("Häfen:", harbors.length);
+console.log("WebSocket:", ws?.readyState);
+console.log("WebSocket OPEN:", WebSocket.OPEN);
+
     if (!ws || ws.readyState !== WebSocket.OPEN) {
         alert("Keine Serververbindung. Die Karte wurde nicht gespeichert.");
         return;
