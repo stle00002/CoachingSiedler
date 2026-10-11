@@ -4529,8 +4529,8 @@ const harbors = Array.from(
         q: harbor.q,
         r: harbor.r,
         direction: harbor.direction,
-        resource: harbor.resource,
-        ratio: harbor.ratio
+        resource: null,
+        ratio: 3
     })
 );
 
