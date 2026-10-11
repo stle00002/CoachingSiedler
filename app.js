@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://securities-comment-tier-epson.trycloudflare.com";
+const WS_URL = "wss://strengthen-compaq-mpg-tale.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
