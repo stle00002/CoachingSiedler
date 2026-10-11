@@ -2633,7 +2633,7 @@ else if (s.buildPhase) {
     if (raised) {
         t = "Du bist in der Baurunde – du kannst bauen";
     } else {
-        t = "Sonderbauphase";
+        t = "Baurunde";
     }
 }
   else if (mode)
@@ -3557,8 +3557,8 @@ function drawHarbors(ctx, boardState, pos, size, boardCenter) {
         drawHarbor(
             ctx,
             harbor,
-            corners[i2],
             corners[i1],
+            corners[i2],
             center, // Mittelpunkt des zugehörigen Hexfeldes
             size
         );
