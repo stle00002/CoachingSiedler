@@ -3959,28 +3959,28 @@ function createMapBuilderUI() {
 
 <div class="mb-resource-grid">
     <button class="mb-button mb-resource active"
-            data-resource="HOLZ">🌲 Holz</button>
+            data-resource="HOLZ">Holz</button>
 
     <button class="mb-button mb-resource"
-            data-resource="LEHM">🧱 Lehm</button>
+            data-resource="LEHM">Lehm</button>
 
     <button class="mb-button mb-resource"
-            data-resource="WEIZEN">🌾 Weizen</button>
+            data-resource="WEIZEN">Weizen</button>
 
     <button class="mb-button mb-resource"
-            data-resource="ERZ">⛰️ Erz</button>
+            data-resource="ERZ">Erz</button>
 
     <button class="mb-button mb-resource"
-            data-resource="SCHAF">🐑 Schaf</button>
+            data-resource="SCHAF">Schaf</button>
 
     <button class="mb-button mb-resource"
-            data-resource="GOLD">🪙 Gold</button>
+            data-resource="GOLD">Gold</button>
 
     <button class="mb-button mb-resource"
-            data-resource="RANDOM">❓ Random</button>
+            data-resource="RANDOM">Random</button>
 
     <button class="mb-button mb-resource"
-            data-resource="WÜSTE">🏜️ Wüste</button>
+            data-resource="WÜSTE">Wüste</button>
 </div>
 
     <div class="mb-buttons">
@@ -4311,10 +4311,17 @@ function findMapBuilderTile(x, y) {
 
     return { q: correctedQ, r: correctedR };
 }
-
 function cycleMapBuilderHarbor(q, r) {
     const key = mapKey(q, r);
     const existing = mapBuilder.harbors.get(key);
+
+    // Ressource des Hafens anhand der aktuellen Auswahl bestimmen.
+    const selected = mapBuilder.selectedResource;
+
+    const harborResource =
+        MAP_BUILDER_RESOURCES.includes(selected)
+            ? selected
+            : null;
 
     if (!existing) {
         // Erster Klick: Hafen in Richtung 1
@@ -4322,8 +4329,8 @@ function cycleMapBuilderHarbor(q, r) {
             q,
             r,
             direction: 1,
-            resource: null,
-            ratio: 3
+            resource: harborResource,
+            ratio: harborResource ? 2 : 3
         });
     } else if (existing.direction < 6) {
         // Weitere Klicks: Richtung 2 bis 6
@@ -4529,8 +4536,8 @@ const harbors = Array.from(
         q: harbor.q,
         r: harbor.r,
         direction: harbor.direction,
-        resource: null,
-        ratio: 3
+        resource: harbor.resource,
+        ratio: harbor.ratio
     })
 );
 
