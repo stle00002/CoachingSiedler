@@ -476,6 +476,8 @@ function declinePlayerTrade() {
 function renderState(s) {
   lastState = s;
   renderChatHistory(s.chat_history || []);
+  renderDiceStatistics(s.dices || {});
+
     const mep2 = (s.players || []).find(p => p.name === me);
 
     console.log("MEP:", mep2);
@@ -3737,6 +3739,55 @@ function renderChatHistory(messages) {
     if (wasAtBottom) {
         container.scrollTop = container.scrollHeight;
     }
+}
+
+
+
+function renderDiceStatistics(dices) {
+    const chart = document.getElementById("diceChart");
+    if (!chart) return;
+
+    // Immer von 2 bis 12 sortieren
+    const values = Array.from({ length: 11 }, (_, i) => i + 2);
+
+    // Fehlende Werte als 0 behandeln
+    const counts = values.map(number =>
+        Number(dices?.[number] ?? dices?.[String(number)] ?? 0)
+    );
+
+    const maxCount = Math.max(0, ...counts);
+
+    chart.replaceChildren();
+
+    values.forEach((number, index) => {
+        const count = counts[index];
+        const percentage = maxCount > 0
+            ? (count / maxCount) * 100
+            : 0;
+
+        const row = document.createElement("div");
+        row.className = "dice-row";
+
+        const label = document.createElement("div");
+        label.className = "dice-number";
+        label.textContent = number;
+
+        const container = document.createElement("div");
+        container.className = "dice-bar-container";
+
+        const bar = document.createElement("div");
+        bar.className = "dice-bar" + (count === 0 ? " empty" : "");
+        bar.style.width = percentage + "%";
+
+        // Anzahl steht innerhalb des Balkens
+        if (count > 0) {
+            bar.textContent = count;
+        }
+
+        container.appendChild(bar);
+        row.append(label, container);
+        chart.appendChild(row);
+    });
 }
 
 

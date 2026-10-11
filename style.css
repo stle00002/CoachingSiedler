@@ -1317,3 +1317,68 @@ input {
     opacity: 0.5;
     cursor: default;
 }
+
+
+#diceStatistics {
+    margin-top: 14px;
+    padding: 10px;
+    color: #f7ead1;
+    background: #211b16;
+    border: 1px solid #6d5740;
+    border-radius: 10px;
+}
+
+#diceStatistics h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+}
+
+#diceChart {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.dice-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 20px;
+}
+
+.dice-number {
+    flex: 0 0 22px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.dice-bar-container {
+    flex: 1;
+    min-width: 0;
+    height: 20px;
+    background: #17130f;
+    border: 1px solid #493a2c;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.dice-bar {
+    height: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 6px;
+    box-sizing: border-box;
+    background: #a77b49;
+    color: #fff4df;
+    font-size: 12px;
+    font-weight: bold;
+    transition: width 0.25s ease;
+    white-space: nowrap;
+}
+
+.dice-bar.empty {
+    padding-left: 0;
+}
