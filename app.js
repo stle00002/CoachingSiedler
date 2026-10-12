@@ -3893,10 +3893,11 @@ function updateDice(s) {
 
 function setupDiceClick() {
     const overlay = $("diceOverlay");
-
     if (!overlay || overlay.dataset.clickReady) return;
 
     overlay.dataset.clickReady = "true";
+    overlay.style.pointerEvents = "auto";
+    overlay.style.cursor = "pointer";
 
     overlay.addEventListener("click", () => {
         if (!lastState) return;
@@ -3904,14 +3905,18 @@ function setupDiceClick() {
         const mep = (lastState.players || [])
             .find(p => p.name === me);
 
-        // Nur der aktive Spieler darf würfeln.
         if (!mep || mep.id !== lastState.currentPlayer) return;
-
-        // Nur während der Würfelphase würfeln.
         if (lastState.würfelMode !== true) return;
 
-        // Die vorhandene Würfelaktion auslösen.
-        document.querySelector('[data-action="roll_dice"]')?.click();
+        const rollButton = document.querySelector(
+            '[data-action="roll_dice"]'
+        );
+
+        if (rollButton) {
+            rollButton.click();
+        } else {
+            console.error("Würfel-Button nicht gefunden!");
+        }
     });
 }
 

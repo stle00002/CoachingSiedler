@@ -1442,7 +1442,7 @@ input {
     position: absolute;
     right: 18px;
     bottom: 18px;
-    z-index: 50;
+    z-index: 100;
 
     display: flex;
     align-items: center;
@@ -1472,6 +1472,7 @@ input {
     transition:
         background 0.25s ease,
         box-shadow 0.25s ease;
+    pointer-events: auto;
 }
 
 /* Augen der Würfel */
