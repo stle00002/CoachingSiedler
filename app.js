@@ -4409,13 +4409,10 @@ function createMapBuilderUI() {
 <aside class="mb-toolbar">
     <div class="mb-heading">
         <div class="mb-title">COACHING</div>
-        <div id="mbTileCount">0 Landfelder</div>
     </div>
 
-    <h3 class="mb-section-title">Karteneditor</h3>
-
     
-<h3 class="mb-section-title">Rohstoff auswählen</h3>
+<h3 class="mb-section-title">Rohstoff:</h3>
 
 <div class="mb-resource-grid">
     <button class="mb-button mb-resource active"
@@ -4437,37 +4434,43 @@ function createMapBuilderUI() {
             data-resource="GOLD">Gold</button>
 
     <button class="mb-button mb-resource"
-            data-resource="RANDOM">Random</button>
+            data-resource="RANDOM">Zufällig</button>
 
     <button class="mb-button mb-resource"
             data-resource="WÜSTE">Wüste</button>
 </div>
 
     <div class="mb-buttons">
-        <input
+    <h3 class="mb-section-title">Hafen + Rohstoff</h3>
+
+        <button class="mb-button" id="mbHarborMode">
+            Häfen: Aus
+        </button>
+
+        <h3 class="mb-section-title">Andere Optionen</h3>
+
+
+        <button class="mb-button" id="mbClear">
+            Karte leeren
+        </button>
+
+        <button class="mb-button" id="mbBack">
+            Zurück zur Lobby
+        </button>
+                <input
     id="mapName"
     type="text"
     placeholder="Name der Karte eingeben"
     maxlength="60"
     autocomplete="off"
 />
-        <button class="mb-button" id="mbHarborMode">
-            ⚓ Häfen: Aus
-        </button>
-        <button class="mb-button" id="mbClear">
-            Karte leeren
-        </button>
-
-        <button class="mb-button" id="mbBack">
-            Zurück
-        </button>
     </div>
 
     <div class="mb-spacer"></div>
 
     <div class="mb-buttons">
         <button class="mb-button finish" id="mbFinish">
-            Karte übernehmen
+            Karte speichern
         </button>
     </div>
 </aside>
@@ -4499,8 +4502,8 @@ $("mbClear").onclick = () => {
     mapBuilder.harborMode = !mapBuilder.harborMode;
 
     $("mbHarborMode").textContent = mapBuilder.harborMode
-        ? "⚓ Häfen: An"
-        : "⚓ Häfen: Aus";
+        ? "Häfen: An"
+        : "Häfen: Aus";
 
     mapBuilder.canvas.style.cursor = mapBuilder.harborMode
         ? "crosshair"
@@ -4792,8 +4795,6 @@ for (const tile of mapBuilder.tiles.values()) {
 
 
     drawMapBuilderHarbors(ctx, position, size);
-    $("mbTileCount").textContent =
-        `${mapBuilder.tiles.size} Landfelder`;
 }
 
 // ---------------------------------------------------------
