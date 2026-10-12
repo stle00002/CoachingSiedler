@@ -3826,24 +3826,26 @@ function createDiceOverlay() {
     const parent = board.parentElement;
     if (!parent) return;
 
-    // Overlay nur einmal erzeugen
-    if ($("diceOverlay")) return;
+    let overlay = $("diceOverlay");
 
-    // Anker für die absolute Positionierung
-    if (getComputedStyle(parent).position === "static") {
-        parent.style.position = "relative";
+    // Overlay nur erstellen, falls es noch nicht existiert
+    if (!overlay) {
+        if (getComputedStyle(parent).position === "static") {
+            parent.style.position = "relative";
+        }
+
+        overlay = document.createElement("div");
+        overlay.id = "diceOverlay";
+        overlay.className = "dice-overlay";
+        overlay.innerHTML = `
+            <div class="die" id="die1"></div>
+            <div class="die" id="die2"></div>
+        `;
+
+        parent.appendChild(overlay);
     }
 
-    const overlay = document.createElement("div");
-    overlay.id = "diceOverlay";
-    overlay.className = "dice-overlay";
-
-    overlay.innerHTML = `
-        <div class="die" id="die1"></div>
-        <div class="die" id="die2"></div>
-    `;
-
-    parent.appendChild(overlay);
+    // Wichtig: Auch bei einem bereits vorhandenen Overlay aufrufen!
     setupDiceClick();
 }
 
@@ -3900,6 +3902,8 @@ function setupDiceClick() {
     overlay.style.cursor = "pointer";
 
     overlay.addEventListener("click", () => {
+            console.log("WÜRFEL ANGEKLICKT");
+    console.log("Spielzustand:", lastState);
         if (!lastState) return;
 
         const mep = (lastState.players || [])
