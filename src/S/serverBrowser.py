@@ -1028,6 +1028,7 @@ async def handle_message(conn, message):
         conn is not None
         and game_state == "running"
         and conn not in client_players
+        and action != "chat_message"
     ):
         return
 
@@ -1042,13 +1043,11 @@ async def handle_message(conn, message):
 
 
         name = message["playerName"]
-        for p in logic.players:
-            if p.name == name:
-                player = p       
+      
         # Den tatsächlichen Absender aus der bestehenden
         # Verbindung bzw. Spielerzuordnung verwenden.
         chat_entry = {
-            "player": player.name,
+            "player": name,
             "message": text
         }
 

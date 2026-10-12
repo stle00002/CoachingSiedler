@@ -93,6 +93,7 @@ TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
 const WS_URL = "wss://brake-nsw-amenities-reflects.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
+
 const COLORS = [
   ["rot", "#e53935"],
   ["blau", "#2979ff"],
@@ -105,24 +106,24 @@ const COLORS = [
   ["schwarz", "#111111"],
   ["weiß", "#eeeeee"],
 
-  // Farben 11–15
-  ["neongrün", "#39ff14"],
-  ["braun", "#795548"],
-  ["dunkelblau", "#142b8c"],
-  ["koralle", "#ff6f61"],
-  ["gold", "#d4a017"],
+  // Farben 11–15: kräftiger und leuchtender
+  ["neongrün", "#39ff00"],
+  ["braun", "#a0522d"],
+  ["dunkelblau", "#254bff"],
+  ["koralle", "#ff493d"],
+  ["gold", "#ffd000"],
 
-  // 10 neue Farben (16–25)
-  ["mint", "#98ffcc"],
-  ["lavendel", "#b57edc"],
-  ["türkisblau", "#008c95"],
-  ["bordeaux", "#800020"],
-  ["navy", "#000080"],
-  ["magenta", "#ff00ff"],
-  ["oliv", "#808000"],
-  ["silber", "#a8a9ad"],
-  ["pfirsich", "#ffbf9b"],
-  ["petrol", "#006d77"],
+  // Farben 16–25: intensiver und klarer unterscheidbar
+  ["mint", "#00ffad"],
+  ["lavendel", "#c084ff"],
+  ["türkisblau", "#00c9d8"],
+  ["bordeaux", "#c0004f"],
+  ["navy", "#2020c9"],
+  ["magenta", "#ff00cc"],
+  ["oliv", "#b5c900"],
+  ["silber", "#d0d5df"],
+  ["pfirsich", "#ff9878"],
+  ["petrol", "#00a6a6"],
 ];
 const state = { players: [], board: null };
 let ws = null,
