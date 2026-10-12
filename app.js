@@ -103,8 +103,8 @@ const COLORS = [
   ["lila", "#9b45d6"],
   ["türkis", "#19c7c7"],
   ["pink", "#ff5ca8"],
-  ["schwarz", "#111111"],
-  ["weiß", "#eeeeee"],
+  ["schwarz", "#000000"],
+  ["weiß", "#ffffff"],
 
   // Farben 11–15: kräftiger und leuchtender
   ["neongrün", "#39ff00"],
@@ -116,13 +116,13 @@ const COLORS = [
   // Farben 16–25: intensiver und klarer unterscheidbar
   ["mint", "#00ffad"],
   ["lavendel", "#c084ff"],
-  ["türkisblau", "#00c9d8"],
+  ["türkisblau", "#05fadd"],
   ["bordeaux", "#c0004f"],
   ["navy", "#2020c9"],
   ["magenta", "#ff00cc"],
   ["oliv", "#b5c900"],
-  ["silber", "#d0d5df"],
-  ["pfirsich", "#ff9878"],
+  ["silber", "#8a8b8d"],
+  ["pfirsich", "#ff9378"],
   ["petrol", "#00a6a6"],
 ];
 const state = { players: [], board: null };
