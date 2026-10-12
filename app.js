@@ -193,10 +193,17 @@ function connect() {
 else if (m.action === "lobby_update") {
     console.log("LOBBY UPDATE:", m.players);
 
-
+if ($("victoryTrophy")) {
     $("victoryTrophy").src = "images/pokal.png";
+}
+
+if ($("victoryOverlay")) {
     $("victoryOverlay").classList.add("hidden");
+}
+
+if ($("victoryText")) {
     $("victoryText").textContent = "";
+}
     // Lobby-Spielerliste aktualisieren
     renderLobby(m.players, m.loading);
 
