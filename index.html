@@ -141,6 +141,11 @@
 
     <canvas id="board"></canvas>
 
+<div id="diceOverlay" class="dice-overlay">
+    <div class="die" id="die1"></div>
+    <div class="die" id="die2"></div>
+</div>
+
     <!-- HANDELSFENSTER MUSS HIER DRIN SEIN -->
     <div id="tradeOffer" class="trade-offer hidden">
       <div id="tradeTitle" class="trade-title"></div>
@@ -175,7 +180,6 @@
     <div id="resources"></div>
 
     <div class="actions">
-      <button data-action="roll_dice">Würfeln</button>
       <button data-action="buildSettlement">Siedlung</button>
       <button data-action="buildRoad">Straße</button>
       <button data-action="buildCity">Stadt</button>
@@ -183,7 +187,7 @@
       <div class="trade">
   <button id="tradeButton">Handel</button>
 </div>
-  
+
       <button data-action="endTurn">Zug beenden</button>
       <button id="buildRoundBtn">Baurunde</button>
     </div>

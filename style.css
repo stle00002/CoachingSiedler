@@ -1437,3 +1437,116 @@ input {
 }
 
 
+/* Würfel-Overlay unten rechts am Spielfeld */
+.dice-overlay {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    z-index: 50;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.die {
+    width: 48px;
+    height: 48px;
+    padding: 7px;
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2px;
+
+    background: #f8f8f8;
+    border: 1px solid #bbb;
+    border-radius: 9px;
+
+    box-shadow: 0 3px 8px #0005;
+
+    opacity: 0.48;
+    transform: scale(1);
+    transition:
+        opacity 0.25s ease,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+/* Augen der Würfel */
+.die .pip {
+    width: 6px;
+    height: 6px;
+    align-self: center;
+    justify-self: center;
+    border-radius: 50%;
+    background: #171717;
+    opacity: 0;
+}
+
+.die .pip.visible {
+    opacity: 1;
+}
+
+/* Du bist mit Würfeln dran */
+.dice-overlay.my-roll .die {
+    opacity: 1;
+    background: #fff;
+    border-color: #fff;
+    box-shadow:
+        0 0 0 2px #ffffff55,
+        0 4px 14px #0007;
+}
+
+/* Würfel animieren abwechselnd */
+.dice-overlay.my-roll .die:first-child {
+    animation: dice-pulse 1s ease-in-out infinite;
+}
+
+.dice-overlay.my-roll .die:last-child {
+    animation: dice-pulse 1s ease-in-out infinite;
+    animation-delay: 0.5s;
+}
+
+@keyframes dice-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.16);
+    }
+}
+
+/* Kleinere Würfel auf schmalen Bildschirmen */
+@media (max-width: 600px) {
+    .dice-overlay {
+        right: 10px;
+        bottom: 10px;
+        gap: 7px;
+    }
+
+    .die {
+        width: 38px;
+        height: 38px;
+        padding: 5px;
+        border-radius: 7px;
+    }
+
+    .die .pip {
+        width: 5px;
+        height: 5px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dice-overlay.my-roll .die {
+        animation: none;
+    }
+}
+
+
+

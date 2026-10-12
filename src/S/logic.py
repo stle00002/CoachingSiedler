@@ -22,6 +22,8 @@ class Logic:
         self.setUpRoad = False
         self.setUpOrder = []
         self.player_count = 2
+        self.dice1 = None
+        self.dice2 = None
         self.dice = None
         self.name_inputs = ["", "", "", "", "", "", "", "", ""]
         self.playedCard = None
@@ -113,7 +115,9 @@ class Logic:
 
     def roll_dice(self):
         self.würfelMode = False
-        self.dice = random.randint(1, 6) + random.randint(1, 6)
+        self.dice1 =  random.randint(1, 6)
+        self.dice2 =  random.randint(1, 6)
+        self.dice = self.dice1 + self.dice2
         self.dices[self.dice] += 1
         pygame.mixer.init()
         pygame.mixer.music.load("src/S/Dice.wav")

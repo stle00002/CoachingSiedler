@@ -91,7 +91,7 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://beer-faculty-dans-yoga.trycloudflare.com";
+const WS_URL = "wss://abu-thesis-mall-whom.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 const COLORS = [
   ["rot", "#e53935"],
@@ -478,6 +478,8 @@ function renderState(s) {
   lastState = s;
   renderChatHistory(s.chat_history || []);
   renderDiceStatistics(s.dices || {});
+  updateDice(s);
+
 
     const mep2 = (s.players || []).find(p => p.name === me);
 
@@ -3816,6 +3818,102 @@ async function enterFullscreen() {
     }
 }
 
+
+function createDiceOverlay() {
+    const board = $("board");
+    if (!board) return;
+
+    const parent = board.parentElement;
+    if (!parent) return;
+
+    // Overlay nur einmal erzeugen
+    if ($("diceOverlay")) return;
+
+    // Anker für die absolute Positionierung
+    if (getComputedStyle(parent).position === "static") {
+        parent.style.position = "relative";
+    }
+
+    const overlay = document.createElement("div");
+    overlay.id = "diceOverlay";
+    overlay.className = "dice-overlay";
+
+    overlay.innerHTML = `
+        <div class="die" id="die1"></div>
+        <div class="die" id="die2"></div>
+    `;
+
+    parent.appendChild(overlay);
+    setupDiceClick();
+}
+
+function renderDie(element, value) {
+    if (!element) return;
+
+    // Positionen der Augen im 3x3-Raster
+    const patterns = {
+        1: [5],
+        2: [1, 9],
+        3: [1, 5, 9],
+        4: [1, 3, 7, 9],
+        5: [1, 3, 5, 7, 9],
+        6: [1, 3, 4, 6, 7, 9]
+    };
+
+    const number = Number(value);
+    const pips = patterns[number] || [];
+
+    element.innerHTML = Array.from(
+        { length: 9 },
+        (_, i) => `
+            <span class="pip ${
+                pips.includes(i + 1) ? "visible" : ""
+            }"></span>
+        `
+    ).join("");
+}
+
+function updateDice(s) {
+    createDiceOverlay();
+
+    const overlay = $("diceOverlay");
+    if (!overlay) return;
+
+    const mep = (s.players || []).find(p => p.name === me);
+
+    // Nur während des eigenen Würfel-Schritts animieren
+    const myTurn = !!mep && mep.id === s.currentPlayer;
+    const myRoll = myTurn && s.würfelMode === true;
+
+    overlay.classList.toggle("my-roll", myRoll);
+
+    renderDie($("die1"), s.dice1);
+    renderDie($("die2"), s.dice2);
+}
+
+function setupDiceClick() {
+    const overlay = $("diceOverlay");
+
+    if (!overlay || overlay.dataset.clickReady) return;
+
+    overlay.dataset.clickReady = "true";
+
+    overlay.addEventListener("click", () => {
+        if (!lastState) return;
+
+        const mep = (lastState.players || [])
+            .find(p => p.name === me);
+
+        // Nur der aktive Spieler darf würfeln.
+        if (!mep || mep.id !== lastState.currentPlayer) return;
+
+        // Nur während der Würfelphase würfeln.
+        if (lastState.würfelMode !== true) return;
+
+        // Die vorhandene Würfelaktion auslösen.
+        document.querySelector('[data-action="roll_dice"]')?.click();
+    });
+}
 
 
 

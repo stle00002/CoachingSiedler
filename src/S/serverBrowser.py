@@ -699,6 +699,8 @@ def getState(obj):
         # -----------------------------------------------------
 
         "dice": self.dice,
+        "dice1": logic.dice1,
+        "dice2": logic.dice2,
 
         "dices": self.dices,
 
