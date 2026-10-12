@@ -503,13 +503,12 @@ function updateResourceGains(s) {
     const currentSnapshot = players.map(p => ({
         id: p.id,
         name: p.name,
-        color: p.color,
         resources: { ...(p.resources || {}) }
     }));
 
-    // Beim ersten State nur den Ausgangsstand speichern.
     if (previousResourceSnapshot === null) {
         previousResourceSnapshot = currentSnapshot;
+        console.log("Ressourcen-Popups: Ausgangsstand gespeichert");
         return;
     }
 
@@ -531,18 +530,35 @@ function updateResourceGains(s) {
 
         if (gains.length === 0) continue;
 
-        // Spielerzeile in der linken Spielerliste finden.
-        const playerRows = $("players").querySelectorAll(".player-row");
-        const row = playerRows[p.id];
+        console.log("Ressourcengewinn:", p.name, gains);
 
-        if (!row) continue;
+        const row = [...$("players").querySelectorAll(".player-row")]
+            .find(el => {
+                const name = el.querySelector(".player-name");
+                return name?.textContent.trim() === p.name;
+            });
 
-        // Vorhandene Pop-ups dieses Spielers ersetzen.
-        const oldGain = row.querySelector(".resource-gain");
-        if (oldGain) oldGain.remove();
+        if (!row) {
+            console.warn("Spielerzeile nicht gefunden:", p.name);
+            continue;
+        }
 
-        const gainContainer = document.createElement("span");
-        gainContainer.className = "resource-gain";
+        const nameRow = row.querySelector(".player-name-row");
+        if (!nameRow) {
+            console.warn("player-name-row fehlt:", p.name);
+            continue;
+        }
+
+        let gainContainer = nameRow.querySelector(".resource-gain");
+
+        if (!gainContainer) {
+            gainContainer = document.createElement("span");
+            gainContainer.className = "resource-gain";
+            nameRow.appendChild(gainContainer);
+        }
+
+        // Bereits angezeigte Gewinne dieses Spielers ersetzen.
+        gainContainer.innerHTML = "";
 
         for (const gain of gains) {
             const square = document.createElement("span");
@@ -551,46 +567,22 @@ function updateResourceGains(s) {
                 RESOURCE_COLORS[gain.resource] || "#888";
             square.textContent = `+${gain.amount}`;
             square.title = gain.resource;
-
             gainContainer.appendChild(square);
         }
 
-        // Neben dem Spielernamen platzieren.
-        const name = row.querySelector(".player-name") ||
-                     row.querySelector("b");
+        const key = String(p.id);
 
-        if (!name) continue;
+        clearTimeout(resourceGainTimers.get(key));
 
-        let nameRow = name.closest(".player-name-row");
-
-        // Falls noch kein Wrapper vorhanden ist, einen erstellen.
-        if (!nameRow) {
-            nameRow = document.createElement("div");
-            nameRow.className = "player-name-row";
-            name.parentNode.insertBefore(nameRow, name);
-            nameRow.appendChild(name);
-        }
-
-        nameRow.appendChild(gainContainer);
-
-        const timerKey = String(p.id);
-
-        if (resourceGainTimers.has(timerKey)) {
-            clearTimeout(resourceGainTimers.get(timerKey));
-        }
-
-        // Nach 2 Sekunden ausblenden, dann entfernen.
-        const timer = setTimeout(() => {
+        resourceGainTimers.set(key, setTimeout(() => {
             gainContainer.classList.add("fading");
 
             setTimeout(() => {
                 gainContainer.remove();
             }, 800);
 
-            resourceGainTimers.delete(timerKey);
-        }, 2000);
-
-        resourceGainTimers.set(timerKey, timer);
+            resourceGainTimers.delete(key);
+        }, 2000));
     }
 
     previousResourceSnapshot = currentSnapshot;
