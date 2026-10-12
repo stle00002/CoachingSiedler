@@ -532,11 +532,8 @@ function updateResourceGains(s) {
 
         console.log("Ressourcengewinn:", p.name, gains);
 
-        const row = [...$("players").querySelectorAll(".player-row")]
-            .find(el => {
-                const name = el.querySelector(".player-name");
-                return name?.textContent.trim() === p.name;
-            });
+const row = [...$("playerList").querySelectorAll(".player-card")]
+    .find(el => el.dataset.playerId === String(p.id));
 
         if (!row) {
             console.warn("Spielerzeile nicht gefunden:", p.name);
@@ -652,20 +649,28 @@ wasMyTurn = isMyTurn;
     )
     .join("");
     updateResourceGains(s);
-  $("playerList").innerHTML = players
-  .map(
-  (p) => `
-    <div class="player-card ${isCurrent(p) ? "current" : ""}">
-      <b style="color:${colorCss(p.color)}">
-        ${esc(p.name)} ${esc(p.victoryPoints || 0)}
-        ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
-      </b>
-      <br>
-      <span>${p.countResources || 0} Karten<br><span>${p.countDevelopmentCards || 0} Entwicklungskarten<br></span>${p.knights || 0} Ritter 
-    </div>
-  `,
-)
-.join("");
+$("playerList").innerHTML = players
+    .map(
+        (p) => `
+            <div class="player-card" data-player-id="${p.id}">
+                <div class="player-name-row">
+                    <b class="player-name" style="color:${colorCss(p.color)}">
+                        ${esc(p.name)} ${esc(p.victoryPoints || 0)}
+                        ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
+                    </b>
+                </div>
+                <br>
+                <span>
+                    ${p.countResources || 0} Karten<br>
+                    ${p.countDevelopmentCards || 0} Entwicklungskarten<br>
+                    ${p.knights || 0} Ritter
+                </span>
+            </div>
+        `
+    )
+    .join("");
+
+updateResourceGains(s);
   const mep = players.find((p) => p.name === me);
   if (mep) {
     $("resources").innerHTML =

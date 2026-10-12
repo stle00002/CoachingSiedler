@@ -1674,3 +1674,50 @@ button[data-action="roll_dice"] {
 .iphone .resource-gain {
     gap: 2px;
 }
+
+
+/* FIX: Ressourcen-Vierecke neben Spielernamen */
+#players .player-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: visible;
+}
+
+#players .player-name-row {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    overflow: visible;
+}
+
+#players .player-name-row .player-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#players .resource-gain {
+    display: flex !important;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 3px;
+    opacity: 1;
+    visibility: visible;
+}
+
+#players .resource-gain-square {
+    display: flex !important;
+    flex-shrink: 0;
+    width: 23px;
+    height: 23px;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+}
+
