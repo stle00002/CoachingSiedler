@@ -31,6 +31,7 @@ bots = []
 game_state = "lobby"
 client_ready = {}
 loading = False
+restart_pending = False
 # -------------------------
 # Hilfsfunktionen für TCP
 # -------------------------
@@ -792,6 +793,51 @@ async def handle_client(websocket):
         if websocket in client_ready:
             del client_ready[websocket]
 
+async def restart_server():
+    global logic
+    global players, bots
+    global game_state, loading
+    global selected_map_name
+    global client_ready
+    global restart_pending
+    global chat_history
+
+    print("🏆 Gewinner erkannt! Neustart in 10 Sekunden.")
+
+    await asyncio.sleep(10)
+
+    print("🔄 Setze Server und Spiel zurück ...")
+
+    # Alle verbundenen Clients zurück in die Lobby schicken
+    for client in list(clients):
+        try:
+            await send_json(client, {
+                "type": "server_restart",
+                "message": "Das Spiel wurde beendet. Der Server wird zurückgesetzt."
+            })
+        except Exception:
+            pass
+
+    # Alten Spielzustand vollständig verwerfen
+    logic = Logic()
+
+    players.clear()
+    bots.clear()
+    client_ready.clear()
+    chat_history.clear()
+
+    # Verbindungszuordnungen entfernen
+    client_players.clear()
+
+    # Spielstatus zurücksetzen
+    game_state = "lobby"
+    loading = False
+    selected_map_name = None
+    restart_pending = False
+
+    print("✅ Server zurückgesetzt. Neue Lobby ist bereit.")
+
+    await broadcast_lobby()
 # -------------------------
 # Nachrichten verarbeiten
 # -------------------------
@@ -1658,6 +1704,7 @@ async def broadcast_lobby():
 # Spielstand an alle senden
 # -------------------------
 async def broadcast_state():
+    global restart_pending
     dead_clients = []
 
     for client in clients:
@@ -1668,6 +1715,12 @@ async def broadcast_state():
 
     for client in dead_clients:
         clients.discard(client)
+
+    # Gewinner prüfen, solange ein Spiel läuft
+    if game_state == "running" and not restart_pending:
+        if logic.checkWinner():
+            restart_pending = True
+            asyncio.create_task(restart_server())
 
 async def bot_loop():
 
