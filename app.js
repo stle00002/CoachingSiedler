@@ -598,8 +598,9 @@ function updateResourceGains(s) {
 
 
 function renderState(s) {
-  lastState = s;
   updateResourceGains(s);
+
+  lastState = s;
 
   renderChatHistory(s.chat_history || []);
   renderDiceStatistics(s.dices || {});
