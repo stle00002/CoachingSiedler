@@ -572,7 +572,6 @@ function updateResourceGains(s) {
 
         if (changes.length === 0) continue;
 
-        console.log("Ressourcengewinn:", p.name, gains);
 
 const row = [...$("playerList").querySelectorAll(".player-card")]
     .find(el => el.dataset.playerId === String(p.id));
