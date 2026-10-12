@@ -498,6 +498,7 @@ let previousResourceSnapshot = null;
 const resourceGainTimers = new Map();
 
 function updateResourceGains(s) {
+    console.log("updatResourceGains startet");
     const players = s.players || [];
 
     const currentSnapshot = players.map(p => ({
