@@ -543,11 +543,13 @@ function updateResourceGains(s) {
             continue;
         }
 
+        console.log("SPIELERZEILE GEFUNDEN:", p.name, row);
         const nameRow = row.querySelector(".player-name-row");
         if (!nameRow) {
             console.warn("player-name-row fehlt:", p.name);
             continue;
         }
+        console.log("NAME-ROW GEFUNDEN:", p.name, nameRow);
 
         let gainContainer = nameRow.querySelector(".resource-gain");
 
@@ -569,6 +571,13 @@ function updateResourceGains(s) {
             square.title = gain.resource;
             gainContainer.appendChild(square);
         }
+        console.log(
+    "POPUP EINGEFÜGT:",
+    p.name,
+    gainContainer.outerHTML,
+    "Sichtbar:",
+    gainContainer.getBoundingClientRect()
+);
 
         const key = String(p.id);
 
