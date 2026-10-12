@@ -1011,7 +1011,7 @@ input {
     flex: 0 0 170px;
     min-width: 0;
     padding: 8px;
-    border: 2px solid #594b3a;
+    border: 8px solid #594b3a;
     border-radius: 10px;
     background: #e7d5b5;
     color: #382b20;

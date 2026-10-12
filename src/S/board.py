@@ -345,10 +345,15 @@ class Board:
 
         self.createEdges()
         while self.incorrectNumbers():
+            print("new loop entered")
             self.createNumbers()
+        print("numbers placed")
         self.connectEdgesAndVertices()
+        print("edgesandvertices connnected")
         self.connectNeighbourVertices()
+        print("neigbour vertices connected")
         self.createHarbors()
+        print("harbors created")
     def createTiles(self):
         if self.custom_map is None:
             random.shuffle(self.resources)
@@ -473,41 +478,66 @@ class Board:
                         if other in neighbours:
                             neighbours[tile].add(other)
 
-        # Zufällige, konfliktfreie Positionen für rote Zahlen suchen
-        red_tiles = []
-        forbidden = set()
+        
+        # Zufällige, konfliktfreie Positionen für rote Zahlen suchen.
+        # Begrenzte Backtracking-Suche mit mehreren Neustarts.
 
-        def place_reds():
-            if len(red_tiles) == red_count:
-                return True
+        MAX_RESTARTS = 20
+        MAX_NODES = 30000
 
-            candidates = [
-                tile for tile in numbered_tiles
-                if tile not in forbidden
-                and tile not in red_tiles
-            ]
-            random.shuffle(candidates)
+        red_tiles = None
 
-            for tile in candidates:
-                red_tiles.append(tile)
+        for attempt in range(MAX_RESTARTS):
+            selected = []
+            forbidden = set()
+            search_nodes = 0
 
-                old_forbidden = forbidden.copy()
-                forbidden.add(tile)
-                forbidden.update(neighbours[tile])
+            def place_reds():
+                nonlocal search_nodes
 
-                if place_reds():
+                search_nodes += 1
+
+                # Harte Grenze gegen endlose Suche
+                if search_nodes > MAX_NODES:
+                    return False
+
+                if len(selected) == red_count:
                     return True
 
-                red_tiles.pop()
-                forbidden.clear()
-                forbidden.update(old_forbidden)
+                candidates = [
+                    tile for tile in numbered_tiles
+                    if tile not in forbidden
+                ]
+                random.shuffle(candidates)
 
-            return False
+                for tile in candidates:
+                    if search_nodes > MAX_NODES:
+                        return False
 
-        if not place_reds():
+                    selected.append(tile)
+
+                    old_forbidden = forbidden.copy()
+                    forbidden.add(tile)
+                    forbidden.update(neighbours[tile])
+
+                    if place_reds():
+                        return True
+
+                    selected.pop()
+                    forbidden.clear()
+                    forbidden.update(old_forbidden)
+
+                return False
+
+            if place_reds():
+                red_tiles = selected.copy()
+                break
+
+        if red_tiles is None:
             raise ValueError(
-                "Auf dieser Karte können nicht alle roten Zahlen "
-                "konfliktfrei platziert werden."
+                f"Keine gültige Verteilung für {red_count} rote Zahlen "
+                f"nach {MAX_RESTARTS} Versuchen gefunden. "
+                "Prüfe die Nachbarschaften oder die Karte."
             )
 
         red_numbers = [n for n in numbers if n in (6, 8)]

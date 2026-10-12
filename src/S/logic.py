@@ -410,6 +410,12 @@ class Logic:
         return list(players)
     
     def stealFromPlayer(self, victim):
+        canSteal = False
+        for vertex in self.robberTile.vertices:
+            if vertex.owner == victim:
+                canSteal = True
+        if not canSteal:
+            return
         possible_resources = []
 
         for resource, amount in victim.resources.items():
@@ -425,6 +431,8 @@ class Logic:
         self.current_player.resources[stolen_resource] += 1
 
     def playDevelopmentCard(self, type, res1, res2, player):
+        if (self.würfelMode and not type == "RITTER"):
+            return
         if self.current_player.developmentCards.get(type) == 0 or type == "SIEGPUNKT" or self.playedCard is not None:
             return
         else:

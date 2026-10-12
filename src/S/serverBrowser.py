@@ -1,6 +1,7 @@
 import asyncio
 import json
 import random
+import time
 import websockets
 
 from bot import Bot
@@ -850,7 +851,7 @@ async def handle_message(conn, message):
         player = client_players.get(conn)
 
         # Nur der Host entscheidet, welche Karte gespielt wird.
-        if player is None or not player.is_host:
+        if player is None:
             await send_json(conn, {
                 "type": "error",
                 "message": "Nur der Host darf die Karte auswählen."
@@ -968,7 +969,9 @@ async def handle_message(conn, message):
     if logic.würfelMode and not logic.setupPhase:
         allowed_actions = {
             "roll_dice",
-            "playDevelopmentCard"
+            "playDevelopmentCard",
+            "moveRobber",
+            "steal",
         }
 
         if action not in allowed_actions:
@@ -976,7 +979,6 @@ async def handle_message(conn, message):
     if logic.discardResourcesMode:
         if action != "discardResource":
             return
-    print (logic.goldChoices)
     if any(count > 0 for count in logic.goldChoices.values()):
         if action != "chooseGoldResource":
             return
@@ -1287,6 +1289,7 @@ async def handle_message(conn, message):
                 if c == p.color:
                     noDoubleColor = False
             colors.append(p.color)
+        print (f"NoDoubleColor: {noDoubleColor}")
         if all(client_ready.values()) and len(players) + len(bots) >= 2 and noDoubleColor:
             loading = True
             await broadcast_lobby()
@@ -1317,15 +1320,16 @@ async def handle_message(conn, message):
             logic.setupPhase
             and logic.board.secondSetupPhase
         )
-        success, goldChoices = logic.board.buildSettlement(
-            player,
-            vertex,
-            logic.setupPhase
-        )
-        if second_setup_settlement:
-            logic.goldChoices[player] = goldChoices
-        if logic.setupPhase and success:
-            logic.nextStepSetupPhase()
+        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+            success, goldChoices = logic.board.buildSettlement(
+                player,
+                vertex,
+                logic.setupPhase
+            )
+            if second_setup_settlement:
+                logic.goldChoices[player] = goldChoices
+            if logic.setupPhase and success:
+                logic.nextStepSetupPhase()
 
 
     elif action == "buildRoad":
@@ -1350,35 +1354,36 @@ async def handle_message(conn, message):
             print(f"BUILD ROAD ABGELEHNT: Kante {edgeId} nicht gefunden")
             return
 
-        print(
-            f"BUILD ROAD VERSUCH: Spieler={name}, "
-            f"Kante={edgeId}, Setup={logic.setupPhase}, "
-            f"setUpRoad={logic.setUpRoad}"
-        )
+        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+            print(
+                f"BUILD ROAD VERSUCH: Spieler={name}, "
+                f"Kante={edgeId}, Setup={logic.setupPhase}, "
+                f"setUpRoad={logic.setUpRoad}"
+            )
 
-        success = logic.board.buildRoad(
-            player,
-            edge,
-            logic.setupPhase,
-            logic.freeRoads > 0
-        )
+            success = logic.board.buildRoad(
+                player,
+                edge,
+                logic.setupPhase,
+                logic.freeRoads > 0
+            )
 
-        print(
-            f"BUILD ROAD ERGEBNIS: success={success}, "
-            f"edge.owner={edge.owner}, "
-            f"Spielerstraßen={len(player.roads)}"
-        )
+            print(
+                f"BUILD ROAD ERGEBNIS: success={success}, "
+                f"edge.owner={edge.owner}, "
+                f"Spielerstraßen={len(player.roads)}"
+            )
 
-        if success and logic.freeRoads > 0:
-            logic.freeRoads -= 1
+            if success and logic.freeRoads > 0:
+                logic.freeRoads -= 1
 
-        if logic.setupPhase and success:
-            logic.nextStepSetupPhase()
+            if logic.setupPhase and success:
+                logic.nextStepSetupPhase()
 
-        print(
-            f"SETUP NACH BAU: setUpRoad={logic.setUpRoad}, "
-            f"setUpSettlement={logic.setUpSettlement}"
-        )
+            print(
+                f"SETUP NACH BAU: setUpRoad={logic.setUpRoad}, "
+                f"setUpSettlement={logic.setUpSettlement}"
+            )
 
 
     elif action == "buildCity":
@@ -1390,7 +1395,8 @@ async def handle_message(conn, message):
         for v in logic.board.vertices:
             if v.id == vertexId:
                 vertex = v
-        logic.board.buildCity(player, vertex)
+        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+            logic.board.buildCity(player, vertex)
 
     elif action == "endTurn":
 
@@ -1454,8 +1460,9 @@ async def handle_message(conn, message):
         if (tile != logic.robberTile):
             logic.robberTile = tile
             for vertex in tile.vertices:
-                if vertex.owner != None and vertex.owner != logic.current_player:
-                    logic.stealMode = True
+                if vertex.owner != None:
+                    if vertex.owner != logic.current_player and vertex.owner.countResources() > 0:
+                        logic.stealMode = True
             logic.moveRobberMode = False
 
     elif action == "steal":
@@ -1474,7 +1481,8 @@ async def handle_message(conn, message):
         for p in logic.players:
             if p.name == name:
                 player = p
-        logic.board.buyDevelopmentCard(player)
+        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+            logic.board.buyDevelopmentCard(player)
     elif action == "discardResource":
         name = message["playerName"]
         for p in logic.players:
@@ -1491,7 +1499,8 @@ async def handle_message(conn, message):
             logic.discardResourcesMode = False
             logic.moveRobberMode = True
     elif action == "openPlayerTrade":
-        logic.openPlayerTrade(message["offer"], message["request"])
+        if not logic.würfelMode and not logic.buildPhase:
+            logic.openPlayerTrade(message["offer"], message["request"])
     elif action == "acceptTrade":
         name = message["playerName"]
         for p in logic.players:
@@ -1531,6 +1540,7 @@ async def handle_message(conn, message):
 async def start_game():
     global game_state
 
+    print("start_game funktion aufgerufen")
     # Tatsächlich vorhandene Lobby-Spieler einsammeln.
     # Pro Spieler nur einen Eintrag verwenden.
     connected_players = []
@@ -1578,9 +1588,16 @@ async def start_game():
             )
             return
 
+    start_time = time.perf_counter()
+
+    print("Board-Erstellung gestartet")
     logic.createBoard(
         len(all_participants),
         custom_map
+    )
+    print(
+    f"Board-Erstellung dauerte "
+    f"{time.perf_counter() - start_time:.2f} Sekunden"
     )
 
     shuffled_players = []
@@ -1598,13 +1615,16 @@ async def start_game():
 
         shuffled_players.append(player)
 
+    print("send welcome to all clients")
     logic.players = shuffled_players
 
     game_state = "running"
 
+    print("set gamestate to running")
     logic.start()
     logic.startSetupPhase()
 
+    print("setupphase startet")
     await broadcast_state()
 
 
