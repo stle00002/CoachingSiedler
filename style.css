@@ -1453,33 +1453,31 @@ input {
 }
 
 .die {
-    width: 48px;
-    height: 48px;
-    padding: 7px;
+    width: 60px;
+    height: 60px;
+    padding: 9px;
 
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
-    gap: 2px;
+    gap: 3px;
 
-    background: #f8f8f8;
+    background: #f2f2f2;
     border: 1px solid #bbb;
-    border-radius: 9px;
-
+    border-radius: 11px;
     box-shadow: 0 3px 8px #0005;
 
-    opacity: 0.48;
+    opacity: 1;
     transform: scale(1);
     transition:
-        opacity 0.25s ease,
         background 0.25s ease,
         box-shadow 0.25s ease;
 }
 
 /* Augen der Würfel */
 .die .pip {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     align-self: center;
     justify-self: center;
     border-radius: 50%;
@@ -1548,5 +1546,7 @@ input {
     }
 }
 
-
+button[data-action="roll_dice"] {
+    display: none !important;
+}
 
