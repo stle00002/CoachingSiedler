@@ -561,16 +561,16 @@ function updateResourceGains(s) {
 
         if (!old) continue;
 
-        const gains = RES
+        const changes = RES
             .map(resource => ({
                 resource,
                 amount:
                     (Number(p.resources[resource]) || 0) -
                     (Number(old.resources[resource]) || 0)
             }))
-            .filter(gain => gain.amount > 0);
+            .filter(change => change.amount !== 0);
 
-        if (gains.length === 0) continue;
+        if (changes.length === 0) continue;
 
         console.log("Ressourcengewinn:", p.name, gains);
 
@@ -602,12 +602,12 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
         const popup = document.createElement("span");
         popup.className = "resource-gain-popup";
 
-        for (const gain of gains) {
+        for (const gain of changes) {
             const square = document.createElement("span");
             square.className = "resource-gain-square";
             square.style.background =
                 RESOURCE_COLORS[gain.resource] || "#888";
-            square.textContent = `+${gain.amount}`;
+            square.textContent = `${gain.amount > 0 ? "+" : ""}${gain.amount}`;
             square.title = gain.resource;
             popup.appendChild(square);
         }
