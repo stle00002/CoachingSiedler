@@ -1,0 +1,546 @@
+{
+    "name": "Goldader",
+    "tiles": [
+        {
+            "q": -16,
+            "r": -15,
+            "resource": "WÜSTE"
+        },
+        {
+            "q": -17,
+            "r": -15,
+            "resource": "GOLD"
+        },
+        {
+            "q": -17,
+            "r": -14,
+            "resource": "GOLD"
+        },
+        {
+            "q": -16,
+            "r": -16,
+            "resource": "GOLD"
+        },
+        {
+            "q": -15,
+            "r": -16,
+            "resource": "GOLD"
+        },
+        {
+            "q": -15,
+            "r": -15,
+            "resource": "GOLD"
+        },
+        {
+            "q": -16,
+            "r": -14,
+            "resource": "GOLD"
+        },
+        {
+            "q": -15,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -16,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -17,
+            "r": -17,
+            "resource": null
+        },
+        {
+            "q": -18,
+            "r": -16,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -15,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -14,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -13,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -18,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -16,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -17,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -15,
+            "r": -13,
+            "resource": null
+        },
+        {
+            "q": -14,
+            "r": -14,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -15,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -16,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -17,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -14,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -16,
+            "r": -19,
+            "resource": null
+        },
+        {
+            "q": -17,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -16,
+            "resource": null
+        },
+        {
+            "q": -18,
+            "r": -17,
+            "resource": null
+        },
+        {
+            "q": -20,
+            "r": -15,
+            "resource": null
+        },
+        {
+            "q": -20,
+            "r": -14,
+            "resource": null
+        },
+        {
+            "q": -20,
+            "r": -13,
+            "resource": null
+        },
+        {
+            "q": -20,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -20,
+            "r": -11,
+            "resource": null
+        },
+        {
+            "q": -19,
+            "r": -11,
+            "resource": null
+        },
+        {
+            "q": -18,
+            "r": -11,
+            "resource": null
+        },
+        {
+            "q": -17,
+            "r": -11,
+            "resource": null
+        },
+        {
+            "q": -16,
+            "r": -11,
+            "resource": null
+        },
+        {
+            "q": -15,
+            "r": -12,
+            "resource": null
+        },
+        {
+            "q": -14,
+            "r": -13,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -14,
+            "resource": null
+        },
+        {
+            "q": -12,
+            "r": -15,
+            "resource": null
+        },
+        {
+            "q": -12,
+            "r": -16,
+            "resource": null
+        },
+        {
+            "q": -12,
+            "r": -17,
+            "resource": null
+        },
+        {
+            "q": -12,
+            "r": -18,
+            "resource": null
+        },
+        {
+            "q": -12,
+            "r": -19,
+            "resource": null
+        },
+        {
+            "q": -13,
+            "r": -19,
+            "resource": null
+        },
+        {
+            "q": -14,
+            "r": -19,
+            "resource": null
+        },
+        {
+            "q": -15,
+            "r": -19,
+            "resource": null
+        }
+    ],
+    "harbors": [
+        {
+            "q": -14,
+            "r": -16,
+            "direction": 3,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -15,
+            "r": -17,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -17,
+            "r": -16,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -17,
+            "r": -13,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -15,
+            "r": -14,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -14,
+            "r": -15,
+            "direction": 3,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": -14,
+            "r": -17,
+            "direction": 4,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -16,
+            "r": -17,
+            "direction": 5,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -18,
+            "r": -15,
+            "direction": 6,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": -18,
+            "r": -13,
+            "direction": 1,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -16,
+            "r": -13,
+            "direction": 2,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -18,
+            "r": -14,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -11,
+            "r": -15,
+            "direction": 3,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -11,
+            "r": -20,
+            "direction": 4,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -16,
+            "r": -20,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -21,
+            "r": -15,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -21,
+            "r": -10,
+            "direction": 1,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -16,
+            "r": -10,
+            "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -15,
+            "r": -20,
+            "direction": 5,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -14,
+            "r": -20,
+            "direction": 5,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -13,
+            "r": -20,
+            "direction": 4,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -12,
+            "r": -20,
+            "direction": 4,
+            "resource": "HOLZ",
+            "ratio": 2
+        },
+        {
+            "q": -11,
+            "r": -19,
+            "direction": 4,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": -11,
+            "r": -18,
+            "direction": 4,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": -11,
+            "r": -17,
+            "direction": 3,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": -11,
+            "r": -16,
+            "direction": 3,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": -12,
+            "r": -14,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -13,
+            "r": -13,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -14,
+            "r": -12,
+            "direction": 2,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -15,
+            "r": -11,
+            "direction": 2,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -17,
+            "r": -10,
+            "direction": 2,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -18,
+            "r": -10,
+            "direction": 2,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -19,
+            "r": -10,
+            "direction": 1,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -20,
+            "r": -10,
+            "direction": 1,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -21,
+            "r": -11,
+            "direction": 1,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": -21,
+            "r": -12,
+            "direction": 1,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": -21,
+            "r": -13,
+            "direction": 6,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": -21,
+            "r": -14,
+            "direction": 6,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": -20,
+            "r": -16,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -19,
+            "r": -17,
+            "direction": 6,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -18,
+            "r": -18,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": -17,
+            "r": -19,
+            "direction": 5,
+            "resource": null,
+            "ratio": 3
+        }
+    ]
+}

@@ -5326,7 +5326,7 @@ const MAP_RESOURCE_IMAGES = {
 // Verwendet dieselbe Feldzeichnung wie drawBoard()
 // =========================================================
 
-function drawMapPreview(canvas, tiles) {
+function drawMapPreview(canvas, tiles, harbors = []) {
     const ctx = canvas.getContext("2d");
 
     const width = 340;
@@ -5461,6 +5461,13 @@ function drawMapPreview(canvas, tiles) {
         pos,
         size
     );
+    // Häfen ebenfalls in der Vorschau zeichnen
+drawHarbors(
+    ctx,
+    { harbors: harbors || [] },
+    pos,
+    size
+);
 }
 
 
@@ -5498,7 +5505,7 @@ function renderMapPicker(maps, selectedMap) {
         });
 
         container.appendChild(card);
-        drawMapPreview(canvas, map.tiles);
+        drawMapPreview(canvas, map.tiles, map.harbors || []);    
     }
 }
 
