@@ -3103,7 +3103,18 @@ function mustFinishAction(s) {
     return false;
 }
 function updateActionButtons(s) {
+    if (isSpectator) {
+        document.querySelectorAll(
+            '[data-action], #buildRoundBtn, #tradeButton, #acceptTradeBtn, #declineTradeBtn'
+        ).forEach(button => {
+            button.disabled = true;
+        });
+
+        return;
+    }
     const mep = (s.players || []).find(p => p.name === me);
+
+
 
     if (!mep) return;
 
