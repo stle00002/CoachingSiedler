@@ -442,7 +442,7 @@ function renderPlayerTrade(trade) {
     const declineTradeBtn = $("declineTradeBtn");
     acceptTradeBtn.disabled = false;
     declineTradeBtn.disabled = false;
-    if (tradeDeclined) {
+    if (tradeDeclined || isSpectator) {
       acceptTradeBtn.disabled = true;
       declineTradeBtn.disabled = true;
     } else if (isOwnTrade) {
@@ -3138,7 +3138,7 @@ if (buildRoundButton) {
 
         // Nur Spieler, die Baurunde gewählt haben,
         // dürfen FERTIG drücken.
-        buildRoundButton.disabled = !raised || inSetup || goldChoices || s.würfelMode
+        buildRoundButton.disabled = !raised || inSetup || goldChoices || s.würfelMode || isSpectator
 
     } else {
         // Normale Spielphase
@@ -3146,7 +3146,7 @@ if (buildRoundButton) {
             s.raisedHands?.[String(player_index)] === true;
 
         buildRoundButton.textContent = "Baurunde";
-        buildRoundButton.disabled = raised || inSetup || goldChoices || s.würfelMode;
+        buildRoundButton.disabled = raised || inSetup || goldChoices || s.würfelMode || isSpectator;
     }
 }
 
@@ -3189,7 +3189,7 @@ if (buildRoundButton) {
     // Würfeln nur wenn man selbst dran ist
     if (buttons.roll_dice) {
         buttons.roll_dice.disabled = 
-            (!myTurn || !s.würfelMode || goldChoices);
+            (!myTurn || !s.würfelMode || goldChoices || isSpectator);
     }
 
 
@@ -3199,7 +3199,7 @@ if (buildRoundButton) {
         buttons.buildSettlement.disabled =
             ((!(darfBauenBaurunde && !inSetup) || !hasSettlementResources)&&
             (!myTurn || discarding|| mustRoll || 
-            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources)))|| goldChoices;
+            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources)))|| goldChoices|| isSpectator;
     }
 
 
@@ -3216,7 +3216,7 @@ if (buildRoundButton) {
         buttons.buildRoad.disabled =
             ((!(darfBauenBaurunde && !inSetup) || !hasRoadResources) &&
             (!myTurn || discarding|| mustRoll||
-            (!hasRoadResources && !canBuildFreeRoad)))|| goldChoices;
+            (!hasRoadResources && !canBuildFreeRoad)))|| goldChoices|| isSpectator;
     }
 
 
@@ -3226,7 +3226,7 @@ if (buildRoundButton) {
             ((!(darfBauenBaurunde && !inSetup)|| !hasCityResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll ||
-            !hasCityResources))|| goldChoices;
+            !hasCityResources))|| goldChoices|| isSpectator;
     }
 
 
@@ -3236,20 +3236,20 @@ if (buildRoundButton) {
             ((!(darfBauenBaurunde && !inSetup) || !hasDevelopmentResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll||
-            !hasDevelopmentResources))|| goldChoices;
+            !hasDevelopmentResources))|| goldChoices|| isSpectator;
     }
 
    const tradeButton = document.getElementById("tradeButton");
 
 if (tradeButton) {
-    tradeButton.disabled = !myTurn || mustFinishAction(s)|| goldChoices;
+    tradeButton.disabled = !myTurn || mustFinishAction(s)|| goldChoices|| isSpectator;
 } 
 
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
             !myTurn || discarding|| s.buildPhase||
-            mustFinishAction(s)|| goldChoices;
+            mustFinishAction(s)|| goldChoices|| isSpectator;
     }
 }
 function checkVictory(s) {
