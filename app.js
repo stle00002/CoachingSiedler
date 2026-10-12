@@ -590,7 +590,6 @@ function updateResourceGains(s) {
 
 
 function renderState(s) {
-  updateResourceGains(s);
 
   lastState = s;
 
@@ -643,6 +642,7 @@ wasMyTurn = isMyTurn;
 </div>`
     )
     .join("");
+    updateResourceGains(s);
   $("playerList").innerHTML = players
   .map(
   (p) => `
