@@ -629,7 +629,7 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
                     gainContainer.remove();
                 }
             }, 1200);
-        }, 5000);
+        }, 12000);
     }
     previousResourceSnapshot = currentSnapshot;
 }
