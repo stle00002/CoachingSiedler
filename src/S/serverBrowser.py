@@ -1152,6 +1152,7 @@ async def handle_message(conn, message):
         client_ready[conn] = not client_ready.get(conn, False)
         await broadcast_lobby()
         return
+    
     elif action == "addBot":
         colors = [
             (229, 57, 53),      # rot
@@ -1164,49 +1165,68 @@ async def handle_message(conn, message):
             (255, 92, 168),     # pink
             (17, 17, 17),       # schwarz
             (238, 238, 238),    # weiß
-
-            # Farben 11–15
             (57, 255, 20),      # neongrün
             (121, 85, 72),      # braun
             (20, 43, 140),      # dunkelblau
             (255, 111, 97),     # koralle
             (212, 160, 23),     # gold
-
-            # 10 neue Farben (16–25)
             (152, 255, 204),    # mint
             (181, 126, 220),    # lavendel
             (0, 140, 149),      # türkisblau
-            (128, 0, 32),        # bordeaux
-            (0, 0, 128),         # navy
-            (255, 0, 255),       # magenta
-            (128, 128, 0),       # oliv
-            (168, 169, 173),     # silber
-            (255, 191, 155),     # pfirsich
-            (0, 109, 119)        # petrol
+            (128, 0, 32),       # bordeaux
+            (0, 0, 128),        # navy
+            (255, 0, 255),      # magenta
+            (128, 128, 0),      # oliv
+            (168, 169, 173),    # silber
+            (255, 191, 155),    # pfirsich
+            (0, 109, 119)       # petrol
         ]
 
-        notAvailableColors = []
-        for color in colors:
-            for player in players:
-                if player.color == color:
-                    notAvailableColors.append(color)
-        for color in notAvailableColors:
-            colors.remove(color)
-        if len(bots) == 0:
-            newBot = Bot(f"Nila", colors[(len(players)+ len(bots)) % len(colors)])
-        elif len(bots) == 1:
-            newBot = Bot(f"Amy", colors[(len(players)+ len(bots)) % len(colors)])
-        elif len(bots) == 2:
-            newBot = Bot(f"Fiona", colors[(len(players)+ len(bots)) % len(colors)])
-        elif len(bots) == 3:
-            newBot = Bot(f"Melissa", colors[(len(players)+ len(bots)) % len(colors)])
-        elif len(bots) == 4:
-            newBot = Bot(f"Basti", colors[(len(players)+ len(bots)) % len(colors)])
-        else:
-            newBot = Bot(f"Bot{len(bots) + 1}", colors[(len(players)+ len(bots)) % len(colors)])
+        # Alle bereits verwendeten Farben berücksichtigen:
+        used_colors = {
+            player.color for player in players
+        }
+        used_colors.update(
+            bot.color for bot in bots
+        )
+
+        # Nur noch freie Farben behalten:
+        available_colors = [
+            color for color in colors
+            if color not in used_colors
+        ]
+
+        # Keine freie Farbe mehr vorhanden:
+        if not available_colors:
+            print("Kein Bot hinzugefügt: Keine freie Farbe mehr.")
+            return
+
+        # Bot-Namen vergeben:
+        bot_names = [
+            "Nila",
+            "Amy",
+            "Fiona",
+            "Melissa",
+            "Basti"
+        ]
+
+        bot_name = (
+            bot_names[len(bots)]
+            if len(bots) < len(bot_names)
+            else f"Bot{len(bots) + 1}"
+        )
+
+        # Erste verfügbare Farbe verwenden:
+        newBot = Bot(
+            bot_name,
+            available_colors[0]
+        )
+
         bots.append(newBot)
+
         await broadcast_lobby()
         return
+
     elif action == "removeBot":
         if not len(bots) == 0:
             bots.pop(len(bots)-1)
