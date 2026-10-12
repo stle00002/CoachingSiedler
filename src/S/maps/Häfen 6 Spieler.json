@@ -1,5 +1,5 @@
 {
-    "name": "DreiZuEins",
+    "name": "Häfen 6 Spieler",
     "tiles": [
         {
             "q": -1,
@@ -63,11 +63,6 @@
         },
         {
             "q": 2,
-            "r": -4,
-            "resource": null
-        },
-        {
-            "q": 2,
             "r": -3,
             "resource": null
         },
@@ -184,25 +179,16 @@
         {
             "q": -3,
             "r": 1,
+            "resource": null
+        },
+        {
+            "q": 2,
+            "r": -4,
             "resource": null
         }
     ],
     "harbors": [
         {
-            "q": -2,
-            "r": 2,
-            "direction": 2,
-            "resource": null,
-            "ratio": 3
-        },
-        {
-            "q": -4,
-            "r": 2,
-            "direction": 1,
-            "resource": null,
-            "ratio": 3
-        },
-        {
             "q": -3,
             "r": 2,
             "direction": 2,
@@ -218,13 +204,6 @@
         },
         {
             "q": -4,
-            "r": 0,
-            "direction": 1,
-            "resource": null,
-            "ratio": 3
-        },
-        {
-            "q": -4,
             "r": -1,
             "direction": 6,
             "resource": null,
@@ -234,8 +213,8 @@
             "q": -4,
             "r": -2,
             "direction": 6,
-            "resource": null,
-            "ratio": 3
+            "resource": "SCHAF",
+            "ratio": 2
         },
         {
             "q": -3,
@@ -248,8 +227,8 @@
             "q": -2,
             "r": -4,
             "direction": 5,
-            "resource": null,
-            "ratio": 3
+            "resource": "HOLZ",
+            "ratio": 2
         },
         {
             "q": -1,
@@ -262,8 +241,8 @@
             "q": 0,
             "r": -6,
             "direction": 5,
-            "resource": null,
-            "ratio": 3
+            "resource": "LEHM",
+            "ratio": 2
         },
         {
             "q": 1,
@@ -275,41 +254,27 @@
         {
             "q": 2,
             "r": -6,
+            "direction": 4,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 3,
+            "r": -6,
             "direction": 5,
             "resource": null,
             "ratio": 3
         },
         {
-            "q": 3,
-            "r": -6,
-            "direction": 4,
-            "resource": null,
-            "ratio": 3
-        },
-        {
             "q": 4,
             "r": -6,
             "direction": 4,
-            "resource": null,
-            "ratio": 3
+            "resource": "SCHAF",
+            "ratio": 2
         },
         {
             "q": 4,
             "r": -5,
-            "direction": 4,
-            "resource": null,
-            "ratio": 3
-        },
-        {
-            "q": 4,
-            "r": -4,
-            "direction": 3,
-            "resource": null,
-            "ratio": 3
-        },
-        {
-            "q": 4,
-            "r": -3,
             "direction": 4,
             "resource": null,
             "ratio": 3
@@ -324,9 +289,9 @@
         {
             "q": 3,
             "r": -1,
-            "direction": 3,
-            "resource": null,
-            "ratio": 3
+            "direction": 2,
+            "resource": "SCHAF",
+            "ratio": 2
         },
         {
             "q": 2,
@@ -338,9 +303,9 @@
         {
             "q": 1,
             "r": 1,
-            "direction": 3,
-            "resource": null,
-            "ratio": 3
+            "direction": 2,
+            "resource": "HOLZ",
+            "ratio": 2
         },
         {
             "q": 0,
@@ -353,6 +318,41 @@
             "q": -1,
             "r": 2,
             "direction": 2,
+            "resource": null,
+            "ratio": 3
+        },
+        {
+            "q": 4,
+            "r": -4,
+            "direction": 4,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -4,
+            "r": 0,
+            "direction": 6,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -4,
+            "r": 2,
+            "direction": 1,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": 2,
+            "direction": 2,
+            "resource": "LEHM",
+            "ratio": 2
+        },
+        {
+            "q": 4,
+            "r": -3,
+            "direction": 3,
             "resource": null,
             "ratio": 3
         }

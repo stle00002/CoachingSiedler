@@ -431,10 +431,11 @@ class Board:
         if self.custom_map is not None:
             number_bag = (
                 [2] + [3] * 2 + [4] * 3 + [5] * 4
-                + [6] * 5 + [8] * 5 + [9] * 4
+                + [6] * 2 + [8] * 2 + [9] * 3
                 + [10] * 3 + [11] * 2 + [12]
             )
 
+            random.shuffle(number_bag)
             numbers = []
             while len(numbers) < len(numbered_tiles):
                 numbers.extend(number_bag)

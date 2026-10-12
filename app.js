@@ -589,7 +589,7 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
             continue;
         }
         console.log("NAME-ROW GEFUNDEN:", p.name, nameRow);
-
+        // Container für alle Ressourcen-Popups dieses Spielers
         let gainContainer = nameRow.querySelector(".resource-gain");
 
         if (!gainContainer) {
@@ -598,8 +598,9 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
             nameRow.appendChild(gainContainer);
         }
 
-        // Bereits angezeigte Gewinne dieses Spielers ersetzen.
-        gainContainer.innerHTML = "";
+        // Neues Popup erstellen, ohne bestehende Popups zu verändern
+        const popup = document.createElement("span");
+        popup.className = "resource-gain-popup";
 
         for (const gain of gains) {
             const square = document.createElement("span");
@@ -608,30 +609,28 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
                 RESOURCE_COLORS[gain.resource] || "#888";
             square.textContent = `+${gain.amount}`;
             square.title = gain.resource;
-            gainContainer.appendChild(square);
+            popup.appendChild(square);
         }
-        console.log(
-    "POPUP EINGEFÜGT:",
-    p.name,
-    gainContainer.outerHTML,
-    "Sichtbar:",
-    gainContainer.getBoundingClientRect()
-);
 
-        const key = String(p.id);
+        gainContainer.appendChild(popup);
 
-        clearTimeout(resourceGainTimers.get(key));
-
-        resourceGainTimers.set(key, setTimeout(() => {
-            gainContainer.classList.add("fading");
+        // Jedes Popup hat seinen eigenen Timer
+        setTimeout(() => {
+            popup.classList.add("fading");
 
             setTimeout(() => {
-                gainContainer.remove();
-                resourceGainTimers.delete(key);
-            }, 1200);
-        }, 5000));
-    }
+                popup.remove();
 
+                // Container entfernen, wenn keine Popups mehr existieren
+                if (
+                    gainContainer.isConnected &&
+                    gainContainer.children.length === 0
+                ) {
+                    gainContainer.remove();
+                }
+            }, 1200);
+        }, 5000);
+    }
     previousResourceSnapshot = currentSnapshot;
 }
 

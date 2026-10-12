@@ -19,7 +19,7 @@ PORT = 5555
 MAPS_DIR = Path(__file__).resolve().parent / "maps"
 MAPS_DIR.mkdir(exist_ok=True)
 
-selected_map_name = None
+selected_map_name = "Basic 4 Spieler"
 
 logic = Logic()
 
@@ -864,7 +864,7 @@ async def restart_server():
     # Alten Spielzustand vollständig zurücksetzen.
     game_state = "lobby"
     loading = False
-    selected_map_name = None
+    selected_map_name = "Basic 4 Spieler"
     restart_pending = False
     chat_history.clear()
 

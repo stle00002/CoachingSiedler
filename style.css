@@ -1742,3 +1742,43 @@ button[data-action="roll_dice"] {
     padding-top: 0;
     line-height: 1.4;
 }
+
+.resource-gain {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+.resource-gain-popup {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    animation: resourceGainAppear 0.2s ease-out;
+}
+
+.resource-gain-popup.fading {
+    animation: resourceGainFade 1.2s ease forwards;
+}
+
+@keyframes resourceGainAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes resourceGainFade {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
