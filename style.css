@@ -1674,26 +1674,22 @@ button[data-action="roll_dice"] {
 .iphone .resource-gain {
     gap: 2px;
 }
+/* FIX: Ressourcen-Vierecke neben Spielernamen im laufenden Spiel */
 
-
-/* FIX: Ressourcen-Vierecke neben Spielernamen */
-#players .player-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+#playerList .player-card {
     overflow: visible;
 }
 
-#players .player-name-row {
+#playerList .player-name-row {
     display: flex !important;
     align-items: center;
+    flex-wrap: nowrap;
     gap: 6px;
-    flex: 1;
     min-width: 0;
     overflow: visible;
 }
 
-#players .player-name-row .player-name {
+#playerList .player-name-row .player-name {
     flex: 0 1 auto;
     min-width: 0;
     overflow: hidden;
@@ -1701,23 +1697,36 @@ button[data-action="roll_dice"] {
     text-overflow: ellipsis;
 }
 
-#players .resource-gain {
-    display: flex !important;
+#playerList .resource-gain {
+    display: inline-flex !important;
     flex-shrink: 0;
     align-items: center;
     gap: 3px;
-    opacity: 1;
-    visibility: visible;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
-#players .resource-gain-square {
-    display: flex !important;
+#playerList .resource-gain-square {
+    display: inline-flex !important;
     flex-shrink: 0;
-    width: 23px;
-    height: 23px;
+    width: 23px !important;
+    height: 23px !important;
     align-items: center;
     justify-content: center;
-    color: white;
-    font-size: 12px;
+    box-sizing: border-box;
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: bold;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+    text-shadow: 0 1px 2px #000;
+    box-shadow: 0 1px 3px #0005;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
+.iphone #playerList .resource-gain-square {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 10px !important;
+}
