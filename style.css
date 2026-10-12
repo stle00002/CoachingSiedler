@@ -1634,12 +1634,13 @@ button[data-action="roll_dice"] {
 }
 
 .resource-gain {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 3px;
     flex-shrink: 0;
+
     opacity: 1;
-    transition: opacity 0.8s ease;
+    transition: opacity 1.2s linear;
 }
 
 .resource-gain.fading {
@@ -1729,4 +1730,15 @@ button[data-action="roll_dice"] {
     width: 18px !important;
     height: 18px !important;
     font-size: 10px !important;
+}
+
+#playerList .player-name-row {
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+
+#playerList .player-stats {
+    margin-top: 0;
+    padding-top: 0;
+    line-height: 1.4;
 }

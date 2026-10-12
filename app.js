@@ -586,10 +586,9 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
 
             setTimeout(() => {
                 gainContainer.remove();
-            }, 800);
-
-            resourceGainTimers.delete(key);
-        }, 2000));
+                resourceGainTimers.delete(key);
+            }, 1200);
+        }, 5000));
     }
 
     previousResourceSnapshot = currentSnapshot;
@@ -659,12 +658,11 @@ $("playerList").innerHTML = players
                         ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
                     </b>
                 </div>
-                <br>
-                <span>
+                <div class="player-stats">
                     ${p.countResources || 0} Karten<br>
                     ${p.countDevelopmentCards || 0} Entwicklungskarten<br>
                     ${p.knights || 0} Ritter
-                </span>
+                </div>
             </div>
         `
     )
