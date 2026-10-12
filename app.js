@@ -3645,9 +3645,7 @@ if (!harbor.resource) {
     ctx.textBaseline = "middle";
 
     ctx.fillStyle = "#222";
-    ctx.font =
-        `bold ${Math.max(18, size * 0.32)}px Georgia`;
-
+    ctx.font = `bold ${size * 0.32}px Georgia`;
     ctx.fillText(
         "?",
         0,
@@ -3681,8 +3679,7 @@ if (!harbor.resource) {
     ctx.textBaseline = "middle";
 
     ctx.fillStyle = "#ffffff";
-    ctx.font =
-        `bold ${Math.max(16, size * 0.39)}px Georgia`;
+    ctx.font = `bold ${size * 0.39}px Georgia`;
 
     ctx.fillText(
         `${harbor.ratio}:1`,
