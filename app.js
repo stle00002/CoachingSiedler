@@ -675,6 +675,8 @@ wasMyTurn = isMyTurn;
 }
   
   const players = s.players || [];
+  // Ressourcenänderungen erkennen, bevor die Spielerliste ersetzt wird
+updateResourceGains(s);
   $("players").innerHTML = players
     .map(
       (p) =>
@@ -688,6 +690,21 @@ wasMyTurn = isMyTurn;
 </div>`
     )
     .join("");
+// Vorhandene Ressourcen-Popups sichern
+const savedPopups = new Map();
+
+$("playerList").querySelectorAll(".player-card").forEach(row => {
+    const container = row.querySelector(".resource-gain");
+
+    if (container) {
+        savedPopups.set(
+            row.dataset.playerId,
+            container
+        );
+    }
+});
+
+// Spielerliste neu aufbauen
 $("playerList").innerHTML = players
     .map(
         (p) => `
@@ -708,7 +725,14 @@ $("playerList").innerHTML = players
     )
     .join("");
 
-updateResourceGains(s);
+// Vorhandene Popups wieder einsetzen
+$("playerList").querySelectorAll(".player-card").forEach(row => {
+    const container = savedPopups.get(row.dataset.playerId);
+
+    if (container) {
+        row.querySelector(".player-name-row").appendChild(container);
+    }
+});
   const mep = players.find((p) => p.name === me);
   if (mep) {
     $("resources").innerHTML =
