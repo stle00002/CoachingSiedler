@@ -1613,3 +1613,64 @@ button[data-action="roll_dice"] {
     padding: 0 0 12px;
     border-bottom: 1px solid #6c4b2c;
 }
+
+/* =========================================================
+   RESSOURCENERTRAG NEBEN DEM SPIELERNAMEN
+   ========================================================= */
+
+.player-name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.player-name-row .player-name {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.resource-gain {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+    opacity: 1;
+    transition: opacity 0.8s ease;
+}
+
+.resource-gain.fading {
+    opacity: 0;
+}
+
+.resource-gain-square {
+    width: 23px;
+    height: 23px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px #000;
+    box-shadow: 0 1px 3px #0005;
+}
+
+.iphone .resource-gain-square {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+}
+
+.iphone .player-name-row {
+    gap: 4px;
+}
+
+.iphone .resource-gain {
+    gap: 2px;
+}

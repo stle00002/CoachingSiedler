@@ -493,8 +493,114 @@ function declinePlayerTrade() {
   tradeDeclined = true;
   closeModal();
 }
+
+let previousResourceSnapshot = null;
+const resourceGainTimers = new Map();
+
+function updateResourceGains(s) {
+    const players = s.players || [];
+
+    const currentSnapshot = players.map(p => ({
+        id: p.id,
+        name: p.name,
+        color: p.color,
+        resources: { ...(p.resources || {}) }
+    }));
+
+    // Beim ersten State nur den Ausgangsstand speichern.
+    if (previousResourceSnapshot === null) {
+        previousResourceSnapshot = currentSnapshot;
+        return;
+    }
+
+    for (const p of currentSnapshot) {
+        const old = previousResourceSnapshot.find(
+            player => player.id === p.id
+        );
+
+        if (!old) continue;
+
+        const gains = RES
+            .map(resource => ({
+                resource,
+                amount:
+                    (Number(p.resources[resource]) || 0) -
+                    (Number(old.resources[resource]) || 0)
+            }))
+            .filter(gain => gain.amount > 0);
+
+        if (gains.length === 0) continue;
+
+        // Spielerzeile in der linken Spielerliste finden.
+        const playerRows = $("players").querySelectorAll(".player-row");
+        const row = playerRows[p.id];
+
+        if (!row) continue;
+
+        // Vorhandene Pop-ups dieses Spielers ersetzen.
+        const oldGain = row.querySelector(".resource-gain");
+        if (oldGain) oldGain.remove();
+
+        const gainContainer = document.createElement("span");
+        gainContainer.className = "resource-gain";
+
+        for (const gain of gains) {
+            const square = document.createElement("span");
+            square.className = "resource-gain-square";
+            square.style.background =
+                RESOURCE_COLORS[gain.resource] || "#888";
+            square.textContent = `+${gain.amount}`;
+            square.title = gain.resource;
+
+            gainContainer.appendChild(square);
+        }
+
+        // Neben dem Spielernamen platzieren.
+        const name = row.querySelector(".player-name") ||
+                     row.querySelector("b");
+
+        if (!name) continue;
+
+        let nameRow = name.closest(".player-name-row");
+
+        // Falls noch kein Wrapper vorhanden ist, einen erstellen.
+        if (!nameRow) {
+            nameRow = document.createElement("div");
+            nameRow.className = "player-name-row";
+            name.parentNode.insertBefore(nameRow, name);
+            nameRow.appendChild(name);
+        }
+
+        nameRow.appendChild(gainContainer);
+
+        const timerKey = String(p.id);
+
+        if (resourceGainTimers.has(timerKey)) {
+            clearTimeout(resourceGainTimers.get(timerKey));
+        }
+
+        // Nach 2 Sekunden ausblenden, dann entfernen.
+        const timer = setTimeout(() => {
+            gainContainer.classList.add("fading");
+
+            setTimeout(() => {
+                gainContainer.remove();
+            }, 800);
+
+            resourceGainTimers.delete(timerKey);
+        }, 2000);
+
+        resourceGainTimers.set(timerKey, timer);
+    }
+
+    previousResourceSnapshot = currentSnapshot;
+}
+
+
 function renderState(s) {
   lastState = s;
+  updateResourceGains(s);
+
   renderChatHistory(s.chat_history || []);
   renderDiceStatistics(s.dices || {});
   updateDice(s);
@@ -534,7 +640,14 @@ wasMyTurn = isMyTurn;
   $("players").innerHTML = players
     .map(
       (p) =>
-        `<div class="player-row"><span class="dot" style="background:${colorCss(p.color)}"></span><b>${esc(p.name)}</b><span>${p.ready ? "✓ bereit" : ""}${p.is_host ? " 👑" : ""}</span></div>`,
+
+`<div class="player-row">
+    <span class="dot" style="background:${colorCss(p.color)}"></span>
+    <div class="player-name-row">
+        <b class="player-name">${esc(p.name)}</b>
+    </div>
+    <span>${p.ready ? "✓ bereit" : ""}${p.is_host ? " 👑" : ""}</span>
+</div>`
     )
     .join("");
   $("playerList").innerHTML = players
