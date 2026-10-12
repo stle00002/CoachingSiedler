@@ -1438,19 +1438,23 @@ input {
 
 
 /* Würfel-Overlay unten rechts am Spielfeld */
-.dice-overlay {
-    position: absolute;
-    right: 18px;
-    bottom: 18px;
-    z-index: 100;
 
+/* Würfel normal über den Ressourcen in der rechten Sidebar */
+.dice-overlay {
+    position: static;
     display: flex;
+    justify-content: center;
     align-items: center;
     gap: 10px;
 
-    pointer-events: auto;
-    cursor: pointer;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 5px 0;
+
+    z-index: auto;
+    cursor: default;
 }
+
 
 .die {
     width: 60px;
