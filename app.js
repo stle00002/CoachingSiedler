@@ -135,10 +135,13 @@ $("name").value = me;
 
 
 function send(type, extra = {}) {
-  if (isSpectator && type !== "join") {
+if (
+    isSpectator &&
+    !["join", "chat_message"].includes(type)
+) {
     console.log("Zuschaueraktion blockiert:", type);
     return;
-  }
+}
 
   if (ws && ws.readyState === 1) {
     console.log("Nachricht wird gesendet:", type);
