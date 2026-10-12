@@ -4771,6 +4771,15 @@ for (const tile of mapBuilder.tiles.values()) {
     const img = TILE_IMAGES[resource];
 
     if (img && img.complete && img.naturalWidth > 0) {
+        if (tile.resource == "GOLD"){
+            ctx.drawImage(
+                    img,
+                    p.x - size * 1.54,
+                    p.y - size * 1.05,
+                    size * 3.08,
+                    size * 2.1
+                );
+        }
         ctx.drawImage(
             img,
             p.x - size * 0.9,

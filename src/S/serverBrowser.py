@@ -807,20 +807,34 @@ async def restart_server():
 
     print("🔄 Setze Spiel zurück und übernehme Spieler in die Lobby ...")
 
-    # Nur noch tatsächlich verbundene menschliche Spieler behalten.
+
     lobby_players = []
     seen_players = set()
+    new_client_players = {}
 
     for conn, player in list(client_players.items()):
         if conn not in clients:
             continue
 
-        # Jeden Spieler nur einmal übernehmen.
-        if player in seen_players:
+        if player.name in seen_players:
             continue
 
-        lobby_players.append(player)
-        seen_players.add(player)
+        # Frisches Spielerobjekt ohne alte Siegpunkte,
+        # Ressourcen, Straßen, Siedlungen und Entwicklungskarten.
+        new_player = Player(
+            player.name,
+            player.color,
+            player.is_host
+        )
+
+        lobby_players.append(new_player)
+        new_client_players[conn] = new_player
+        seen_players.add(player.name)
+
+    # Auch die Verbindungen müssen auf die neuen Objekte zeigen.
+    client_players.clear()
+    client_players.update(new_client_players)
+
 
     # Spielobjekt zurücksetzen.
     logic = Logic()
