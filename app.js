@@ -703,37 +703,59 @@ $("playerList").querySelectorAll(".player-card").forEach(row => {
         );
     }
 });
+const playerList = $("playerList");
 
-// Spielerliste neu aufbauen
-$("playerList").innerHTML = players
-    .map(
-        (p) => `
-            <div class="player-card" data-player-id="${p.id}">
-                <div class="player-name-row">
-                    <b class="player-name" style="color:${colorCss(p.color)}">
-                        ${esc(p.name)} ${esc(p.victoryPoints || 0)}
-                        ${isCurrent(p) ? ' <span class="turn-arrow">←</span>' : ''}
-                    </b>
-                </div>
-                <div class="player-stats">
-                    ${p.countResources || 0} Karten<br>
-                    ${p.countDevelopmentCards || 0} Entwicklungskarten<br>
-                    ${p.knights || 0} Ritter
-                </div>
+players.forEach(p => {
+    let row = [...playerList.querySelectorAll(".player-card")]
+        .find(el => el.dataset.playerId === String(p.id));
+
+    if (!row) {
+        row = document.createElement("div");
+        row.className = "player-card";
+        row.dataset.playerId = p.id;
+
+        row.innerHTML = `
+            <div class="player-name-row">
+                <b class="player-name"></b>
             </div>
-        `
-    )
-    .join("");
+            <div class="player-stats"></div>
+        `;
 
-// Vorhandene Popups wieder einsetzen
-$("playerList").querySelectorAll(".player-card").forEach(row => {
-    const container = savedPopups.get(row.dataset.playerId);
+        playerList.appendChild(row);
+    }
 
-    if (container) {
-        row.querySelector(".player-name-row").appendChild(container);
+    const name = row.querySelector(".player-name");
+    name.style.color = colorCss(p.color);
+
+    // Nur den Text und den Zugpfeil aktualisieren,
+    // ohne die player-name-row oder Popups zu ersetzen.
+    name.textContent = `${p.name} ${p.victoryPoints || 0} `;
+
+    if (isCurrent(p)) {
+        const arrow = document.createElement("span");
+        arrow.className = "turn-arrow";
+        arrow.textContent = "←";
+        name.appendChild(arrow);
+    }
+
+    const stats = row.querySelector(".player-stats");
+    stats.innerHTML = `
+        ${p.countResources || 0} Karten<br>
+        ${p.countDevelopmentCards || 0} Entwicklungskarten<br>
+        ${p.knights || 0} Ritter
+    `;
+});
+
+// Spieler entfernen, die nicht mehr im State vorhanden sind
+const playerIds = new Set(players.map(p => String(p.id)));
+
+playerList.querySelectorAll(".player-card").forEach(row => {
+    if (!playerIds.has(row.dataset.playerId)) {
+        row.remove();
     }
 });
-  const mep = players.find((p) => p.name === me);
+
+ const mep = players.find((p) => p.name === me);
   if (mep) {
     $("resources").innerHTML =
   '<h3>Ressourcen</h3><div class="resources">' +
