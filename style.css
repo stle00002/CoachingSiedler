@@ -118,8 +118,11 @@ input {
   color: #222;
 }
 .game-screen {
-  height: 100dvh;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
 }
+
 .topbar {
   height: 54px;
   background: #241a12;
@@ -135,7 +138,7 @@ input {
   font-size: 25px;
 }
 .layout {
-    height: calc(100dvh - 54px);
+    height: 100%;
     min-height: 0;
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr) 250px;
@@ -1563,4 +1566,29 @@ button[data-action="roll_dice"] {
 
 .map-list::-webkit-scrollbar {
     display: none;              /* Chrome, Safari, Opera */
+}
+
+/* COACHING-Schrift in der linken Sidebar */
+.sidebar-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #6c4b2c;
+}
+
+.sidebar-brand b {
+    font-family: Georgia, serif;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    color: #e9bf72;
+    text-shadow: 0 3px 0 #432b17;
+    line-height: 1.2;
+}
+
+.sidebar-brand #turnText {
+    font-size: 13px;
+    color: #c6a477;
 }
