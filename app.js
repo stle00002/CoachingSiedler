@@ -748,7 +748,6 @@ $("devCards").querySelectorAll(".dev-card-name").forEach((card) => {
   } else $("game").classList.add("hidden");
   $("turnText").textContent = s.current_player ? ` · ${s.current_player}` : "";
   $("phaseText").textContent = phaseText(s);
-  $("diceText").textContent = s.dice ? `Wurf: ${s.dice}` : "–";
   updatePrompt(s);
 }
 function phaseText(s) {
@@ -3204,7 +3203,7 @@ if (buildRoundButton) {
     // Würfeln nur wenn man selbst dran ist
     if (buttons.roll_dice) {
         buttons.roll_dice.disabled = 
-            (!myTurn || !s.würfelMode || goldChoices || isSpectator);
+            (!myTurn || !s.würfelMode || goldChoices||s.stealMode || s.moveRobberMode);
     }
 
 
@@ -3214,7 +3213,7 @@ if (buildRoundButton) {
         buttons.buildSettlement.disabled =
             ((!(darfBauenBaurunde && !inSetup) || !hasSettlementResources)&&
             (!myTurn || discarding|| mustRoll || 
-            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources)))|| goldChoices|| isSpectator;
+            (!(inSetup &&s.setUpSettlement) && !hasSettlementResources)))|| goldChoices || s.moveRobberMode ||s.stealMode;
     }
 
 
@@ -3231,7 +3230,7 @@ if (buildRoundButton) {
         buttons.buildRoad.disabled =
             ((!(darfBauenBaurunde && !inSetup) || !hasRoadResources) &&
             (!myTurn || discarding|| mustRoll||
-            (!hasRoadResources && !canBuildFreeRoad)))|| goldChoices|| isSpectator;
+            (!hasRoadResources && !canBuildFreeRoad)))|| goldChoices|| s.moveRobberMode||s.stealMode;
     }
 
 
@@ -3241,7 +3240,7 @@ if (buildRoundButton) {
             ((!(darfBauenBaurunde && !inSetup)|| !hasCityResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll ||
-            !hasCityResources))|| goldChoices|| isSpectator;
+            !hasCityResources))|| goldChoices|| s.moveRobberMode||s.stealMode;
     }
 
 
@@ -3251,20 +3250,20 @@ if (buildRoundButton) {
             ((!(darfBauenBaurunde && !inSetup) || !hasDevelopmentResources) &&
             (!myTurn ||
             inSetup || discarding|| mustRoll||
-            !hasDevelopmentResources))|| goldChoices|| isSpectator;
+            !hasDevelopmentResources))|| goldChoices|| s.moveRobberMode||s.stealMode;
     }
 
    const tradeButton = document.getElementById("tradeButton");
 
 if (tradeButton) {
-    tradeButton.disabled = !myTurn || mustFinishAction(s)|| goldChoices|| isSpectator;
+    tradeButton.disabled = !myTurn || mustFinishAction(s)|| goldChoices|| s.moveRobberMode || s.buildPhase||s.stealMode;
 } 
 
     // Zug beenden
     if (buttons.endTurn) {
         buttons.endTurn.disabled =
             !myTurn || discarding|| s.buildPhase||
-            mustFinishAction(s)|| goldChoices|| isSpectator;
+            mustFinishAction(s)|| goldChoices || s.moveRobberMode||s.stealMode;
     }
 }
 function checkVictory(s) {
