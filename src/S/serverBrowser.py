@@ -1322,7 +1322,7 @@ async def handle_message(conn, message):
             logic.setupPhase
             and logic.board.secondSetupPhase
         )
-        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
             success, goldChoices = logic.board.buildSettlement(
                 player,
                 vertex,
@@ -1356,7 +1356,7 @@ async def handle_message(conn, message):
             print(f"BUILD ROAD ABGELEHNT: Kante {edgeId} nicht gefunden")
             return
 
-        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
             print(
                 f"BUILD ROAD VERSUCH: Spieler={name}, "
                 f"Kante={edgeId}, Setup={logic.setupPhase}, "
@@ -1397,7 +1397,7 @@ async def handle_message(conn, message):
         for v in logic.board.vertices:
             if v.id == vertexId:
                 vertex = v
-        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
             logic.board.buildCity(player, vertex)
 
     elif action == "endTurn":
@@ -1483,7 +1483,7 @@ async def handle_message(conn, message):
         for p in logic.players:
             if p.name == name:
                 player = p
-        if player == logic.current_player or (logic.buildPhase and logic.raiseHands[player] == True):
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
             logic.board.buyDevelopmentCard(player)
     elif action == "discardResource":
         name = message["playerName"]
