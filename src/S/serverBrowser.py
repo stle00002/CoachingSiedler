@@ -803,40 +803,62 @@ async def restart_server():
     global chat_history
 
     print("🏆 Gewinner erkannt! Neustart in 10 Sekunden.")
-
     await asyncio.sleep(10)
 
-    print("🔄 Setze Server und Spiel zurück ...")
+    print("🔄 Setze Spiel zurück und übernehme Spieler in die Lobby ...")
 
-    # Alle verbundenen Clients zurück in die Lobby schicken
-    for client in list(clients):
-        try:
-            await send_json(client, {
-                "type": "server_restart",
-                "message": "Das Spiel wurde beendet. Der Server wird zurückgesetzt."
-            })
-        except Exception:
-            pass
+    # Nur noch tatsächlich verbundene menschliche Spieler behalten.
+    lobby_players = []
+    seen_players = set()
 
-    # Alten Spielzustand vollständig verwerfen
+    for conn, player in list(client_players.items()):
+        if conn not in clients:
+            continue
+
+        # Jeden Spieler nur einmal übernehmen.
+        if player in seen_players:
+            continue
+
+        lobby_players.append(player)
+        seen_players.add(player)
+
+    # Spielobjekt zurücksetzen.
     logic = Logic()
 
-    players.clear()
+    # Dieselben Spielerobjekte mit ihren Namen und Farben behalten.
+    players[:] = lobby_players
+
+    # Den ersten Spieler wieder zum Host machen.
+    for i, player in enumerate(players):
+        player.is_host = (i == 0)
+
+    # Bots aus dem alten Spiel entfernen.
     bots.clear()
+
+    # Veraltete Verbindungszuordnungen entfernen.
+    for conn in list(client_players):
+        if conn not in clients:
+            client_players.pop(conn, None)
+
+    # Alle menschlichen Spieler müssen erneut Ready drücken.
     client_ready.clear()
-    chat_history.clear()
 
-    # Verbindungszuordnungen entfernen
-    client_players.clear()
+    for conn in client_players:
+        if conn in clients:
+            client_ready[conn] = False
 
-    # Spielstatus zurücksetzen
+    # Alten Spielzustand vollständig zurücksetzen.
     game_state = "lobby"
     loading = False
     selected_map_name = None
     restart_pending = False
+    chat_history.clear()
 
-    print("✅ Server zurückgesetzt. Neue Lobby ist bereit.")
+    print("✅ Server zurückgesetzt.")
+    print("Übernommene Spieler:", [p.name for p in players])
+    print("Verbundene Spieler:", len(client_players))
 
+    # Allen verbundenen Clients die Lobby erneut schicken.
     await broadcast_lobby()
 # -------------------------
 # Nachrichten verarbeiten
@@ -977,12 +999,37 @@ async def handle_message(conn, message):
 
                 return
 
+
+            # Neuer Spieler während einer laufenden Partie:
+            # als Zuschauer beitreten, ohne Spielerobjekt anzulegen.
+
+            print(f"Zuschauer beigetreten: {name}")
+
+            # Verbindung registrieren, damit der Zuschauer Updates erhält.
+            clients.add(conn)
+
+            # Absichtlich KEIN Eintrag in client_players:
+            # Zuschauer dürfen keine Spielaktionen ausführen.
+
             await send_json(conn, {
-                "type": "error",
-                "message": "Spieler nicht im laufenden Spiel gefunden."
+                "action": "welcome",
+                "in_game": True,
+                "spectator": True
             })
 
+            # Aktuellen Spielstand sofort übertragen.
+            await send_state(conn)
             return
+
+
+        # Zuschauer dürfen keine Spielaktionen ausführen.
+    # Bot-Aktionen mit conn=None bleiben erlaubt.
+    if (
+        conn is not None
+        and game_state == "running"
+        and conn not in client_players
+    ):
+        return
 
         
     if action == "chat_message":

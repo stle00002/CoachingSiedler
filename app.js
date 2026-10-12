@@ -9,7 +9,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-
+let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
 const DESKTOP_BOARD_SIZE = 35.2212389380531;
 
@@ -132,10 +132,21 @@ let ws = null,
   lastState = null;
 const $ = (id) => document.getElementById(id);
 $("name").value = me;
+
+
 function send(type, extra = {}) {
+  if (isSpectator && type !== "join") {
+    console.log("Zuschaueraktion blockiert:", type);
+    return;
+  }
+
   if (ws && ws.readyState === 1) {
-    console.log("message is definetly send");ws.send(JSON.stringify({ type, ...extra }))};
+    console.log("Nachricht wird gesendet:", type);
+    ws.send(JSON.stringify({ type, ...extra }));
+  }
 }
+
+
 let player_index = null;
 let reconnectTimer = null;
 let reconnectDelay = 1000;
@@ -193,6 +204,11 @@ function connect() {
 else if (m.action === "lobby_update") {
     console.log("LOBBY UPDATE:", m.players);
 
+    // Zuschauer und bereits im Spiel befindliche Spieler
+    // dürfen nicht zurück in die Lobby wechseln.
+    if (isSpectator) {
+        return;
+    }
 if ($("victoryTrophy")) {
     $("victoryTrophy").src = "images/pokal.png";
 }
@@ -219,23 +235,33 @@ if ($("victoryText")) {
 
 
 else if (m.action === "welcome") {
-
   document.getElementById("join-row").style.display = "none";
 
-  player_index = m.player_index;
+  isSpectator = m.spectator === true;
+  player_index = m.player_index ?? null;
 
   if (m.in_game) {
-    // Wir sind bereits mitten im Spiel.
-    // KEINE Lobby anzeigen.
+    // Laufendes Spiel: Spieler oder Zuschauer
     document.getElementById("lobby-actions").style.display = "none";
     document.getElementById("colors").style.display = "none";
+
+    document.getElementById("lobby").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+
+    if (isSpectator) {
+      console.log("Als Zuschauer verbunden");
+    }
   } else {
-    // Normales Verbinden in der Lobby
+    // Normale Lobby
+    isSpectator = false;
     document.getElementById("lobby-actions").style.display = "block";
     document.getElementById("colors").style.display = "block";
   }
 
-  console.log("Verbunden");
+  console.log("Verbunden", {
+    spectator: isSpectator,
+    player_index
+  });
 }
 
     } catch (err) {
