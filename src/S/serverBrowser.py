@@ -860,6 +860,8 @@ async def handle_message(conn, message):
 
         name = message.get("name")
         custom_map = load_custom_map(name)
+        selected_map_name = custom_map["name"]
+
         await broadcast_lobby()
 
         if custom_map is None:

@@ -1011,7 +1011,7 @@ input {
     flex: 0 0 170px;
     min-width: 0;
     padding: 8px;
-    border: 8px solid #594b3a;
+    border: 5px solid #594b3a;
     border-radius: 10px;
     background: #e7d5b5;
     color: #382b20;
@@ -1551,3 +1551,12 @@ button[data-action="roll_dice"] {
     display: none !important;
 }
 
+/* Scrollbar der Kartenliste im Lobby-Preview ausblenden */
+.map-list {
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* Älteres Edge */
+}
+
+.map-list::-webkit-scrollbar {
+    display: none;              /* Chrome, Safari, Opera */
+}
