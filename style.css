@@ -1832,7 +1832,7 @@ button[data-action="roll_dice"] {
 
 .development-box {
     background: #2f2e2e;
-    border: 3px solid #ffffff;
+    border: 2px solid #ffffff;
 }
 
 .inventory-box.losing {
@@ -1862,4 +1862,14 @@ button[data-action="roll_dice"] {
     width: 20px;
     height: 30px;
     flex: 0 0 auto;
+}
+
+.inventory-box,
+.knight-card {
+    border: 2px solid #ffffff;
+    box-sizing: border-box;
+}
+
+.development-box {
+    background: #2f2e2e;
 }
