@@ -644,113 +644,30 @@ const RESOURCE_NAMES = {
     ERZ: "Erz",
     GOLD: "Gold"
 };
-
 function updatePlayerCardVisuals(p, row) {
-const id = String(p.id);
-const resources = p.resources || {};
-const resourceGroups = row.querySelector(".resource-card-groups");
-const developmentBoxes = row.querySelector(".development-card-boxes");
+    const id = String(p.id);
+    const resources = p.resources || {};
+    const resourceGroups = row.querySelector(".resource-card-groups");
+    const developmentBoxes = row.querySelector(".development-card-boxes");
 
-let previous = cardVisualPrevious.get(id);
+    let previous = cardVisualPrevious.get(id);
 
-// Eine gemeinsame Reihe für alle Ressourcen
-let boxRow = resourceGroups.querySelector(".resource-card-row");
+    // Gemeinsame Ressourcenreihe
+    let boxRow = resourceGroups.querySelector(".resource-card-row");
 
-if (!boxRow) {
-    boxRow = document.createElement("div");
-    boxRow.className = "resource-card-row";
-    resourceGroups.appendChild(boxRow);
-}
-
-    // Entwicklungsboxen und Ressourcenboxen einmalig initialisieren
-    if (!previous) {
-        for (const resource of RES) {
-            const boxRow = resourceGroups.querySelector(".resource-card-row");
-            const count = Math.max(0, Number(resources[resource]) || 0);
-
-            for (let i = boxRow.children.length; i < count; i++) {
-                const box = document.createElement("span");
-                box.className = "inventory-box resource-box";
-                boxRow.appendChild(box);
-            }
-        }
-
-        const dcCount = Math.max(
-            0,
-            Number(p.countDevelopmentCards) ||
-            Object.values(p.developmentCards || {}).reduce(
-                (sum, n) => sum + (Number(n) || 0), 0
-            )
-        );
-
-        for (let i = 0; i < dcCount; i++) {
-            const box = document.createElement("span");
-            box.className = "inventory-box development-box";
-            developmentBoxes.appendChild(box);
-        }
-
-        cardVisualPrevious.set(id, {
-            resources: { ...resources },
-            dcCount
-        });
-
-        return;
+    if (!boxRow) {
+        boxRow = document.createElement("div");
+        boxRow.className = "resource-card-row";
+        resourceGroups.appendChild(boxRow);
     }
 
-    // Ressourcenänderungen verarbeiten
-    for (const resource of RES) {
-        const oldCount = Math.max(
-            0, Number(previous.resources[resource]) || 0
-        );
-        const newCount = Math.max(
-            0, Number(resources[resource]) || 0
-        );
-        const delta = newCount - oldCount;
+    // Alle Ressourcen zusammenzählen
+    const resourceCount = RES.reduce(
+        (sum, resource) => sum + Math.max(0, Number(resources[resource]) || 0),
+        0
+    );
 
-        const boxRow = resourceGroups.querySelector(".resource-card-row");
-        if (delta > 0) {
-            for (let i = 0; i < delta; i++) {
-                const box = document.createElement("span");
-                box.className = "inventory-box resource-box gained";
-                box.style.background =
-                    RESOURCE_COLORS[resource] || "#888";
-
-                boxRow.appendChild(box);
-
-                box._colorTimer = setTimeout(() => {
-                    if (!box.isConnected || box.classList.contains("losing")) {
-                        return;
-                    }
-
-                    box.classList.remove("gained");
-                    box.style.background = "#777";
-                }, 5000);
-            }
-        } else if (delta < 0) {
-            let toLose = -delta;
-
-            // Zuerst die zuletzt erhaltenen Karten markieren
-            const boxes = [...boxRow.children].reverse();
-
-            for (const box of boxes) {
-                if (toLose <= 0) break;
-                if (box.classList.contains("losing")) continue;
-
-                clearTimeout(box._colorTimer);
-                box.classList.remove("gained");
-                box.classList.add("losing");
-                box.style.background = "#e53935";
-
-                toLose--;
-
-                setTimeout(() => {
-                    box.remove();
-                }, 1200);
-            }
-        }
-    }
-
-    // Anzahl der Entwicklungskarten bestimmen
+    // Entwicklungskarten zählen
     const dcCount = Math.max(
         0,
         Number(p.countDevelopmentCards) ||
@@ -759,6 +676,78 @@ if (!boxRow) {
         )
     );
 
+    // Erstmalige Initialisierung
+    if (!previous) {
+        // Vorhandene Boxen an die tatsächliche Kartenanzahl anpassen
+        while (boxRow.children.length < resourceCount) {
+            const box = document.createElement("span");
+            box.className = "inventory-box resource-box";
+            boxRow.appendChild(box);
+        }
+
+        while (boxRow.children.length > resourceCount) {
+            boxRow.lastElementChild.remove();
+        }
+
+        while (developmentBoxes.children.length < dcCount) {
+            const box = document.createElement("span");
+            box.className = "inventory-box development-box";
+            developmentBoxes.appendChild(box);
+        }
+
+        while (developmentBoxes.children.length > dcCount) {
+            developmentBoxes.lastElementChild.remove();
+        }
+
+        cardVisualPrevious.set(id, {
+            resources: { ...resources },
+            resourceCount,
+            dcCount
+        });
+
+        return;
+    }
+
+    // Änderung der Gesamtzahl der Ressourcenkarten
+    const oldResourceCount = previous.resourceCount ??
+        Object.values(previous.resources || {}).reduce(
+            (sum, n) => sum + Math.max(0, Number(n) || 0), 0
+        );
+
+    const resourceDelta = resourceCount - oldResourceCount;
+
+    if (resourceDelta > 0) {
+        for (let i = 0; i < resourceDelta; i++) {
+            const box = document.createElement("span");
+            box.className = "inventory-box resource-box gained";
+            box.style.background = "#32b44a";
+            boxRow.appendChild(box);
+
+            box._colorTimer = setTimeout(() => {
+                if (!box.isConnected || box.classList.contains("losing")) return;
+
+                box.classList.remove("gained");
+                box.style.background = "#777";
+            }, 5000);
+        }
+    } else if (resourceDelta < 0) {
+        let toLose = -resourceDelta;
+
+        for (const box of [...boxRow.children].reverse()) {
+            if (toLose <= 0) break;
+            if (box.classList.contains("losing")) continue;
+
+            clearTimeout(box._colorTimer);
+            box.classList.remove("gained");
+            box.classList.add("losing");
+            box.style.background = "#e53935";
+            toLose--;
+
+            setTimeout(() => box.remove(), 1200);
+        }
+    }
+
+    // Änderung der Entwicklungskarten
     const dcDelta = dcCount - previous.dcCount;
 
     if (dcDelta > 0) {
@@ -787,10 +776,10 @@ if (!boxRow) {
 
     cardVisualPrevious.set(id, {
         resources: { ...resources },
+        resourceCount,
         dcCount
     });
 }
-
 function renderState(s) {
 
   lastState = s;
