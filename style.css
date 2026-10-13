@@ -1852,7 +1852,7 @@ button[data-action="roll_dice"] {
     display: flex;
     flex-wrap: wrap;    
     align-items: center;
-    gap: 4px;
+    gap: 3px;
     margin-top: 6px;
 }
 
@@ -1911,4 +1911,7 @@ button[data-action="roll_dice"] {
 
 #playerList .resource-card-row .resource-box {
     transition: background-color 2s ease;
+}
+.development-card-boxes:empty {
+    display: none;
 }
