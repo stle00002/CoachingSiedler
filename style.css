@@ -1883,7 +1883,7 @@ button[data-action="roll_dice"] {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     margin-top: 6px;
     min-width: 0;
 }
