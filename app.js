@@ -634,6 +634,77 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
     previousResourceSnapshot = currentSnapshot;
 }
 
+function drawKnightCard(canvas) {
+    const ctx = canvas.getContext("2d");
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Lila Rückseite mit abgerundeten Ecken
+    const x = 1;
+    const y = 1;
+    const cw = w - 2;
+    const ch = h - 2;
+    const r = 5;
+
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + cw - r, y);
+    ctx.quadraticCurveTo(x + cw, y, x + cw, y + r);
+    ctx.lineTo(x + cw, y + ch - r);
+    ctx.quadraticCurveTo(x + cw, y + ch, x + cw - r, y + ch);
+    ctx.lineTo(x + r, y + ch);
+    ctx.quadraticCurveTo(x, y + ch, x, y + ch - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+
+    const purple = ctx.createLinearGradient(0, 0, w, h);
+    purple.addColorStop(0, "#c084fc");
+    purple.addColorStop(0.5, "#9333ea");
+    purple.addColorStop(1, "#6b21a8");
+
+    ctx.fillStyle = purple;
+    ctx.fill();
+
+    ctx.strokeStyle = "#e9d5ff";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Schwarze Ritterfigur: Kopf
+    ctx.fillStyle = "#111";
+    ctx.beginPath();
+    ctx.ellipse(w * 0.5, h * 0.29, w * 0.115, h * 0.105, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Körper
+    ctx.beginPath();
+    ctx.moveTo(w * 0.39, h * 0.39);
+    ctx.quadraticCurveTo(w * 0.29, h * 0.43, w * 0.31, h * 0.66);
+    ctx.lineTo(w * 0.35, h * 0.78);
+    ctx.lineTo(w * 0.65, h * 0.78);
+    ctx.lineTo(w * 0.69, h * 0.66);
+    ctx.quadraticCurveTo(w * 0.71, h * 0.43, w * 0.61, h * 0.39);
+    ctx.closePath();
+    ctx.fill();
+
+    // Sockel
+    ctx.beginPath();
+    ctx.moveTo(w * 0.31, h * 0.77);
+    ctx.quadraticCurveTo(w * 0.25, h * 0.80, w * 0.25, h * 0.85);
+    ctx.lineTo(w * 0.75, h * 0.85);
+    ctx.quadraticCurveTo(w * 0.75, h * 0.80, w * 0.69, h * 0.77);
+    ctx.closePath();
+    ctx.fill();
+
+    // Dezente Glanzpunkte
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.beginPath();
+    ctx.ellipse(w * 0.47, h * 0.25, w * 0.025, h * 0.018, -0.5, 0, Math.PI * 2);
+    ctx.fill();
+}
+
 const cardVisualPrevious = new Map();
 
 const RESOURCE_NAMES = {
@@ -895,8 +966,25 @@ players.forEach(p => {
         name.appendChild(arrow);
     }
 
-row.querySelector(".player-knights").textContent =
-    `${p.knights || 0} Ritter`;
+const knightContainer = row.querySelector(".player-knights");
+const knightCount = Math.max(0, Number(p.knights) || 0);
+
+// Nur neu zeichnen, wenn sich die Anzahl geändert hat
+if (Number(knightContainer.dataset.count) !== knightCount) {
+    knightContainer.replaceChildren();
+    knightContainer.dataset.count = String(knightCount);
+
+    for (let i = 0; i < knightCount; i++) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 36;
+        canvas.height = 52;
+        canvas.className = "knight-card";
+        canvas.title = "Ritter";
+
+        knightContainer.appendChild(canvas);
+        drawKnightCard(canvas);
+    }
+}
 
     updatePlayerCardVisuals(p, row);
 });
