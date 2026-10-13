@@ -820,7 +820,6 @@ if (resourceDelta > 0) {
                 return;
             }
 
-            box.classList.remove("gained");
             box.style.background = "rgb(207, 123, 243)";
         }, 12000);
     }

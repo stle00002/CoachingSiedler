@@ -1908,3 +1908,7 @@ button[data-action="roll_dice"] {
     justify-content: flex-start;
     width: fit-content;
 }
+
+#playerList .resource-card-row .resource-box {
+    transition: background-color 2s ease;
+}
