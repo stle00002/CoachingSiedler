@@ -702,18 +702,6 @@ function drawKnightCard(canvas) {
     ctx.fill();
 }
 
-function getResourceColor(resource) {
-    const colors = {
-        HOLZ: "#228B22",
-        LEHM: "#c65d32",
-        SCHAF: "#a8d85b",
-        WEIZEN: "#f0c419",
-        ERZ: "#808080",
-        GOLD: "#ffd700"
-    };
-
-    return colors[resource] || "#777";
-}
 const cardVisualPrevious = new Map();
 
 const RESOURCE_NAMES = {
@@ -790,6 +778,11 @@ function updatePlayerCardVisuals(p, row) {
 
 // Änderung der Ressourcenkarten erkennen
 const oldResources = previous.resources || {};
+const oldResourceCount = RES.reduce(
+    (sum, resource) =>
+        sum + Math.max(0, Number(oldResources[resource]) || 0),
+    0
+);
 
 const resourceDelta = resourceCount - oldResourceCount;
 
