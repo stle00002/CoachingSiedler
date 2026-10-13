@@ -955,24 +955,26 @@ players.forEach(p => {
     let row = [...playerList.querySelectorAll(".player-card")]
         .find(el => el.dataset.playerId === String(p.id));
 
-    if (!row) {
-        row = document.createElement("div");
-        row.className = "player-card";
-        row.dataset.playerId = p.id;
+if (!row) {
+    row = document.createElement("div");
+    row.className = "player-card";
+    row.dataset.playerId = p.id;
 
-        row.innerHTML = `
-            <div class="player-name-row">
-                <b class="player-name"></b>
-            </div>
-            <div class="player-stats">
-                <div class="resource-card-groups"></div>
+    row.innerHTML = `
+        <div class="player-name-row">
+            <b class="player-name"></b>
+        </div>
+        <div class="player-stats">
+            <div class="resource-card-groups"></div>
+            <div class="played-cards-row">
                 <div class="development-card-boxes"></div>
                 <div class="player-knights"></div>
             </div>
-        `;
+        </div>
+    `;
 
-        playerList.appendChild(row);
-    }
+    playerList.appendChild(row);
+}
 
     const name = row.querySelector(".player-name");
     name.style.color = colorCss(p.color);
