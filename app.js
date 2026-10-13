@@ -702,6 +702,18 @@ function drawKnightCard(canvas) {
     ctx.fill();
 }
 
+function getResourceColor(resource) {
+    const colors = {
+        HOLZ: "#228B22",
+        LEHM: "#c65d32",
+        SCHAF: "#a8d85b",
+        WEIZEN: "#f0c419",
+        ERZ: "#808080",
+        GOLD: "#ffd700"
+    };
+
+    return colors[resource] || "#777";
+}
 const cardVisualPrevious = new Map();
 
 const RESOURCE_NAMES = {
@@ -776,45 +788,65 @@ function updatePlayerCardVisuals(p, row) {
         return;
     }
 
-    // Änderung der Gesamtzahl der Ressourcenkarten
-    const oldResourceCount = previous.resourceCount ??
-        Object.values(previous.resources || {}).reduce(
-            (sum, n) => sum + Math.max(0, Number(n) || 0), 0
+// Änderung der Ressourcenkarten erkennen
+const oldResources = previous.resources || {};
+
+const resourceDelta = resourceCount - oldResourceCount;
+
+if (resourceDelta > 0) {
+    // Neue Karten nach tatsächlichem Rohstoff bestimmen
+    const newCards = [];
+
+    for (const resource of RES) {
+        const oldAmount = Math.max(
+            0, Number(oldResources[resource]) || 0
+        );
+        const newAmount = Math.max(
+            0, Number(resources[resource]) || 0
         );
 
-    const resourceDelta = resourceCount - oldResourceCount;
-
-    if (resourceDelta > 0) {
-        for (let i = 0; i < resourceDelta; i++) {
-            const box = document.createElement("span");
-            box.className = "inventory-box resource-box gained";
-            box.style.background = "#32b44a";
-            boxRow.appendChild(box);
-
-            box._colorTimer = setTimeout(() => {
-                if (!box.isConnected || box.classList.contains("losing")) return;
-
-                box.classList.remove("gained");
-                box.style.background = "#777";
-            }, 12000);
-        }
-    } else if (resourceDelta < 0) {
-        let toLose = -resourceDelta;
-
-        for (const box of [...boxRow.children].reverse()) {
-            if (toLose <= 0) break;
-            if (box.classList.contains("losing")) continue;
-
-            clearTimeout(box._colorTimer);
-            box.classList.remove("gained");
-            box.classList.add("losing");
-            box.style.background = "#e53935";
-            toLose--;
-
-            setTimeout(() => box.remove(), 13200);
+        for (let i = oldAmount; i < newAmount; i++) {
+            newCards.push(resource);
         }
     }
 
+    // Falls sich Rohstoffe gleichzeitig verändert haben,
+    // die Kartenanzahl auf die tatsächliche Zunahme begrenzen.
+    const gainedResources = newCards.slice(0, resourceDelta);
+
+    for (const resource of gainedResources) {
+        const box = document.createElement("span");
+        box.className = "inventory-box resource-box gained";
+        box.dataset.resource = resource;
+
+        box.style.background = RESOURCE_COLORS[resource] || "#777";
+        boxRow.appendChild(box);
+
+        box._colorTimer = setTimeout(() => {
+            if (!box.isConnected || box.classList.contains("losing")) {
+                return;
+            }
+
+            box.classList.remove("gained");
+            box.style.background = "#777";
+        }, 12000);
+    }
+} else if (resourceDelta < 0) {
+    let toLose = -resourceDelta;
+
+    for (const box of [...boxRow.children].reverse()) {
+        if (toLose <= 0) break;
+        if (box.classList.contains("losing")) continue;
+
+        clearTimeout(box._colorTimer);
+        box.classList.remove("gained");
+        box.classList.add("losing");
+        box.style.background = "#e53935";
+        toLose--;
+
+        setTimeout(() => box.remove(), 4200);
+    }
+}
     // Änderung der Entwicklungskarten
     const dcDelta = dcCount - previous.dcCount;
 
