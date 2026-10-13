@@ -812,7 +812,7 @@ if (resourceDelta > 0) {
         box.className = "inventory-box resource-box gained";
         box.dataset.resource = resource;
 
-        box.style.background = RESOURCE_COLORS[resource] || "#777";
+        box.style.background = RESOURCE_COLORS[resource] || "rgb(207, 123, 243)";
         boxRow.appendChild(box);
 
         box._colorTimer = setTimeout(() => {
@@ -821,7 +821,7 @@ if (resourceDelta > 0) {
             }
 
             box.classList.remove("gained");
-            box.style.background = "#777";
+            box.style.background = "rgb(207, 123, 243)";
         }, 12000);
     }
 } else if (resourceDelta < 0) {
