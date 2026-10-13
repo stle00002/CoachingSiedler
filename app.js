@@ -796,7 +796,7 @@ function updatePlayerCardVisuals(p, row) {
 
                 box.classList.remove("gained");
                 box.style.background = "#777";
-            }, 5000);
+            }, 12000);
         }
     } else if (resourceDelta < 0) {
         let toLose = -resourceDelta;
@@ -811,7 +811,7 @@ function updatePlayerCardVisuals(p, row) {
             box.style.background = "#e53935";
             toLose--;
 
-            setTimeout(() => box.remove(), 1200);
+            setTimeout(() => box.remove(), 3000);
         }
     }
 
@@ -830,7 +830,7 @@ function updatePlayerCardVisuals(p, row) {
 
                 box.classList.remove("gained");
                 box.style.background = "#2f2e2e";
-            }, 5000);
+            }, 12000);
         }
     } else if (dcDelta < 0) {
         let toLose = -dcDelta;
@@ -847,7 +847,7 @@ function updatePlayerCardVisuals(p, row) {
 
             setTimeout(() => {
                 box.remove();
-            }, 1200);
+            }, 3000);
         }
     }
 
