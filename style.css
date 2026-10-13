@@ -1842,11 +1842,9 @@ button[data-action="roll_dice"] {
 @keyframes resourceLossFlash {
     from {
         opacity: 1;
-        background: #e53935;
     }
     to {
         opacity: 0;
-        background: #e53935;
     }
 }
 
