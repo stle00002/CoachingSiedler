@@ -9,7 +9,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://brain-privileges-tournaments-stops.trycloudflare.com";
+const WS_URL = "wss://specialists-function-park-articles.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
