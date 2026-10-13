@@ -1795,7 +1795,7 @@ button[data-action="roll_dice"] {
     width: 55px;
     flex-shrink: 0;
     font-size: 11px;
-    color: #aaa;
+    color: #ffffff;
 }
 
 .resource-card-groups {
@@ -1832,7 +1832,7 @@ button[data-action="roll_dice"] {
 
 .development-box {
     background: #2f2e2e;
-    border: 1px solid #555;
+    border: 3px solid #ffffff;
 }
 
 .inventory-box.losing {
@@ -1851,10 +1851,10 @@ button[data-action="roll_dice"] {
 
 .player-knights {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap;    
     align-items: center;
     gap: 4px;
-    margin-top: 5px;
+    margin-top: 6px;
 }
 
 .knight-card {

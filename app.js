@@ -665,8 +665,8 @@ function drawKnightCard(canvas) {
     ctx.fillStyle = purple;
     ctx.fill();
 
-    ctx.strokeStyle = "#e9d5ff";
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // Schwarze Ritterfigur: Kopf
@@ -829,7 +829,7 @@ function updatePlayerCardVisuals(p, row) {
                 if (!box.isConnected) return;
 
                 box.classList.remove("gained");
-                box.style.background = "#111";
+                box.style.background = "#2f2e2e";
             }, 5000);
         }
     } else if (dcDelta < 0) {
