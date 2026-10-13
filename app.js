@@ -9,6 +9,8 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
+const WS_URL = "wss://brain-privileges-tournaments-stops.trycloudflare.com";
+
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
 const DESKTOP_BOARD_SIZE = 35.2212389380531;
@@ -91,7 +93,6 @@ TILE_IMAGES.WÜSTE.src = "images/desert.png";
 TILE_IMAGES.WASSER.src = "images/water2.png";
 TILE_IMAGES.GOLD.src = "images/goldBright.png";
 
-const WS_URL = "wss://brake-nsw-amenities-reflects.trycloudflare.com";
 const RES = ["HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ"];
 
 const COLORS = [
@@ -633,6 +634,183 @@ const row = [...$("playerList").querySelectorAll(".player-card")]
     previousResourceSnapshot = currentSnapshot;
 }
 
+const cardVisualPrevious = new Map();
+
+const RESOURCE_NAMES = {
+    HOLZ: "Holz",
+    LEHM: "Lehm",
+    SCHAF: "Schafe",
+    WEIZEN: "Weizen",
+    ERZ: "Erz",
+    GOLD: "Gold"
+};
+
+function updatePlayerCardVisuals(p, row) {
+    const id = String(p.id);
+    const resources = p.resources || {};
+    const resourceGroups = row.querySelector(".resource-card-groups");
+    const developmentBoxes = row.querySelector(".development-card-boxes");
+
+    let previous = cardVisualPrevious.get(id);
+
+    // Ressourcenzeilen einmalig erstellen
+    for (const resource of RES) {
+        let group = [...resourceGroups.children].find(
+            el => el.dataset.resource === resource
+        );
+
+        if (!group) {
+            group = document.createElement("div");
+            group.className = "resource-card-group";
+            group.dataset.resource = resource;
+
+            const label = document.createElement("span");
+            label.className = "resource-card-label";
+            label.textContent = RESOURCE_NAMES[resource] || resource;
+
+            const boxes = document.createElement("span");
+            boxes.className = "resource-card-row";
+
+            group.append(label, boxes);
+            resourceGroups.appendChild(group);
+        }
+    }
+
+    // Entwicklungsboxen und Ressourcenboxen einmalig initialisieren
+    if (!previous) {
+        for (const resource of RES) {
+            const group = [...resourceGroups.children].find(
+                el => el.dataset.resource === resource
+            );
+            const boxRow = group.querySelector(".resource-card-row");
+            const count = Math.max(0, Number(resources[resource]) || 0);
+
+            for (let i = boxRow.children.length; i < count; i++) {
+                const box = document.createElement("span");
+                box.className = "inventory-box resource-box";
+                boxRow.appendChild(box);
+            }
+        }
+
+        const dcCount = Math.max(
+            0,
+            Number(p.countDevelopmentCards) ||
+            Object.values(p.developmentCards || {}).reduce(
+                (sum, n) => sum + (Number(n) || 0), 0
+            )
+        );
+
+        for (let i = 0; i < dcCount; i++) {
+            const box = document.createElement("span");
+            box.className = "inventory-box development-box";
+            developmentBoxes.appendChild(box);
+        }
+
+        cardVisualPrevious.set(id, {
+            resources: { ...resources },
+            dcCount
+        });
+
+        return;
+    }
+
+    // Ressourcenänderungen verarbeiten
+    for (const resource of RES) {
+        const oldCount = Math.max(
+            0, Number(previous.resources[resource]) || 0
+        );
+        const newCount = Math.max(
+            0, Number(resources[resource]) || 0
+        );
+        const delta = newCount - oldCount;
+
+        const group = [...resourceGroups.children].find(
+            el => el.dataset.resource === resource
+        );
+        const boxRow = group.querySelector(".resource-card-row");
+
+        if (delta > 0) {
+            for (let i = 0; i < delta; i++) {
+                const box = document.createElement("span");
+                box.className = "inventory-box resource-box gained";
+                box.style.background =
+                    RESOURCE_COLORS[resource] || "#888";
+
+                boxRow.appendChild(box);
+
+                box._colorTimer = setTimeout(() => {
+                    if (!box.isConnected || box.classList.contains("losing")) {
+                        return;
+                    }
+
+                    box.classList.remove("gained");
+                    box.style.background = "#777";
+                }, 5000);
+            }
+        } else if (delta < 0) {
+            let toLose = -delta;
+
+            // Zuerst die zuletzt erhaltenen Karten markieren
+            const boxes = [...boxRow.children].reverse();
+
+            for (const box of boxes) {
+                if (toLose <= 0) break;
+                if (box.classList.contains("losing")) continue;
+
+                clearTimeout(box._colorTimer);
+                box.classList.remove("gained");
+                box.classList.add("losing");
+                box.style.background = "#e53935";
+
+                toLose--;
+
+                setTimeout(() => {
+                    box.remove();
+                }, 1200);
+            }
+        }
+    }
+
+    // Anzahl der Entwicklungskarten bestimmen
+    const dcCount = Math.max(
+        0,
+        Number(p.countDevelopmentCards) ||
+        Object.values(p.developmentCards || {}).reduce(
+            (sum, n) => sum + (Number(n) || 0), 0
+        )
+    );
+
+    const dcDelta = dcCount - previous.dcCount;
+
+    if (dcDelta > 0) {
+        for (let i = 0; i < dcDelta; i++) {
+            const box = document.createElement("span");
+            box.className = "inventory-box development-box gained";
+            box.style.background = "#a855f7";
+            developmentBoxes.appendChild(box);
+
+            box._colorTimer = setTimeout(() => {
+                if (!box.isConnected) return;
+
+                box.classList.remove("gained");
+                box.style.background = "#111";
+            }, 5000);
+        }
+    } else if (dcDelta < 0) {
+        for (let i = 0; i < -dcDelta; i++) {
+            const box = developmentBoxes.lastElementChild;
+            if (!box) break;
+
+            clearTimeout(box._colorTimer);
+            box.remove();
+        }
+    }
+
+    cardVisualPrevious.set(id, {
+        resources: { ...resources },
+        dcCount
+    });
+}
 
 function renderState(s) {
 
@@ -717,7 +895,11 @@ players.forEach(p => {
             <div class="player-name-row">
                 <b class="player-name"></b>
             </div>
-            <div class="player-stats"></div>
+            <div class="player-stats">
+                <div class="resource-card-groups"></div>
+                <div class="development-card-boxes"></div>
+                <div class="player-knights"></div>
+            </div>
         `;
 
         playerList.appendChild(row);
@@ -737,12 +919,10 @@ players.forEach(p => {
         name.appendChild(arrow);
     }
 
-    const stats = row.querySelector(".player-stats");
-    stats.innerHTML = `
-        ${p.countResources || 0} Karten<br>
-        ${p.countDevelopmentCards || 0} Entwicklungskarten<br>
-        ${p.knights || 0} Ritter
-    `;
+row.querySelector(".player-knights").textContent =
+    `${p.knights || 0} Ritter`;
+
+    updatePlayerCardVisuals(p, row);
 });
 
 // Spieler entfernen, die nicht mehr im State vorhanden sind

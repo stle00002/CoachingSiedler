@@ -1782,3 +1782,72 @@ button[data-action="roll_dice"] {
         opacity: 0;
     }
 }
+
+.resource-card-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.resource-card-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.resource-card-label {
+    width: 55px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.resource-card-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.inventory-box {
+    display: inline-block;
+    width: 12px;
+    height: 17px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.resource-box {
+    background: #777;
+}
+
+.development-card-boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 6px;
+    min-height: 17px;
+}
+
+.development-box {
+    background: #111;
+    border: 1px solid #555;
+}
+
+.inventory-box.losing {
+    animation: resourceLossFlash 1.2s ease forwards;
+}
+
+@keyframes resourceLossFlash {
+    0%, 30% {
+        opacity: 1;
+        background: #e53935;
+    }
+    100% {
+        opacity: 0.2;
+    }
+}
+
+.player-knights {
+    margin-top: 5px;
+}
