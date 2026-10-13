@@ -829,7 +829,7 @@ function updatePlayerCardVisuals(p, row) {
                 if (!box.isConnected) return;
 
                 box.classList.remove("gained");
-                box.style.background = "#2f2e2e";
+                box.style.background = "#a855f7";
             }, 12000);
         }
     } else if (dcDelta < 0) {
