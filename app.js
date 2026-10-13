@@ -646,43 +646,26 @@ const RESOURCE_NAMES = {
 };
 
 function updatePlayerCardVisuals(p, row) {
-    const id = String(p.id);
-    const resources = p.resources || {};
-    const resourceGroups = row.querySelector(".resource-card-groups");
-    const developmentBoxes = row.querySelector(".development-card-boxes");
+const id = String(p.id);
+const resources = p.resources || {};
+const resourceGroups = row.querySelector(".resource-card-groups");
+const developmentBoxes = row.querySelector(".development-card-boxes");
 
-    let previous = cardVisualPrevious.get(id);
+let previous = cardVisualPrevious.get(id);
 
-    // Ressourcenzeilen einmalig erstellen
-    for (const resource of RES) {
-        let group = [...resourceGroups.children].find(
-            el => el.dataset.resource === resource
-        );
+// Eine gemeinsame Reihe für alle Ressourcen
+let boxRow = resourceGroups.querySelector(".resource-card-row");
 
-        if (!group) {
-            group = document.createElement("div");
-            group.className = "resource-card-group";
-            group.dataset.resource = resource;
-
-            const label = document.createElement("span");
-            label.className = "resource-card-label";
-            label.textContent = RESOURCE_NAMES[resource] || resource;
-
-            const boxes = document.createElement("span");
-            boxes.className = "resource-card-row";
-
-            group.append(label, boxes);
-            resourceGroups.appendChild(group);
-        }
-    }
+if (!boxRow) {
+    boxRow = document.createElement("div");
+    boxRow.className = "resource-card-row";
+    resourceGroups.appendChild(boxRow);
+}
 
     // Entwicklungsboxen und Ressourcenboxen einmalig initialisieren
     if (!previous) {
         for (const resource of RES) {
-            const group = [...resourceGroups.children].find(
-                el => el.dataset.resource === resource
-            );
-            const boxRow = group.querySelector(".resource-card-row");
+            const boxRow = resourceGroups.querySelector(".resource-card-row");
             const count = Math.max(0, Number(resources[resource]) || 0);
 
             for (let i = boxRow.children.length; i < count; i++) {
@@ -724,11 +707,7 @@ function updatePlayerCardVisuals(p, row) {
         );
         const delta = newCount - oldCount;
 
-        const group = [...resourceGroups.children].find(
-            el => el.dataset.resource === resource
-        );
-        const boxRow = group.querySelector(".resource-card-row");
-
+        const boxRow = resourceGroups.querySelector(".resource-card-row");
         if (delta > 0) {
             for (let i = 0; i < delta; i++) {
                 const box = document.createElement("span");
@@ -852,8 +831,7 @@ wasMyTurn = isMyTurn;
 }
   
   const players = s.players || [];
-  // Ressourcenänderungen erkennen, bevor die Spielerliste ersetzt wird
-updateResourceGains(s);
+
   $("players").innerHTML = players
     .map(
       (p) =>

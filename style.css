@@ -1783,12 +1783,7 @@ button[data-action="roll_dice"] {
     }
 }
 
-.resource-card-groups {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 5px;
-}
+
 
 .resource-card-group {
     display: flex;
@@ -1803,9 +1798,15 @@ button[data-action="roll_dice"] {
     color: #aaa;
 }
 
+.resource-card-groups {
+    display: block;
+    margin-top: 5px;
+}
+
 .resource-card-row {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 3px;
 }
 
