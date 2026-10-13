@@ -1898,3 +1898,13 @@ button[data-action="roll_dice"] {
     padding: 0;
     min-height: 30px;
 }
+.played-cards-row {
+    justify-content: flex-start;
+}
+
+.development-card-boxes,
+.player-knights {
+    flex: 0 0 auto;
+    justify-content: flex-start;
+    width: fit-content;
+}
