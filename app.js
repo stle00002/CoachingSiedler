@@ -811,7 +811,7 @@ function updatePlayerCardVisuals(p, row) {
             box.style.background = "#e53935";
             toLose--;
 
-            setTimeout(() => box.remove(), 3000);
+            setTimeout(() => box.remove(), 12000);
         }
     }
 
@@ -847,7 +847,7 @@ function updatePlayerCardVisuals(p, row) {
 
             setTimeout(() => {
                 box.remove();
-            }, 3000);
+            }, 12000);
         }
     }
 
