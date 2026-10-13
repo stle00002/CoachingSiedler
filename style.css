@@ -1850,9 +1850,6 @@ button[data-action="roll_dice"] {
 }
 
 .player-knights {
-    margin-top: 5px;
-}
-.player-knights {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1862,7 +1859,7 @@ button[data-action="roll_dice"] {
 
 .knight-card {
     display: block;
-    width: 36px;
-    height: 52px;
+    width: 20px;
+    height: 30px;
     flex: 0 0 auto;
 }

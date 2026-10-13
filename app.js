@@ -660,10 +660,7 @@ function drawKnightCard(canvas) {
     ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
 
-    const purple = ctx.createLinearGradient(0, 0, w, h);
-    purple.addColorStop(0, "#c084fc");
-    purple.addColorStop(0.5, "#9333ea");
-    purple.addColorStop(1, "#6b21a8");
+    const purple = "#a855f7";
 
     ctx.fillStyle = purple;
     ctx.fill();
