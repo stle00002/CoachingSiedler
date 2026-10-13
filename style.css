@@ -1836,16 +1836,17 @@ button[data-action="roll_dice"] {
 }
 
 .inventory-box.losing {
-    animation: resourceLossFlash 1.2s ease forwards;
+    animation: resourceLossFlash 1.2s ease 12s forwards;
 }
 
 @keyframes resourceLossFlash {
-    0%, 30% {
+    from {
         opacity: 1;
         background: #e53935;
     }
-    100% {
-        opacity: 0.2;
+    to {
+        opacity: 0;
+        background: #e53935;
     }
 }
 
