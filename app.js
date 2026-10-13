@@ -765,12 +765,21 @@ function updatePlayerCardVisuals(p, row) {
             }, 5000);
         }
     } else if (dcDelta < 0) {
-        for (let i = 0; i < -dcDelta; i++) {
-            const box = developmentBoxes.lastElementChild;
-            if (!box) break;
+        let toLose = -dcDelta;
+
+        for (const box of [...developmentBoxes.children].reverse()) {
+            if (toLose <= 0) break;
+            if (box.classList.contains("losing")) continue;
 
             clearTimeout(box._colorTimer);
-            box.remove();
+            box.classList.remove("gained");
+            box.classList.add("losing");
+            box.style.background = "#e53935";
+            toLose--;
+
+            setTimeout(() => {
+                box.remove();
+            }, 1200);
         }
     }
 
