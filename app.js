@@ -832,8 +832,12 @@ if (resourceDelta > 0) {
         if (box.classList.contains("losing")) continue;
 
         clearTimeout(box._colorTimer);
-        box.remove();
-        toLose--;
+box.classList.remove("gained");
+box.classList.add("losing");
+box.style.background = "#a855f7";
+toLose--;
+
+setTimeout(() => box.remove(), 1200);
 
     }
 }
@@ -862,8 +866,12 @@ if (resourceDelta > 0) {
             if (box.classList.contains("losing")) continue;
 
             clearTimeout(box._colorTimer);
-            box.remove();
-            toLose--;
+   box.classList.remove("gained");
+box.classList.add("losing");
+box.style.background = "#a855f7";
+toLose--;
+
+setTimeout(() => box.remove(), 1200);
         }
     }
 
