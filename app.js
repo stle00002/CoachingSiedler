@@ -666,7 +666,7 @@ function drawKnightCard(canvas) {
     ctx.fill();
 
     ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.stroke();
 
     // Schwarze Ritterfigur: Kopf
