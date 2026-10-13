@@ -832,12 +832,9 @@ if (resourceDelta > 0) {
         if (box.classList.contains("losing")) continue;
 
         clearTimeout(box._colorTimer);
-        box.classList.remove("gained");
-        box.classList.add("losing");
-        box.style.background = "#e53935";
+        box.remove();
         toLose--;
 
-        setTimeout(() => box.remove(), 4200);
     }
 }
     // Änderung der Entwicklungskarten
