@@ -1865,7 +1865,7 @@ button[data-action="roll_dice"] {
 }
 
 .inventory-box {
-    border: 3px solid #ffffff;
+    border: 1px solid #ffffff;
     box-sizing: border-box;
 }
 
