@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>COACHING – Konto</title>
+    <link rel="stylesheet" href="styleAccounts.css" />
+  </head>
+  <body>
+    <div id="goldResourceModal" class="gold-resource-modal hidden">
+    <div class="gold-resource-box">
+        <div class="gold-resource-title">
+            Wähle eine Ressource
+        </div>
+
+        <div id="goldResourceOptions" class="gold-resource-options"></div>
+    </div>
+</div>
+      <div id="victoryOverlay" class="victory-overlay hidden">
+    <div class="victory-content">
+        <img src="images/pokal.png" class="victory-trophy-large">
+        <div id="victoryText" class="victory-text"></div>
+    </div>
+</div>
+    <div id="app">
+      
+<section id="lobby" class="screen">
+    <div class="panel lobby-panel">
+        <h1>COACHING</h1>
+        <p class="sub">Multiplayer</p>
+
+        <div id="join-row" class="join-row">
+            <input id="name" placeholder="Dein Name" maxlength="20" />
+            <button id="joinBtn">Beitreten</button>
+        </div>
+
+        <div id="connection" class="status">Nicht verbunden</div>
+
+        <div class="lobby-content">
+            <div class="lobby-players">
+                <h3>Spieler</h3>
+                <div id="players" class="players"></div>
+            </div>
+
+            <div class="lobby-maps">
+                <h3>Karte auswählen</h3>
+                <div id="map-list" class="map-list"></div>
+            </div>
+        </div>
+
+        <div id="lobby-actions" class="lobby-actions" style="display: none">
+            <button id="readyBtn">READY</button>
+            <button id="botAddBtn">BOT +</button>
+            <button id="botRemoveBtn">BOT −</button>
+            <button id="startBtn" class="primary">START GAME</button>
+        </div>
+
+        <div id="colors" class="colors" style="display: none"></div>
+    </div>
+</section>
+      <section id="game" class="game-screen hidden">
+        <div id="tradeBar" class="trade-bar hidden">
+
+  <div class="trade-row trade-want-row">
+    <div class="trade-resource" data-trade-side="request" data-resource="HOLZ"></div>
+    <div class="trade-resource" data-trade-side="request" data-resource="LEHM"></div>
+    <div class="trade-resource" data-trade-side="request" data-resource="SCHAF"></div>
+    <div class="trade-resource" data-trade-side="request" data-resource="WEIZEN"></div>
+    <div class="trade-resource" data-trade-side="request" data-resource="ERZ"></div>
+  </div>
+
+  <div class="trade-middle">
+
+    <div class="trade-middle-side">
+      <span class="trade-middle-label">Gibt</span>
+      <div id="tradeGiveDisplay" class="trade-display"></div>
+    </div>
+
+    <div class="trade-arrow">→</div>
+
+    <div class="trade-middle-side">
+      <span class="trade-middle-label">Möchte</span>
+      <div id="tradeGetDisplay" class="trade-display"></div>
+    </div>
+
+    <div class="trade-action-buttons">
+      <button id="tradePlayerBtn">P</button>
+      <button id="tradeBankBtn">B</button>
+    </div>
+
+  </div>
+
+  <div class="trade-row trade-give-row">
+    <div class="trade-resource" data-trade-side="offer" data-resource="HOLZ"></div>
+    <div class="trade-resource" data-trade-side="offer" data-resource="LEHM"></div>
+    <div class="trade-resource" data-trade-side="offer" data-resource="SCHAF"></div>
+    <div class="trade-resource" data-trade-side="offer" data-resource="WEIZEN"></div>
+    <div class="trade-resource" data-trade-side="offer" data-resource="ERZ"></div>
+  </div>
+
+</div>
+       <main class="layout">
+
+  <aside class="sidebar left">
+<div class="sidebar-brand">
+    <b>COACHING</b>
+    <span id="turnText"></span>
+</div>
+    <h3>Spieler</h3>
+    <div id="playerList"></div>
+    
+
+<h3>Chat</h3>
+
+<!-- CHAT -->
+<div id="chat">
+
+    <div id="chatMessages" aria-live="polite"></div>
+
+    <form id="chatForm">
+        <input
+            id="chatInput"
+            type="text"
+            maxlength="500"
+            placeholder="Nachricht schreiben..."
+            autocomplete="off"
+        >
+
+        <button type="submit" id="chatSendBtn">
+            Senden
+        </button>
+    </form>
+</div>
+
+    <div id="log" class="log"></div>
+  </aside>
+
+  <div class="board-wrap">
+
+    <canvas id="board"></canvas>
+
+    <!-- HANDELSFENSTER MUSS HIER DRIN SEIN -->
+    <div id="tradeOffer" class="trade-offer hidden">
+      <div id="tradeTitle" class="trade-title"></div>
+
+      <div class="trade-content">
+
+        <div>
+          <span class="trade-label">Gibt:</span>
+          <span id="tradeOfferResources"></span>
+        </div>
+
+        <div class="trade-arrow">→</div>
+
+        <div>
+          <span class="trade-label">Möchte:</span>
+          <span id="tradeRequestResources"></span>
+        </div>
+
+      </div>
+
+      <div class="trade-buttons">
+        <button id="acceptTradeBtn">✓ Annehmen</button>
+        <button id="declineTradeBtn">✕ Ablehnen</button>
+      </div>
+    </div>
+
+    <div id="prompt" class="prompt hidden"></div>
+
+  </div>
+
+  <aside class="sidebar right">
+    <div id="phaseText"></div>
+    <div id="diceOverlay" class="dice-overlay">
+    <div class="die" id="die1"></div>
+    <div class="die" id="die2"></div>
+  </div>
+    <div id="resources"></div>
+
+    <div class="actions">
+      <button data-action="roll_dice">Würfeln</button>
+      <button data-action="buildSettlement">Siedlung</button>
+      <button data-action="buildRoad">Straße</button>
+      <button data-action="buildCity">Stadt</button>
+      <button data-action="buyDevelopmentCard">Entwicklung</button>
+      <div class="trade">
+  <button id="tradeButton">Handel</button>
+</div>
+
+      <button data-action="endTurn">Zug beenden</button>
+      <button id="buildRoundBtn">Baurunde</button>
+    </div>
+
+    <div class="cards">
+      <h3>Entwicklungskarten</h3>
+      <div id="devCards"></div>
+    </div>
+
+
+    <h3>Statistik</h3>
+
+<div id="diceStatistics">
+    <div id="diceChart"></div>
+</div>
+
+  </aside>
+
+</main>
+      </section>
+    </div>
+    <div id="modal" class="modal hidden">
+      <div class="modal-card">
+        <button class="close" onclick="closeModal()">×</button>
+        <h2 id="modalTitle"></h2>
+        <div id="modalBody"></div>
+      </div>
+    </div>
+    <script src="appAccounts2.js"></script>
+  </body>
+</html>

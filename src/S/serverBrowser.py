@@ -1079,9 +1079,10 @@ async def handle_message(conn, message):
 
             restart_pending = True
             asyncio.create_task(restart_server())
+
             chat_entry = {
                 "player": "Server",
-                "message": "Spiel wird in 10 Sekunden beendet. Spieler kommen wieder zurück in die Lobby"
+                "message": "Spielabbruch in 10s"
             }
 
             chat_history.append(chat_entry)

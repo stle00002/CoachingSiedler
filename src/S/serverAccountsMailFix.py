@@ -1,0 +1,3942 @@
+import asyncio
+
+import json
+
+import random
+
+import time
+
+import websockets
+from html import escape
+from urllib.parse import parse_qs, urlsplit
+from websockets.datastructures import Headers
+from websockets.http11 import Response
+
+
+
+from bot import Bot
+
+from player import Player
+
+from logic import Logic
+from accounts import (
+    init_db as init_accounts_db, register_account, verify_email, login,
+    validate_session, logout, get_stats, record_game_result,
+)
+
+import os
+
+import re
+
+from pathlib import Path
+
+
+
+HOST = "0.0.0.0"  # alle Interfaces
+
+PORT = 5555
+
+
+
+
+
+
+
+MAPS_DIR = Path(__file__).resolve().parent / "maps"
+
+MAPS_DIR.mkdir(exist_ok=True)
+
+
+
+selected_map_name = "Basic 4 Spieler"
+
+
+
+logic = Logic()
+
+
+
+
+
+clients = set()
+
+client_players = {}
+# Nur serverseitig validierte Konten dürfen Spielaktionen ausführen.
+client_accounts = {}       # WebSocket -> {account_id, username}
+client_session_tokens = {} # WebSocket -> roher Sitzungstoken (nur im Arbeitsspeicher)
+
+players = []
+
+bots = []
+
+game_state = "lobby"
+
+client_ready = {}
+
+loading = False
+
+restart_pending = False
+
+# -------------------------
+
+# Hilfsfunktionen für TCP
+
+# -------------------------
+
+
+
+
+
+chat_history = []
+stats_recorded_for_game = False
+
+# SQLite-Tabellen beim Serverstart anlegen.
+init_accounts_db()
+
+MAX_CHAT_MESSAGES = 100
+
+
+
+
+
+
+
+def get_map_path(name):
+
+    """Erzeugt einen sicheren Dateinamen für eine Karte."""
+
+    if not isinstance(name, str):
+
+        return None
+
+
+
+    name = name.strip()
+
+
+
+    if not name or len(name) > 60:
+
+        return None
+
+
+
+    if not re.fullmatch(r"[\w äöüÄÖÜß-]+", name):
+
+        return None
+
+
+
+    return MAPS_DIR / f"{name}.json"
+
+
+
+
+
+def save_custom_map(name, tiles, harbors=None):
+
+    """Speichert eine eigene Karte mit Landfeldern und Häfen."""
+
+    path = get_map_path(name)
+
+
+
+    if path is None:
+
+        return False, "Ungültiger Kartenname."
+
+
+
+    if not isinstance(tiles, list) or not tiles:
+
+        return False, "Die Karte enthält keine Landfelder."
+
+
+
+    valid_resources = {
+
+        "HOLZ", "LEHM", "SCHAF", "WEIZEN", "ERZ",
+
+        "GOLD", "WÜSTE"
+
+    }
+
+
+
+    cleaned_tiles = []
+
+    seen_positions = set()
+
+
+
+    for tile in tiles:
+
+        if not isinstance(tile, dict):
+
+            return False, "Ungültiges Landfeld."
+
+
+
+        q = tile.get("q")
+
+        r = tile.get("r")
+
+        resource = tile.get("resource")
+
+
+
+        if type(q) is not int or type(r) is not int:
+
+            return False, "Ungültige Hex-Koordinaten."
+
+
+
+        if abs(q) > 50 or abs(r) > 50:
+
+            return False, "Die Karte ist zu groß."
+
+
+
+        if resource is not None and resource not in valid_resources:
+
+            return False, f"Ungültige Ressource: {resource}"
+
+
+
+        position = (q, r)
+
+
+
+        if position in seen_positions:
+
+            return False, "Zwei Landfelder haben dieselben Koordinaten."
+
+
+
+        seen_positions.add(position)
+
+
+
+        cleaned_tiles.append({
+
+            "q": q,
+
+            "r": r,
+
+            "resource": resource
+
+        })
+
+
+
+    # Häfen validieren
+
+    if harbors is None:
+
+        harbors = []
+
+
+
+    if not isinstance(harbors, list):
+
+        return False, "Ungültige Hafendaten."
+
+
+
+    cleaned_harbors = []
+
+    seen_harbors = set()
+
+
+
+    for harbor in harbors:
+
+        if not isinstance(harbor, dict):
+
+            return False, "Ungültiger Hafen."
+
+
+
+        q = harbor.get("q")
+
+        r = harbor.get("r")
+
+        direction = harbor.get("direction")
+
+        resource = harbor.get("resource")
+
+        ratio = harbor.get("ratio")
+
+
+
+        if type(q) is not int or type(r) is not int:
+
+            return False, "Ungültige Hafenkoordinaten."
+
+
+
+        if type(direction) is not int or direction not in range(1, 7):
+
+            return False, "Ungültige Hafenrichtung."
+
+
+
+        # Pro Landfeld nur ein Hafen.
+
+        if (q, r) in seen_harbors:
+
+            return False, "Auf einem Landfeld liegen mehrere Häfen."
+
+
+
+        seen_harbors.add((q, r))
+
+
+
+        # Vorerst sind alle neu erstellten Häfen 3:1.
+
+        cleaned_harbors.append({
+
+            "q": q,
+
+            "r": r,
+
+            "direction": direction,
+
+            "resource": resource,
+
+            "ratio": ratio
+
+        })
+
+
+
+    data = {
+
+        "name": name.strip(),
+
+        "tiles": cleaned_tiles,
+
+        "harbors": cleaned_harbors
+
+    }
+
+
+
+    try:
+
+        with path.open("w", encoding="utf-8") as file:
+
+            json.dump(data, file, ensure_ascii=False, indent=4)
+
+
+
+        return True, "Karte gespeichert."
+
+
+
+    except OSError as error:
+
+        print("Fehler beim Speichern der Karte:", error)
+
+        return False, "Die Karte konnte nicht gespeichert werden."
+
+
+
+
+
+def load_custom_map(name):
+
+    """Lädt eine gespeicherte Karte."""
+
+    path = get_map_path(name)
+
+
+
+    if path is None or not path.is_file():
+
+        return None
+
+
+
+    try:
+
+        with path.open("r", encoding="utf-8") as file:
+
+            data = json.load(file)
+
+
+
+        if data.get("name") != name or not isinstance(data.get("tiles"), list):
+
+            return None
+
+
+
+        return data
+
+
+
+    except (OSError, json.JSONDecodeError):
+
+        return None
+
+
+
+
+
+def get_saved_maps():
+
+    """Gibt die Namen aller gespeicherten Karten zurück."""
+
+    result = []
+
+
+
+    for path in MAPS_DIR.glob("*.json"):
+
+        try:
+
+            with path.open("r", encoding="utf-8") as file:
+
+                data = json.load(file)
+
+
+
+            name = data.get("name")
+
+
+
+            if isinstance(name, str) and get_map_path(name) == path:
+
+                result.append(name)
+
+
+
+        except (OSError, json.JSONDecodeError):
+
+            continue
+
+
+
+    return sorted(set(result), key=str.casefold)
+
+
+
+
+
+def get_saved_map_previews():
+
+    maps = []
+
+
+
+    for path in MAPS_DIR.glob("*.json"):
+
+        custom_map = load_custom_map(path.stem)
+
+
+
+        if custom_map is not None:
+
+            maps.append({
+
+                "name": custom_map["name"],
+
+                "tiles": custom_map["tiles"],
+
+                "harbors": custom_map.get("harbors", [])
+
+            })
+
+
+
+    return sorted(maps, key=lambda m: m["name"].lower())
+
+
+
+# makes the logic class into a json
+
+def getState(obj):
+
+    self = obj
+
+    # =========================================================
+
+    # PLAYERS
+
+    # =========================================================
+
+
+
+    players_state = []
+
+
+
+    for player_id, player in enumerate(self.players):
+
+
+
+        countResources = player.resources.get("HOLZ", 0)+player.resources.get("LEHM", 0) +player.resources.get("SCHAF", 0) +player.resources.get("WEIZEN", 0) + player.resources.get("ERZ", 0)
+
+        countDevelopmentCards = player.developmentCards.get("RITTER", 0) + player.developmentCards.get("1SIEGPUNKT", 0) + player.developmentCards.get("MONOPOL", 0)+ player.developmentCards.get("ERFINDUNG", 0)+player.developmentCards.get("STRAßENBAU", 0)
+
+
+
+        player_state = {
+
+            "id": player_id,
+
+
+
+            "name": player.name,
+
+            "color": player.color,
+
+            "isHost": player.is_host,
+
+
+
+            # -------------------------
+
+            # Ressourcen
+
+            # -------------------------
+
+
+
+            "resources": {
+
+                "HOLZ": player.resources.get("HOLZ", 0),
+
+                "LEHM": player.resources.get("LEHM", 0),
+
+                "SCHAF": player.resources.get("SCHAF", 0),
+
+                "WEIZEN": player.resources.get("WEIZEN", 0),
+
+                "ERZ": player.resources.get("ERZ", 0)
+
+            },
+
+
+
+            "goldChoices": logic.goldChoices.get(player, 0),
+
+
+
+            "countResources": countResources,
+
+            # -------------------------
+
+            # Entwicklungskarten
+
+            # -------------------------
+
+
+
+            "developmentCards": {
+
+                "RITTER": player.developmentCards.get("RITTER", 0),
+
+                "1SIEGPUNKT": player.developmentCards.get("1SIEGPUNKT", 0),
+
+                "MONOPOL": player.developmentCards.get("MONOPOL", 0),
+
+                "ERFINDUNG": player.developmentCards.get("ERFINDUNG", 0),
+
+                "STRAßENBAU": player.developmentCards.get("STRAßENBAU", 0)
+
+            },
+
+
+
+            "countDevelopmentCards": countDevelopmentCards,
+
+            # -------------------------
+
+            # Punkte
+
+            # -------------------------
+
+
+
+            "victoryPoints": player.victoryPoints,
+
+            "secretVictoryPoints": player.secretVictoryPoints,
+
+
+
+            # -------------------------
+
+            # Ritter
+
+            # -------------------------
+
+
+
+            "knights": player.knights,
+
+
+
+            # -------------------------
+
+            # Sonstiges
+
+            # -------------------------
+
+
+
+            "hasToDiscard": player.hasToDiscard,
+
+
+
+            # Anzahl der Straßen/Siedlungen/Städte
+
+            # Die eigentlichen Objekte werden unten über
+
+            # ihre IDs gespeichert.
+
+
+
+            "roads": [
+
+                edge.id
+
+                for edge in player.roads
+
+            ],
+
+
+
+            "settlements": [
+
+                vertex.id
+
+                for vertex in player.settlements
+
+            ],
+
+
+
+            "cities": [
+
+                vertex.id
+
+                for vertex in player.cities
+
+            ]
+
+        }
+
+
+
+        players_state.append(player_state)
+
+
+
+
+
+    # =========================================================
+
+    # BOARD
+
+    # =========================================================
+
+
+
+    board_state = None
+
+
+
+    if self.board is not None:
+
+
+
+        # -----------------------------------------------------
+
+        # TILES
+
+        # -----------------------------------------------------
+
+
+
+        tiles_state = []
+
+
+
+        for tile in self.board.tiles:
+
+
+
+            tile_state = {
+
+                "id": tile.id,
+
+
+
+                # Hex-Koordinaten
+
+                "q": tile.q,
+
+                "r": tile.r,
+
+
+
+                # Resource als String statt Enum
+
+                "resource": (
+
+                    tile.resource.name
+
+                    if tile.resource is not None
+
+                    else None
+
+                ),
+
+
+
+                "number": tile.number,
+
+
+
+                # Ist hier der Räuber?
+
+                "hasRobber": tile == self.robberTile,
+
+
+
+                # IDs der angrenzenden Vertices
+
+                "vertices": [
+
+                    vertex.id
+
+                    for vertex in tile.vertices
+
+                ],
+
+
+
+                # IDs der angrenzenden Edges
+
+                "edges": [
+
+                    edge.id
+
+                    for edge in tile.edges
+
+                ]
+
+            }
+
+
+
+            tiles_state.append(tile_state)
+
+
+
+
+
+        # -----------------------------------------------------
+
+        # VERTICES
+
+        # -----------------------------------------------------
+
+
+
+        vertices_state = []
+
+
+
+        for vertex in self.board.vertices:
+
+
+
+            owner_id = None
+
+
+
+            if vertex.owner is not None:
+
+                try:
+
+                    owner_id = self.players.index(vertex.owner)
+
+                except ValueError:
+
+                    # Owner existiert nicht in self.players
+
+                    owner_id = None
+
+
+
+            vertex_state = {
+
+                "id": vertex.id,
+
+
+
+                # Spieler-ID statt Player-Objekt
+
+                "owner": owner_id,
+
+
+
+                # false = Siedlung
+
+                # true  = Stadt
+
+                "isCity": vertex.isCity,
+
+
+
+                # Welche Tiles grenzen an?
+
+                "adjacentTiles": [
+
+                    tile.id
+
+                    for tile in vertex.adjacentTiles
+
+                    if tile is not None
+
+                ],
+
+
+
+                # Benachbarte Vertices
+
+                "neighbourVertices": [
+
+                    neighbour.id
+
+                    for neighbour in vertex.neighbourVertices
+
+                ],
+
+
+
+                # Angeschlossene Straßen
+
+                "connectedEdges": [
+
+                    edge.id
+
+                    for edge in vertex.connectedEdges
+
+                ]
+
+            }
+
+
+
+            vertices_state.append(vertex_state)
+
+
+
+
+
+        # -----------------------------------------------------
+
+        # EDGES / ROADS
+
+        # -----------------------------------------------------
+
+
+
+        edges_state = []
+
+
+
+        for edge in self.board.edges:
+
+
+
+            owner_id = None
+
+
+
+            if edge.owner is not None:
+
+                try:
+
+                    owner_id = self.players.index(edge.owner)
+
+                except ValueError:
+
+                    # Owner existiert nicht in self.players
+
+                    owner_id = None
+
+
+
+            edge_state = {
+
+                "id": edge.id,
+
+
+
+                # Spieler-ID statt Player-Objekt
+
+                "owner": owner_id,
+
+
+
+                # Die beiden Endpunkte der Straße
+
+                "vertex1": (
+
+                    edge.vertex1.id
+
+                    if edge.vertex1 is not None
+
+                    else None
+
+                ),
+
+
+
+                "vertex2": (
+
+                    edge.vertex2.id
+
+                    if edge.vertex2 is not None
+
+                    else None
+
+                ),
+
+
+
+                # Welche Tiles grenzen an diese Edge?
+
+                "adjacentTiles": [
+
+                    tile.id
+
+                    for tile in edge.adjacentTiles
+
+                    if tile is not None
+
+                ]
+
+            }
+
+
+
+            edges_state.append(edge_state)
+
+
+
+
+
+        # -----------------------------------------------------
+
+        # HARBORS
+
+        # -----------------------------------------------------
+
+
+
+        harbors_state = []
+
+
+
+        for harbor in self.board.harbors:
+
+
+
+            harbor_state = {
+
+                # Falls Harbor eine eigene ID hat, kannst du hier
+
+                # harbor.id verwenden.
+
+                #
+
+                # Da wir deine Harbor-Klasse noch nicht gesehen
+
+                # haben, benutze ich zunächst keinen ID-Wert.
+
+
+
+                "q": harbor.q,
+
+                "r": harbor.r,
+
+
+
+                "resource": (
+
+                    harbor.resource.name
+
+                    if harbor.resource is not None
+
+                    else None
+
+                ),
+
+
+
+                "ratio": harbor.ratio,
+
+
+
+                "direction": harbor.direction,
+
+
+
+                # Die Position des Hafens kennst du aus deinem
+
+                # Harbor-Konstruktor:
+
+                #
+
+                # Harbor(x, y, vertex1, vertex2, resource, ratio)
+
+                #
+
+                # Falls diese Werte bei Harbor als x/y gespeichert
+
+                # werden, kannst du das aktivieren:
+
+                #
+
+                # "x": harbor.x,
+
+                # "y": harbor.y
+
+            }
+
+
+
+            harbors_state.append(harbor_state)
+
+
+
+
+
+        # -----------------------------------------------------
+
+        # BOARD STATE
+
+        # -----------------------------------------------------
+
+
+
+        board_state = {
+
+
+
+            "radius": self.board.radius,
+
+
+
+            "secondSetupPhase": self.board.secondSetupPhase,
+
+
+
+            "currentLongestRoad": self.board.currentLongestRoad,
+
+
+
+            "currentPlayerWithLongestRoad": (
+
+                self.players.index(
+
+                    self.board.currentPlayerWithLongestRoad
+
+                )
+
+                if self.board.currentPlayerWithLongestRoad in self.players
+
+                else None
+
+            ),
+
+
+
+            "currentId": self.board.currentId,
+
+
+
+            # Anzahl verbleibender Entwicklungskarten
+
+            "developmentDeckSize": len(
+
+                self.board.development_deck
+
+            ),
+
+
+
+            "tiles": tiles_state,
+
+            "vertices": vertices_state,
+
+            "edges": edges_state,
+
+            "harbors": harbors_state
+
+        }
+
+
+
+
+
+    # =========================================================
+
+    # CURRENT PLAYER
+
+    # =========================================================
+
+
+
+    current_player_id = None
+
+
+
+    if self.current_player is not None:
+
+
+
+        try:
+
+            current_player_id = self.players.index(
+
+                self.current_player
+
+            )
+
+        except ValueError:
+
+            current_player_id = None
+
+
+
+
+
+    # =========================================================
+
+    # SETUP ORDER
+
+    # =========================================================
+
+
+
+    setup_order = []
+
+
+
+    for player in self.setUpOrder:
+
+
+
+        try:
+
+            setup_order.append(
+
+                self.players.index(player)
+
+            )
+
+        except ValueError:
+
+            # Sollte eigentlich nicht vorkommen
+
+            pass
+
+
+
+
+
+    # =========================================================
+
+    # RAISED HANDS
+
+    # =========================================================
+
+
+
+    raised_hands = {}
+
+
+
+    for player, value in self.raisedHands.items():
+
+
+
+        try:
+
+            player_id = self.players.index(player)
+
+
+
+            # JSON object keys müssen Strings sein
+
+            raised_hands[str(player_id)] = value
+
+
+
+        except ValueError:
+
+            pass
+
+
+
+
+
+    # =========================================================
+
+    # PLAYER TRADE
+
+    # =========================================================
+
+
+
+    player_trade_state = None
+
+
+
+    if self.playerTrade is not None:
+
+
+
+        offer, request, id, tradingPlayer = self.playerTrade
+
+
+
+        player_trade_state = {
+
+            "offer": offer,
+
+            "request": request,
+
+            "tradeId": id,
+
+            "tradingPlayer": tradingPlayer.name
+
+        }
+
+
+
+
+
+    # =========================================================
+
+    # PLAYERS WHO DECLINED
+
+    # =========================================================
+
+
+
+    players_declined = []
+
+
+
+    for player in self.playersDeclined:
+
+
+
+        try:
+
+            players_declined.append(
+
+                self.players.index(player)
+
+            )
+
+        except ValueError:
+
+            pass
+
+
+
+
+
+    # =========================================================
+
+    # PLAYER WITH MOST KNIGHTS
+
+    # =========================================================
+
+
+
+    most_knights_player = None
+
+    most_knights_count = 0
+
+
+
+    if self.currentPlayerWithMostKnights is not None:
+
+
+
+        player, count = self.currentPlayerWithMostKnights
+
+
+
+        try:
+
+            most_knights_player = self.players.index(player)
+
+            most_knights_count = count
+
+        except ValueError:
+
+            pass
+
+
+
+
+
+    # =========================================================
+
+    # COMPLETE GAME STATE
+
+    # =========================================================
+
+
+
+    state = {
+
+
+
+        # -----------------------------------------------------
+
+        # PLAYERS
+
+        # -----------------------------------------------------
+
+
+
+        "players": players_state,
+
+        "playerCount": self.player_count,
+
+
+
+        # -----------------------------------------------------
+
+        # BOARD
+
+        # -----------------------------------------------------
+
+
+
+        "board": board_state,
+
+
+
+        # -----------------------------------------------------
+
+        # TURN
+
+        # -----------------------------------------------------
+
+
+
+        "currentPlayer": current_player_id,
+
+        "currentPlayerName": logic.current_player.name,
+
+
+
+        "currentPlayerIndex": self.current_player_index,
+
+
+
+        # -----------------------------------------------------
+
+        # GAME STATUS
+
+        # -----------------------------------------------------
+
+
+
+        "setupPhase": self.setupPhase,
+
+        "isNotFinished": self.isNotFinished,
+
+        "finished": self.finished,
+
+
+
+        # -----------------------------------------------------
+
+        # MODES
+
+        # -----------------------------------------------------
+
+
+
+        "moveRobberMode": self.moveRobberMode,
+
+        "discardResourcesMode": self.discardResourcesMode,
+
+        "stealMode": self.stealMode,
+
+
+
+        "login": self.login,
+
+
+
+        "setUpSettlement": self.setUpSettlement,
+
+        "setUpRoad": self.setUpRoad,
+
+
+
+        "buildPhase": self.buildPhase,
+
+        "würfelMode": self.würfelMode,
+
+
+
+        # -----------------------------------------------------
+
+        # SETUP
+
+        # -----------------------------------------------------
+
+
+
+        "setUpOrder": setup_order,
+
+
+
+        # -----------------------------------------------------
+
+        # DICE
+
+        # -----------------------------------------------------
+
+
+
+        "dice": self.dice,
+
+        "dice1": logic.dice1,
+
+        "dice2": logic.dice2,
+
+
+
+        "dices": self.dices,
+
+
+
+        # -----------------------------------------------------
+
+        # DEVELOPMENT CARDS
+
+        # -----------------------------------------------------
+
+
+
+        "playedCard": self.playedCard,
+
+
+
+        "freeRoads": self.freeRoads,
+
+
+
+        # -----------------------------------------------------
+
+        # TRADING
+
+        # -----------------------------------------------------
+
+
+
+        "playerTrade": player_trade_state,
+
+
+
+        "playersDeclined": players_declined,
+
+
+
+        # -----------------------------------------------------
+
+        # READY / RAISED HANDS
+
+        # -----------------------------------------------------
+
+
+
+        "raisedHands": raised_hands,
+
+
+
+        # -----------------------------------------------------
+
+        # KNIGHTS
+
+        # -----------------------------------------------------
+
+
+
+        "currentPlayerWithMostKnights": most_knights_player,
+
+
+
+        "mostKnightsCount": most_knights_count,
+
+
+
+        "chat_history": list(chat_history),
+
+
+
+
+
+    }
+
+
+
+    return state
+
+
+
+async def send_json(conn, data):
+
+    await conn.send(
+
+        json.dumps(data, ensure_ascii=False)
+
+    )
+
+
+
+
+
+async def send_state(conn):
+
+    await send_json(conn, {
+
+        "type": "state",
+
+        "state": getState(logic)
+
+    })
+
+
+
+
+
+# -------------------------
+
+# Client-Handler    
+
+# -------------------------
+
+async def handle_client(websocket):
+
+    print("Client verbunden")
+
+
+
+    clients.add(websocket)
+
+
+
+    try:
+
+        async for message in websocket:
+
+
+
+            print("Nachricht:", message)
+
+
+
+            try:
+
+                data = json.loads(message)
+
+            except json.JSONDecodeError:
+
+                print("Ungültiges JSON")
+
+                continue
+
+
+
+            await handle_message(websocket, data)
+
+
+
+    except websockets.exceptions.ConnectionClosed:
+
+        print("Client getrennt")
+
+
+
+    finally:
+
+        clients.discard(websocket)
+
+
+
+        if websocket in client_players:
+
+            player = client_players[websocket]
+
+
+
+            print("Player offline:", player.name)
+
+
+
+            del client_players[websocket]
+
+
+
+        if websocket in client_ready:
+
+            del client_ready[websocket]
+
+
+
+async def restart_server():
+
+    global logic
+
+    global players, bots
+
+    global game_state, loading
+
+    global selected_map_name
+
+    global client_ready
+
+    global restart_pending
+
+    global chat_history
+
+
+
+    print("🏆 Gewinner erkannt! Neustart in 10 Sekunden.")
+
+    await asyncio.sleep(10)
+
+
+
+    print("🔄 Setze Spiel zurück und übernehme Spieler in die Lobby ...")
+
+
+
+
+
+    lobby_players = []
+
+    seen_players = set()
+
+    new_client_players = {}
+
+
+
+    for conn, player in list(client_players.items()):
+
+        if conn not in clients:
+
+            continue
+
+
+
+        if player.name in seen_players:
+
+            continue
+
+
+
+        # Frisches Spielerobjekt ohne alte Siegpunkte,
+
+        # Ressourcen, Straßen, Siedlungen und Entwicklungskarten.
+
+        new_player = Player(
+
+            player.name,
+
+            player.color,
+
+            player.is_host
+
+        )
+
+
+
+        if hasattr(player, "account_id"):
+            new_player.account_id = player.account_id
+
+        lobby_players.append(new_player)
+
+        new_client_players[conn] = new_player
+
+        seen_players.add(player.name)
+
+
+
+    # Auch die Verbindungen müssen auf die neuen Objekte zeigen.
+
+    client_players.clear()
+
+    client_players.update(new_client_players)
+
+
+
+
+
+    # Spielobjekt zurücksetzen.
+
+    logic = Logic()
+
+
+
+    # Dieselben Spielerobjekte mit ihren Namen und Farben behalten.
+
+    players[:] = lobby_players
+
+
+
+    # Den ersten Spieler wieder zum Host machen.
+
+    for i, player in enumerate(players):
+
+        player.is_host = (i == 0)
+
+
+
+    # Bots aus dem alten Spiel entfernen.
+
+    bots.clear()
+
+
+
+    # Veraltete Verbindungszuordnungen entfernen.
+
+    for conn in list(client_players):
+
+        if conn not in clients:
+
+            client_players.pop(conn, None)
+
+
+
+    # Alle menschlichen Spieler müssen erneut Ready drücken.
+
+    client_ready.clear()
+
+
+
+    for conn in client_players:
+
+        if conn in clients:
+
+            client_ready[conn] = False
+
+
+
+    # Alten Spielzustand vollständig zurücksetzen.
+
+    game_state = "lobby"
+
+    loading = False
+
+    selected_map_name = "Basic 4 Spieler"
+
+    restart_pending = False
+
+    chat_history.clear()
+
+
+
+    print("✅ Server zurückgesetzt.")
+
+    print("Übernommene Spieler:", [p.name for p in players])
+
+    print("Verbundene Spieler:", len(client_players))
+
+
+
+    # Allen verbundenen Clients die Lobby erneut schicken.
+
+    await broadcast_lobby()
+
+# -------------------------
+
+# Nachrichten verarbeiten
+
+# -------------------------
+
+async def handle_message(conn, message):
+
+    if message == None:
+
+        return
+
+    print("Nachricht:", message)
+
+    action = message.get("type") or message.get("action")
+
+
+
+    global selected_map_name
+
+    # Kontoaktionen sind vor dem Beitritt erlaubt; die Identität wird nie
+    # aus einem frei wählbaren Namen, sondern aus einer validierten Sitzung bezogen.
+    if action == "register":
+        result = register_account(
+            message.get("username", ""),
+            message.get("email", ""),
+            message.get("password", ""),
+        )
+        await send_json(conn, {"type": "register_result", **result})
+        return
+
+    if action == "verify_email":
+        result = verify_email(message.get("token", ""))
+        await send_json(conn, {"type": "verify_result", **result})
+        return
+
+    if action == "login":
+        result = login(message.get("username", ""), message.get("password", ""))
+        if result.get("ok"):
+            account_id = result["account_id"]
+            result["stats"] = get_stats(account_id)
+        await send_json(conn, {"type": "login_result", **result})
+        return
+
+    if action == "logout":
+        token = client_session_tokens.pop(conn, "")
+        logout(token)
+        client_accounts.pop(conn, None)
+        client_players.pop(conn, None)
+        client_ready.pop(conn, None)
+        await send_json(conn, {"type": "logout_result", "ok": True})
+        await broadcast_lobby()
+        return
+
+    # Join ist nur mit gültigem Sitzungstoken möglich. Alle anderen
+    # Spielaktionen erfordern eine zuvor serverseitig authentifizierte Verbindung.
+    if conn is not None and action == "join":
+        account = validate_session(message.get("token", ""))
+        if account is None:
+            await send_json(conn, {
+                "type": "auth_error",
+                "message": "Bitte anmelden und eine gültige Sitzung verwenden.",
+            })
+            return
+        client_accounts[conn] = account
+        client_session_tokens[conn] = message.get("token", "")
+
+    elif conn is not None and action not in {"register", "verify_email", "login", "logout"}:
+        if conn not in client_accounts:
+            await send_json(conn, {
+                "type": "auth_error",
+                "message": "Du musst dich zuerst anmelden.",
+            })
+            return
+        # Sitzung bei Spielaktionen erneut validieren, damit widerrufene oder
+        # abgelaufene Sitzungen nicht über eine offene WebSocket-Verbindung leben.
+        token = client_session_tokens.get(conn, "")
+        account = validate_session(token)
+        if account is None or account["account_id"] != client_accounts[conn]["account_id"]:
+            client_accounts.pop(conn, None)
+            client_session_tokens.pop(conn, None)
+            await send_json(conn, {"type": "auth_error", "message": "Sitzung abgelaufen. Bitte erneut anmelden."})
+            return
+
+    if action == "get_account_stats":
+        account = client_accounts.get(conn)
+        if account is None:
+            await send_json(conn, {"type": "auth_error", "message": "Bitte anmelden."})
+            return
+        await send_json(conn, {"type": "account_stats", "stats": get_stats(account["account_id"])})
+        return
+
+    if action == "custom_map":
+
+        print("=== CUSTOM MAP EMPFANGEN ===")
+
+        print("Name:", repr(message.get("name")))
+
+        print("Tiles:", len(message.get("tiles") or []))
+
+        print("Harbors:", message.get("harbors"))
+
+        print("Speicherordner:", MAPS_DIR.resolve())
+
+        # Eigene Karten nur in der Lobby speichern.
+
+        if game_state != "lobby":
+
+            return
+
+
+
+        player = client_players.get(conn)
+
+
+
+        # Nur der Host darf Karten speichern.
+
+        if player is None:
+
+            await send_json(conn, {
+
+                "type": "error",
+
+                "message": "Nur der Host darf Karten speichern."
+
+            })
+
+            return
+
+
+
+        print (message.get("tiles"))
+
+        success, result_message = save_custom_map(
+
+            message.get("name"),
+
+            message.get("tiles"),
+
+            message.get("harbors", [])
+
+        )
+
+        print("Speichern erfolgreich:", success)
+
+        print("Speicherergebnis:", result_message)
+
+        print("Dateipfad:", get_map_path(message.get("name")))
+
+        print("Datei existiert:", get_map_path(message.get("name")).exists())
+
+
+
+        if not success:
+
+            await send_json(conn, {
+
+                "type": "error",
+
+                "message": result_message
+
+            })
+
+            return
+
+
+
+        await broadcast_lobby()
+
+        return
+
+
+
+    elif action == "choosemap":
+
+        if game_state != "lobby":
+
+            return
+
+
+
+        player = client_players.get(conn)
+
+
+
+        # Nur der Host entscheidet, welche Karte gespielt wird.
+
+        if player is None:
+
+            await send_json(conn, {
+
+                "type": "error",
+
+                "message": "Nur der Host darf die Karte auswählen."
+
+            })
+
+            return
+
+
+
+        name = message.get("name")
+
+        custom_map = load_custom_map(name)
+
+        selected_map_name = custom_map["name"]
+
+
+
+        await broadcast_lobby()
+
+
+
+        if custom_map is None:
+
+            await send_json(conn, {
+
+                "type": "error",
+
+                "message": "Diese Karte existiert nicht."
+
+            })
+
+            return
+
+
+
+        selected_map_name = custom_map["name"]
+
+
+
+        # Allen Clients die Auswahl mitteilen.
+
+        for client in list(clients):
+
+            await send_json(client, {
+
+                "type": "map_selected",
+
+                "name": selected_map_name,
+
+                "maps": get_saved_maps()
+
+            })
+
+
+
+        print("Ausgewählte Karte:", selected_map_name)
+
+        return
+
+
+
+    if action == "join":
+
+        account = client_accounts.get(conn) if conn is not None else None
+        if conn is not None and account is None:
+            return
+        name = account["username"] if account else message.get("name", "Bot")
+
+
+
+        print(f"Authentifizierter Join: {name}")
+
+
+
+        # =====================================================
+
+        # RECONNECT WÄHREND EINES LAUFENDEN SPIELS
+
+        # =====================================================
+
+
+
+        if game_state == "running":
+
+
+
+            existing_player = None
+
+
+
+            for player in logic.players:
+
+                if player.name == name:
+
+                    existing_player = player
+
+                    break
+
+
+
+            if existing_player is not None:
+
+
+
+                print(
+
+                    f"Spieler im laufenden Spiel gefunden: "
+
+                    f"{existing_player.name}"
+
+                )
+
+
+
+                if account is not None:
+                    existing_player.account_id = account["account_id"]
+
+                clients.add(conn)
+
+                client_players[conn] = existing_player
+
+
+
+                player_index = logic.players.index(existing_player)
+
+
+
+                print(
+
+                    f"Reconnect erfolgreich: "
+
+                    f"{existing_player.name}, "
+
+                    f"Index: {player_index}, "
+
+                    f"Farbe: {existing_player.color}"
+
+                )
+
+
+
+                await send_json(conn, {
+
+                    "action": "welcome",
+
+                    "player_index": player_index,
+
+                    "in_game": True
+
+                })
+
+
+
+                await send_state(conn)
+
+
+
+                return
+
+
+
+
+
+            # Neuer Spieler während einer laufenden Partie:
+
+            # als Zuschauer beitreten, ohne Spielerobjekt anzulegen.
+
+
+
+            print(f"Zuschauer beigetreten: {name}")
+
+
+
+            # Verbindung registrieren, damit der Zuschauer Updates erhält.
+
+            clients.add(conn)
+
+
+
+            # Absichtlich KEIN Eintrag in client_players:
+
+            # Zuschauer dürfen keine Spielaktionen ausführen.
+
+
+
+            await send_json(conn, {
+
+                "action": "welcome",
+
+                "in_game": True,
+
+                "spectator": True
+
+            })
+
+
+
+            # Aktuellen Spielstand sofort übertragen.
+
+            await send_state(conn)
+
+            return
+
+
+
+
+
+        # Zuschauer dürfen keine Spielaktionen ausführen.
+
+    # Bot-Aktionen mit conn=None bleiben erlaubt.
+
+    if (
+
+        conn is not None
+
+        and game_state == "running"
+
+        and conn not in client_players
+
+        and action != "chat_message"
+
+    ):
+
+        return
+
+
+
+
+
+    if action == "chat_message":
+
+
+
+        global restart_pending
+
+        text = message["message"].strip()
+
+
+
+        # Admin-Befehl: Spiel nach 10 Sekunden beenden
+
+        if text.startswith("/endgame"):
+
+            parts = text.split(maxsplit=1)
+
+
+
+            if len(parts) != 2 or parts[1] != "Coaching4Ever":
+
+                await send_json(conn, {
+
+                    "type": "chat_command_result",
+
+                    "message": "Ungültiger Befehl oder falsches Passwort."
+
+                })
+
+                return
+
+
+
+            if game_state != "running":
+
+                await send_json(conn, {
+
+                    "type": "chat_command_result",
+
+                    "message": "Es läuft gerade kein Spiel."
+
+                })
+
+                return
+
+
+
+            if restart_pending:
+
+                await send_json(conn, {
+
+                    "type": "chat_command_result",
+
+                    "message": "Das Spielende wurde bereits eingeleitet."
+
+                })
+
+                return
+
+
+
+            restart_pending = True
+
+            asyncio.create_task(restart_server())
+
+
+
+            chat_entry = {
+
+                "player": "Server",
+
+                "message": "Spielabbruch in 10s"
+
+            }
+
+
+
+            chat_history.append(chat_entry)
+
+
+
+            # Nur die letzten 100 Nachrichten behalten
+
+            del chat_history[:-MAX_CHAT_MESSAGES]
+
+            await broadcast_state()
+
+            return
+
+        text = message["message"]
+
+        if not text:
+
+            return
+
+
+
+        text = text[:500]
+
+
+
+
+
+        name = message["playerName"]
+
+
+
+        # Den tatsächlichen Absender aus der bestehenden
+
+        # Verbindung bzw. Spielerzuordnung verwenden.
+
+        chat_entry = {
+
+            "player": name,
+
+            "message": text
+
+        }
+
+
+
+        chat_history.append(chat_entry)
+
+
+
+        # Nur die letzten 100 Nachrichten behalten
+
+        del chat_history[:-MAX_CHAT_MESSAGES]
+
+        await broadcast_state()
+
+        return
+
+
+
+    # Während der Würfelphase darf noch keine normale Aktion
+
+    # ausgeführt werden.
+
+    if logic.würfelMode and not logic.setupPhase:
+
+        allowed_actions = {
+
+            "roll_dice",
+
+            "playDevelopmentCard",
+
+            "moveRobber",
+
+            "steal",
+
+        }
+
+
+
+        if action not in allowed_actions:
+
+            return
+
+    if logic.discardResourcesMode:
+
+        if action != "discardResource":
+
+            return
+
+    if any(count > 0 for count in logic.goldChoices.values()):
+
+        if action != "chooseGoldResource":
+
+            return
+
+    if action == "join":
+
+        account = client_accounts.get(conn) if conn is not None else None
+        if conn is not None and account is None:
+            return
+        name = account["username"] if account else message.get("name", "Bot")
+
+
+
+        print(f"Authentifizierter Lobby-Beitritt: {name}")
+
+
+
+        # =====================================================
+
+        # RECONNECT WÄHREND EINES LAUFENDEN SPIELS
+
+        # =====================================================
+
+
+
+        if game_state == "running":
+
+
+
+            existing_player = None
+
+
+
+            for player in logic.players:
+
+                if player.name == name:
+
+                    existing_player = player
+
+                    break
+
+
+
+            if existing_player is not None:
+
+
+
+                print(
+
+                    f"Spieler im laufenden Spiel gefunden: "
+
+                    f"{existing_player.name}"
+
+                )
+
+
+
+                # Neue WebSocket-Verbindung diesem Spieler zuordnen
+
+                if account is not None:
+                    existing_player.account_id = account["account_id"]
+
+                clients.add(conn)
+
+                client_players[conn] = existing_player
+
+                client_ready[conn] = False
+
+
+
+                # Position im laufenden Spiel
+
+                player_index = logic.players.index(existing_player)
+
+
+
+                print(
+
+                    f"Reconnect erfolgreich: "
+
+                    f"{existing_player.name}, "
+
+                    f"Index: {player_index}, "
+
+                    f"Farbe: {existing_player.color}"
+
+                )
+
+
+
+                # Browser informieren
+
+                await send_json(conn, {
+
+                    "action": "welcome",
+
+                    "player_index": player_index,
+
+                    "in_game": True
+
+                })
+
+
+
+                # Aktuellen kompletten Spielstand schicken
+
+                await send_state(conn)
+
+
+
+                return
+
+
+
+            # Falls Spiel läuft, aber dieser Name nicht im Spiel ist
+
+            await send_json(conn, {
+
+                "type": "error",
+
+                "message": "Spieler nicht im laufenden Spiel gefunden."
+
+            })
+
+
+
+            return
+
+
+
+        # =====================================================
+
+        # NORMALES JOIN IN DER LOBBY
+
+        # =====================================================
+
+
+
+        # Prüfen, ob Spieler bereits in der Lobby existiert
+
+        existing_player = None
+
+
+
+        for player in players:
+
+            if player.name == name:
+
+                existing_player = player
+
+                break
+
+
+
+        if existing_player is not None:
+
+
+
+            if account is not None:
+                existing_player.account_id = account["account_id"]
+
+            client_players[conn] = existing_player
+
+            clients.add(conn)
+
+
+
+            player_index = players.index(existing_player)
+
+
+
+            await send_json(conn, {
+
+                "action": "welcome",
+
+                "player_index": player_index,
+
+                "in_game": False
+
+            })
+
+
+
+            await broadcast_lobby()
+
+            return
+
+
+
+        # =====================================================
+
+        # NEUER SPIELER
+
+        # =====================================================
+
+
+
+        colors = [
+
+            (229, 57, 53),      # rot
+
+            (41, 121, 255),     # blau
+
+            (50, 180, 74),      # grün
+
+            (244, 208, 63),     # gelb
+
+            (255, 138, 32),     # orange
+
+            (155, 69, 214),     # lila
+
+            (25, 199, 199),     # türkis
+
+            (255, 92, 168),     # pink
+
+            (17, 17, 17),       # schwarz
+
+            (238, 238, 238),    # weiß
+
+
+
+            # Farben 11–15
+
+            (57, 255, 20),      # neongrün
+
+            (121, 85, 72),      # braun
+
+            (20, 43, 140),      # dunkelblau
+
+            (255, 111, 97),     # koralle
+
+            (212, 160, 23),     # gold
+
+
+
+            # 10 neue Farben (16–25)
+
+            (152, 255, 204),    # mint
+
+            (181, 126, 220),    # lavendel
+
+            (0, 140, 149),      # türkisblau
+
+            (128, 0, 32),        # bordeaux
+
+            (0, 0, 128),         # navy
+
+            (255, 0, 255),       # magenta
+
+            (128, 128, 0),       # oliv
+
+            (168, 169, 173),     # silber
+
+            (255, 191, 155),     # pfirsich
+
+            (0, 109, 119)        # petrol
+
+        ]
+
+
+
+
+
+        used_colors = [player.color for player in players]
+
+
+
+        available_colors = [
+
+            color for color in colors
+
+            if color not in used_colors
+
+        ]
+
+
+
+        if available_colors:
+
+            color = available_colors[0]
+
+        else:
+
+            color = colors[len(players) % len(colors)]
+
+
+
+        is_host = len(players) == 0
+
+
+
+        new_player = Player(
+
+            name,
+
+            color,
+
+            is_host
+
+        )
+        if account is not None:
+            new_player.account_id = account["account_id"]
+
+
+
+        players.append(new_player)
+
+
+
+        clients.add(conn)
+
+        client_players[conn] = new_player
+
+        client_ready[conn] = False
+
+
+
+        print(
+
+            f"Neuer Spieler hinzugefügt: "
+
+            f"{new_player.name}, "
+
+            f"Farbe: {new_player.color}, "
+
+            f"Host: {new_player.is_host}"
+
+        )
+
+
+
+        await send_json(conn, {
+
+            "action": "welcome",
+
+            "player_index": len(players) - 1,
+
+            "in_game": False
+
+        })
+
+
+
+        await broadcast_lobby()
+
+
+
+        return
+
+
+
+    elif action == "ready":
+
+        client_ready[conn] = not client_ready.get(conn, False)
+
+        await broadcast_lobby()
+
+        return
+
+
+
+    elif action == "addBot":
+
+        colors = [
+
+            (229, 57, 53),      # rot
+
+            (41, 121, 255),     # blau
+
+            (50, 180, 74),      # grün
+
+            (244, 208, 63),     # gelb
+
+            (255, 138, 32),     # orange
+
+            (155, 69, 214),     # lila
+
+            (25, 199, 199),     # türkis
+
+            (255, 92, 168),     # pink
+
+            (17, 17, 17),       # schwarz
+
+            (238, 238, 238),    # weiß
+
+            (57, 255, 20),      # neongrün
+
+            (121, 85, 72),      # braun
+
+            (20, 43, 140),      # dunkelblau
+
+            (255, 111, 97),     # koralle
+
+            (212, 160, 23),     # gold
+
+            (152, 255, 204),    # mint
+
+            (181, 126, 220),    # lavendel
+
+            (0, 140, 149),      # türkisblau
+
+            (128, 0, 32),       # bordeaux
+
+            (0, 0, 128),        # navy
+
+            (255, 0, 255),      # magenta
+
+            (128, 128, 0),      # oliv
+
+            (168, 169, 173),    # silber
+
+            (255, 191, 155),    # pfirsich
+
+            (0, 109, 119)       # petrol
+
+        ]
+
+
+
+        # Alle bereits verwendeten Farben berücksichtigen:
+
+        used_colors = {
+
+            player.color for player in players
+
+        }
+
+        used_colors.update(
+
+            bot.color for bot in bots
+
+        )
+
+
+
+        # Nur noch freie Farben behalten:
+
+        available_colors = [
+
+            color for color in colors
+
+            if color not in used_colors
+
+        ]
+
+
+
+        # Keine freie Farbe mehr vorhanden:
+
+        if not available_colors:
+
+            print("Kein Bot hinzugefügt: Keine freie Farbe mehr.")
+
+            return
+
+
+
+        # Bot-Namen vergeben:
+
+        bot_names = [
+
+            "Nila",
+
+            "Amy",
+
+            "Fiona",
+
+            "Melissa",
+
+            "Basti"
+
+        ]
+
+
+
+        bot_name = (
+
+            bot_names[len(bots)]
+
+            if len(bots) < len(bot_names)
+
+            else f"Bot{len(bots) + 1}"
+
+        )
+
+
+
+        # Erste verfügbare Farbe verwenden:
+
+        newBot = Bot(
+
+            bot_name,
+
+            available_colors[0]
+
+        )
+
+
+
+        bots.append(newBot)
+
+
+
+        await broadcast_lobby()
+
+        return
+
+
+
+    elif action == "removeBot":
+
+        if not len(bots) == 0:
+
+            bots.pop(len(bots)-1)
+
+        await broadcast_lobby()
+
+        return
+
+
+
+    elif action == "change_color":
+
+        color_name = message["color"]
+
+
+
+
+
+        color_map = {
+
+            "rot": (229, 57, 53),
+
+            "blau": (41, 121, 255),
+
+            "grün": (50, 180, 74),
+
+            "gelb": (244, 208, 63),
+
+            "orange": (255, 138, 32),
+
+            "lila": (155, 69, 214),
+
+            "türkis": (25, 199, 199),
+
+            "pink": (255, 92, 168),
+
+            "schwarz": (17, 17, 17),
+
+            "weiß": (238, 238, 238),
+
+
+
+            # Farben 11–15
+
+            "neongrün": (57, 255, 20),
+
+            "braun": (121, 85, 72),
+
+            "dunkelblau": (20, 43, 140),
+
+            "koralle": (255, 111, 97),
+
+            "gold": (212, 160, 23),
+
+
+
+            # Farben 16–25
+
+            "mint": (152, 255, 204),
+
+            "lavendel": (181, 126, 220),
+
+            "türkisblau": (0, 140, 149),
+
+            "bordeaux": (128, 0, 32),
+
+            "navy": (0, 0, 128),
+
+            "magenta": (255, 0, 255),
+
+            "oliv": (128, 128, 0),
+
+            "silber": (168, 169, 173),
+
+            "pfirsich": (255, 191, 155),
+
+            "petrol": (0, 109, 119),
+
+        }
+
+
+
+
+
+        client_players[conn].color = color_map[color_name]
+
+
+
+        await broadcast_lobby()
+
+        return
+
+
+
+    elif action == "start_game":
+
+        global loading
+
+        if game_state != "lobby" or loading:
+
+            return
+
+        noDoubleColor = True
+
+        colors = []
+
+        players_and_bots = players + bots
+
+        for p in players_and_bots:
+
+            for c in colors:
+
+                if c == p.color:
+
+                    noDoubleColor = False
+
+            colors.append(p.color)
+
+        print (f"NoDoubleColor: {noDoubleColor}")
+
+        if all(client_ready.values()) and len(players) + len(bots) >= 2 and noDoubleColor:
+
+            loading = True
+
+            await broadcast_lobby()
+
+            await start_game()
+
+        return
+
+
+
+
+
+
+
+    if action == "roll_dice":
+
+        if logic.würfelMode:
+
+            dice = logic.roll_dice()
+
+
+
+
+
+
+
+    elif action == "buildSettlement":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        vertexId = message["vertexId"]
+
+        for v in logic.board.vertices:
+
+            if v.id == vertexId:
+
+                vertex = v
+
+
+
+
+
+        # Prüfen, ob gerade die zweite Startsiedlung gesetzt wird.
+
+        second_setup_settlement = (
+
+            logic.setupPhase
+
+            and logic.board.secondSetupPhase
+
+        )
+
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
+
+            success, goldChoices = logic.board.buildSettlement(
+
+                player,
+
+                vertex,
+
+                logic.setupPhase
+
+            )
+
+            if second_setup_settlement:
+
+                logic.goldChoices[player] = goldChoices
+
+            if logic.setupPhase and success:
+
+                logic.nextStepSetupPhase()
+
+
+
+
+
+    elif action == "buildRoad":
+
+        print("DEBUG: BUILD ROAD HANDLER ERREICHT")
+
+        name = message["playerName"]
+
+        player = next(
+
+            (p for p in logic.players if p.name == name),
+
+            None
+
+        )
+
+
+
+        edgeId = message["edgeId"]
+
+        edge = next(
+
+            (e for e in logic.board.edges if e.id == edgeId),
+
+            None
+
+        )
+
+
+
+        if player is None:
+
+            print(f"BUILD ROAD ABGELEHNT: Spieler {name} nicht gefunden")
+
+            return
+
+
+
+        if edge is None:
+
+            print(f"BUILD ROAD ABGELEHNT: Kante {edgeId} nicht gefunden")
+
+            return
+
+
+
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
+
+            print(
+
+                f"BUILD ROAD VERSUCH: Spieler={name}, "
+
+                f"Kante={edgeId}, Setup={logic.setupPhase}, "
+
+                f"setUpRoad={logic.setUpRoad}"
+
+            )
+
+
+
+            success = logic.board.buildRoad(
+
+                player,
+
+                edge,
+
+                logic.setupPhase,
+
+                logic.freeRoads > 0
+
+            )
+
+
+
+            print(
+
+                f"BUILD ROAD ERGEBNIS: success={success}, "
+
+                f"edge.owner={edge.owner}, "
+
+                f"Spielerstraßen={len(player.roads)}"
+
+            )
+
+
+
+            if success and logic.freeRoads > 0:
+
+                logic.freeRoads -= 1
+
+
+
+            if logic.setupPhase and success:
+
+                logic.nextStepSetupPhase()
+
+
+
+            print(
+
+                f"SETUP NACH BAU: setUpRoad={logic.setUpRoad}, "
+
+                f"setUpSettlement={logic.setUpSettlement}"
+
+            )
+
+
+
+
+
+    elif action == "buildCity":
+
+        vertexId = message["vertexId"]
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        for v in logic.board.vertices:
+
+            if v.id == vertexId:
+
+                vertex = v
+
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
+
+            logic.board.buildCity(player, vertex)
+
+
+
+    elif action == "endTurn":
+
+
+
+        # Pflichtaktionen müssen zuerst abgeschlossen werden
+
+        if logic.discardResourcesMode:
+
+            return
+
+
+
+        if logic.würfelMode:
+
+            return
+
+
+
+        if logic.moveRobberMode:
+
+            return
+
+
+
+        if logic.stealMode:
+
+            return
+
+
+
+        if logic.freeRoads > 0:
+
+            return
+
+        # Setup-Aktionen nur während der Setup-Phase blockieren
+
+        if logic.setupPhase:
+
+            if logic.setUpSettlement:
+
+                return
+
+
+
+            if logic.setUpRoad:
+
+                return
+
+
+
+        if len(logic.players) <= 4:
+
+            logic.next_turn()
+
+        else:
+
+            logic.specialBuildPhase()
+
+            logic.checkFinishedSpecialBuildPhase()
+
+
+
+    elif action == "raiseHand":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        logic.raiseHand(player, message["value"])
+
+    elif action == "finishBuild":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        logic.raiseHand(player, False)
+
+        logic.checkFinishedSpecialBuildPhase()
+
+
+
+    elif action == "tradeWithPlayer":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        logic.tradeWithPlayer(player, message["request"], message["offer"])
+
+    elif action == "tradeWithBank":
+
+        logic.tradeWithBank(message["request"], message["offer"])
+
+
+
+    elif action == "moveRobber":
+
+        tileId = message["tileId"]
+
+        for t in logic.board.tiles:
+
+            if t.id == tileId:
+
+                tile = t
+
+        if (tile != logic.robberTile):
+
+            logic.robberTile = tile
+
+            for vertex in tile.vertices:
+
+                if vertex.owner != None:
+
+                    if vertex.owner != logic.current_player and vertex.owner.countResources() > 0:
+
+                        logic.stealMode = True
+
+            logic.moveRobberMode = False
+
+
+
+    elif action == "steal":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        if logic.stealMode == True:
+
+            logic.stealFromPlayer(player)
+
+        logic.stealMode = False
+
+    elif action == "playDevelopmentCard":
+
+        card = message["card"]
+
+        logic.playDevelopmentCard(card, message["res1"], message["res2"],logic.current_player)
+
+    elif action == "buyDevelopmentCard":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        if player == logic.current_player or (logic.buildPhase and logic.raisedHands[player] == True):
+
+            logic.board.buyDevelopmentCard(player)
+
+    elif action == "discardResource":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        if player.resources[message["res"]] > 0:
+
+            player.resources[message["res"]] -= 1
+
+            player.hasToDiscard -= 1
+
+        doneWithDiscarding = True
+
+        for p in logic.players:
+
+            if p.hasToDiscard > 0:
+
+                doneWithDiscarding = False
+
+        if doneWithDiscarding:
+
+            logic.discardResourcesMode = False
+
+            logic.moveRobberMode = True
+
+    elif action == "openPlayerTrade":
+
+        if not logic.würfelMode and not logic.buildPhase:
+
+            logic.openPlayerTrade(message["offer"], message["request"])
+
+    elif action == "acceptTrade":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        try:
+
+            trade_offer, trade_request, id, tradingPlayer = logic.playerTrade
+
+            success = logic.tradeWithPlayer(player, trade_request, trade_offer)
+
+            if success:
+
+                logic.playerTrade = None
+
+                logic.playersDeclined = []
+
+        except:
+
+            return
+
+    elif action == "declineTrade":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        if player == logic.current_player:
+
+            logic.playerTrade = None
+
+            logic.playersDeclined = []
+
+
+
+        else:
+
+            logic.playersDeclined.append(player)
+
+            if len(logic.playersDeclined) >= len(logic.players) -1:
+
+                logic.playerTrade = None
+
+                logic.playersDeclined = []
+
+    elif action == "chooseGoldResource":
+
+        name = message["playerName"]
+
+        for p in logic.players:
+
+            if p.name == name:
+
+                player = p
+
+        logic.chooseGoldResource(player, message["resource"])
+
+    await broadcast_state()
+
+
+
+
+
+async def start_game():
+
+    global game_state, stats_recorded_for_game
+    stats_recorded_for_game = False
+
+
+
+    print("start_game funktion aufgerufen")
+
+    # Tatsächlich vorhandene Lobby-Spieler einsammeln.
+
+    # Pro Spieler nur einen Eintrag verwenden.
+
+    connected_players = []
+
+
+
+    seen_players = set()
+
+
+
+    for conn, player in list(client_players.items()):
+
+        if conn is None:
+
+            continue
+
+
+
+        if conn not in clients:
+
+            continue
+
+
+
+        if player in seen_players:
+
+            continue
+
+
+
+        connected_players.append((conn, player))
+
+        seen_players.add(player)
+
+
+
+    all_participants = connected_players + [
+
+        (None, bot) for bot in bots
+
+    ]
+
+
+
+    if len(all_participants) < 2:
+
+        print("Spielstart abgebrochen: Zu wenige Spieler.")
+
+        return
+
+
+
+    # Tatsächliche Teilnehmerzahl verwenden.
+
+    random.shuffle(all_participants)
+
+
+
+    print("Spieler in Lobby:", len(players))
+
+    print("Verbundene Spieler:", len(connected_players))
+
+    print("Bots:", len(bots))
+
+    print("Teilnehmer beim Spielstart:", len(all_participants))
+
+
+
+    custom_map = None
+
+
+
+    if selected_map_name is not None:
+
+        custom_map = load_custom_map(selected_map_name)
+
+
+
+        if custom_map is None:
+
+            print(
+
+                "Ausgewählte Karte konnte nicht geladen werden:",
+
+                selected_map_name
+
+            )
+
+            return
+
+
+
+    start_time = time.perf_counter()
+
+
+
+    print("Board-Erstellung gestartet")
+
+    logic.createBoard(
+
+        len(all_participants),
+
+        custom_map
+
+    )
+
+    print(
+
+    f"Board-Erstellung dauerte "
+
+    f"{time.perf_counter() - start_time:.2f} Sekunden"
+
+    )
+
+
+
+    shuffled_players = []
+
+
+
+    for i, (conn, player) in enumerate(all_participants):
+
+        if conn is not None:
+
+            try:
+
+                await send_json(conn, {
+
+                    "action": "welcome",
+
+                    "player_index": i,
+
+                    "in_game": True
+
+                })
+
+            except websockets.exceptions.ConnectionClosed:
+
+                print(f"Spieler {player.name} beim Start getrennt.")
+
+
+
+        shuffled_players.append(player)
+
+
+
+    print("send welcome to all clients")
+
+    logic.players = shuffled_players
+
+
+
+    game_state = "running"
+
+
+
+    print("set gamestate to running")
+
+    logic.start()
+
+    logic.startSetupPhase()
+
+
+
+    print("setupphase startet")
+
+    await broadcast_state()
+
+
+
+
+
+
+
+async def broadcast_lobby():
+
+    lobby_data = []
+
+
+
+    for conn, player in client_players.items():
+
+        lobby_data.append({
+
+            "name": player.name,
+
+            "ready": client_ready.get(conn, False),
+
+            "color": player.color
+
+        })
+
+    for bot in bots:
+
+        lobby_data.append({
+
+            "name": bot.name,
+
+            "ready": True,
+
+            "color": bot.color
+
+        })
+
+    for client in clients:
+
+        await send_json(client, {
+
+    "action": "lobby_update",
+
+    "players": lobby_data,
+
+    "maps": get_saved_map_previews(),
+
+    "selected_map": selected_map_name,
+
+    "loading": loading
+
+})
+
+# -------------------------
+
+# Spielstand an alle senden
+
+# -------------------------
+
+def record_finished_game_stats():
+    """Speichert die Ergebnisse einer Partie genau einmal in SQLite."""
+    global stats_recorded_for_game
+    if stats_recorded_for_game:
+        return
+    human_players = [p for p in logic.players if getattr(p, "account_id", None) is not None]
+    if not human_players:
+        stats_recorded_for_game = True
+        return
+    winner = max(logic.players, key=lambda p: getattr(p, "victoryPoints", 0), default=None)
+    for player in human_players:
+        try:
+            record_game_result(
+                int(player.account_id),
+                won=(player is winner),
+                victory_points=getattr(player, "victoryPoints", 0),
+            )
+        except Exception as exc:
+            print(f"[accounts] Spielergebnis für {player.name} konnte nicht gespeichert werden: {exc}")
+    stats_recorded_for_game = True
+
+
+async def broadcast_state():
+
+    global restart_pending
+
+    dead_clients = []
+
+
+
+    for client in clients:
+
+        try:
+
+            await send_state(client)
+
+        except Exception:
+
+            dead_clients.append(client)
+
+
+
+    for client in dead_clients:
+
+        clients.discard(client)
+
+
+
+    # Gewinner prüfen, solange ein Spiel läuft
+
+    if game_state == "running" and not restart_pending:
+
+        if logic.checkWinner():
+
+            record_finished_game_stats()
+            restart_pending = True
+
+            asyncio.create_task(restart_server())
+
+
+
+async def bot_loop():
+
+
+
+    print("DEBUG: NEUER BOT_LOOP AKTIV")
+
+
+
+    while True:
+
+
+
+        if game_state == "running":
+
+
+
+            for player in logic.players:
+
+
+
+                if isinstance(player, Bot):
+
+
+
+                    if not logic.discardResourcesMode:
+
+
+
+                        action = player.take_turn(logic)
+
+
+
+                        if action:
+
+                            await handle_message(None, action)
+
+
+
+        await asyncio.sleep(0.1)
+
+
+
+async def verification_http_handler(connection, request):
+    """Verarbeitet E-Mail-Bestätigungslinks über normales HTTPS/HTTP.
+
+    WebSocket-Upgrades werden unverändert an den normalen Client-Handler
+    weitergereicht. Normale Browser-Aufrufe mit ?verify=TOKEN bestätigen
+    dagegen das Konto und erhalten eine kleine HTML-Ergebnisseite.
+    """
+    # Die normale Spielverbindung muss weiterhin als WebSocket funktionieren.
+    if request.headers.get("Upgrade", "").lower() == "websocket":
+        return None
+
+    parsed = urlsplit(request.path)
+    query = parse_qs(parsed.query)
+    token = query.get("verify", [""])[0]
+
+    if parsed.path == "/" and token:
+        try:
+            result = verify_email(token)
+            if result.get("ok"):
+                title = "E-Mail bestätigt"
+                message = result.get(
+                    "message",
+                    "Deine E-Mail-Adresse wurde erfolgreich bestätigt.",
+                )
+                color = "#22c55e"
+            else:
+                title = "Bestätigung nicht möglich"
+                message = result.get(
+                    "error",
+                    "Der Bestätigungslink ist ungültig oder abgelaufen.",
+                )
+                color = "#f87171"
+        except Exception:
+            title = "Bestätigung fehlgeschlagen"
+            message = "Beim Bestätigen ist ein Serverfehler aufgetreten. Bitte versuche es später erneut."
+            color = "#f87171"
+
+        body = f"""<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(title)}</title>
+  <style>
+    body {{ margin:0; min-height:100vh; display:grid; place-items:center;
+      background:#17130f; color:#f7ead1; font:16px system-ui, sans-serif; }}
+    main {{ width:min(90%,520px); box-sizing:border-box; padding:32px;
+      border:1px solid #514638; border-radius:18px; background:#211b15;
+      text-align:center; }}
+    h1 {{ color:{color}; }} p {{ line-height:1.6; }}
+  </style>
+</head>
+<body><main><h1>{escape(title)}</h1><p>{escape(message)}</p>
+<p>Du kannst dieses Fenster jetzt schließen und zum Spiel zurückkehren.</p>
+</main></body></html>""".encode("utf-8")
+        return Response(
+            200,
+            "OK",
+            Headers([
+                ("Content-Type", "text/html; charset=utf-8"),
+                ("Content-Length", str(len(body))),
+                ("Cache-Control", "no-store"),
+                ("X-Content-Type-Options", "nosniff"),
+            ]),
+            body,
+        )
+
+    body = ("Dieser Endpunkt dient der E-Mail-Bestätigung. "
+            "Öffne den vollständigen Bestätigungslink aus deiner E-Mail.").encode("utf-8")
+    return Response(
+        404,
+        "Not Found",
+        Headers([
+            ("Content-Type", "text/plain; charset=utf-8"),
+            ("Content-Length", str(len(body))),
+            ("Cache-Control", "no-store"),
+        ]),
+        body,
+    )
+
+
+async def main():
+
+    asyncio.create_task(bot_loop())
+
+    async with websockets.serve(
+
+        handle_client,
+
+        "0.0.0.0",
+
+        8765,
+        process_request=verification_http_handler,
+
+    ):
+
+        print("WebSocket-Server läuft auf Port 8765")
+
+
+
+        await asyncio.Future()
+
+
+
+
+
+
+
+# -------------------------
+
+# Server starten
+
+# -------------------------
+
+asyncio.run(main())
+
+
+
+
