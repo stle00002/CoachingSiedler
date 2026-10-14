@@ -1049,6 +1049,7 @@ async def handle_message(conn, message):
         
     if action == "chat_message":
 
+        global restart_pending
         text = message["message"].strip()
 
         # Admin-Befehl: Spiel nach 10 Sekunden beenden
@@ -1078,6 +1079,16 @@ async def handle_message(conn, message):
 
             restart_pending = True
             asyncio.create_task(restart_server())
+            chat_entry = {
+                "player": "Server",
+                "message": "Spiel wird in 10 Sekunden beendet. Spieler kommen wieder zurück in die Lobby"
+            }
+
+            chat_history.append(chat_entry)
+
+            # Nur die letzten 100 Nachrichten behalten
+            del chat_history[:-MAX_CHAT_MESSAGES]
+            await broadcast_state()
             return
         text = message["message"]
         if not text:

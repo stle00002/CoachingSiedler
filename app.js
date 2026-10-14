@@ -9,7 +9,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://circles-youth-holly-shoulder.trycloudflare.com";
+const WS_URL = "wss://montana-diary-purchase-now.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
