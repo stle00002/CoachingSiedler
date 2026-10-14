@@ -1049,6 +1049,36 @@ async def handle_message(conn, message):
         
     if action == "chat_message":
 
+        text = message["message"].strip()
+
+        # Admin-Befehl: Spiel nach 10 Sekunden beenden
+        if text.startswith("/endgame"):
+            parts = text.split(maxsplit=1)
+
+            if len(parts) != 2 or parts[1] != "Coaching4Ever":
+                await send_json(conn, {
+                    "type": "chat_command_result",
+                    "message": "Ungültiger Befehl oder falsches Passwort."
+                })
+                return
+
+            if game_state != "running":
+                await send_json(conn, {
+                    "type": "chat_command_result",
+                    "message": "Es läuft gerade kein Spiel."
+                })
+                return
+
+            if restart_pending:
+                await send_json(conn, {
+                    "type": "chat_command_result",
+                    "message": "Das Spielende wurde bereits eingeleitet."
+                })
+                return
+
+            restart_pending = True
+            asyncio.create_task(restart_server())
+            return
         text = message["message"]
         if not text:
             return
