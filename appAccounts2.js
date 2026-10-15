@@ -16,7 +16,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://tahoe-edmonton-pig-preston.trycloudflare.com";
+const WS_URL = "wss://bringing-eventually-talking-awards.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
@@ -173,6 +173,10 @@ function ensureAccountUi() {
       </div>
       <label for="accountPassword">Passwort</label>
       <input id="accountPassword" type="password" maxlength="128" autocomplete="current-password" placeholder="Mindestens 10 Zeichen" />
+      <div id="accountPasswordConfirmWrap" class="hidden">
+        <label for="accountPasswordConfirm">Passwort wiederholen</label>
+        <input id="accountPasswordConfirm" type="password" maxlength="128" autocomplete="new-password" placeholder="Passwort erneut eingeben" />
+      </div>
       <button type="button" id="accountSubmit" class="primary">Anmelden</button>
       <div id="accountMessage" role="status" aria-live="polite" style="min-height:1.4em;overflow-wrap:anywhere"></div>
     </div>`;
@@ -180,6 +184,7 @@ function ensureAccountUi() {
   $("accountRegisterTab").onclick = () => setAccountMode("register");
   $("accountSubmit").onclick = submitAccountForm;
   $("accountPassword").addEventListener("keydown", e => { if (e.key === "Enter") submitAccountForm(); });
+  $("accountPasswordConfirm").addEventListener("keydown", e => { if (e.key === "Enter") submitAccountForm(); });
   $("accountUsername").addEventListener("keydown", e => { if (e.key === "Enter") submitAccountForm(); });
   setAccountMode("login");
   if (me) $("accountUsername").value = me;
@@ -190,6 +195,8 @@ function setAccountMode(mode) {
   accountMode = mode;
   if (!$("accountPanel")) return;
   $("accountEmailWrap").classList.toggle("hidden", mode !== "register");
+  $("accountPasswordConfirmWrap").classList.toggle("hidden", mode !== "register");
+  $("accountPassword").placeholder = mode === "register" ? "Mindestens 10 Zeichen" : "Passwort";
   $("accountSubmit").textContent = mode === "register" ? "Registrieren" : "Anmelden";
   $("accountPassword").autocomplete = mode === "register" ? "new-password" : "current-password";
   $("accountLoginTab").disabled = mode === "login";
@@ -210,7 +217,13 @@ function submitAccountForm() {
   }
   if (accountMode === "register") {
     const email = $("accountEmail").value.trim();
+    const passwordConfirm = $("accountPasswordConfirm").value;
     if (!email) { accountMessage("Bitte deine E-Mail-Adresse eingeben.", true); return; }
+    if (password !== passwordConfirm) {
+      accountMessage("Die beiden Passwörter stimmen nicht überein.", true);
+      $("accountPasswordConfirm").focus();
+      return;
+    }
     send("register", { username, email, password });
   } else {
     send("login", { username, password });
@@ -350,6 +363,7 @@ function connect() {
           setAccountMode("login");
           $("accountUsername").value = $("accountUsername").value.trim();
           $("accountPassword").value = "";
+          if ($("accountPasswordConfirm")) $("accountPasswordConfirm").value = "";
           accountMessage(m.message || "Registrierung erfolgreich. Bitte E-Mail bestätigen.");
         } else {
           accountMessage(m.error || "Registrierung fehlgeschlagen.", true);
