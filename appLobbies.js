@@ -331,9 +331,6 @@ function joinRoom(code) {
   if (!ws || ws.readyState !== WebSocket.OPEN) { setPreLobbyMessage("Keine Serververbindung.", true); return; }
   setPreLobbyMessage("Lobby wird gesucht …");
   send("join_room", { code, token: sessionToken });
-  if (me == "Stefan"){
-    send("change_color", { playerName: me, color: "pink" });
-  }
 }
 
 function leaveRoom() {
@@ -484,6 +481,10 @@ function connect() {
         showRoomToolbar();
         showPreLobby(false);
         setPreLobbyMessage("");
+        if (me == "Stefan"){
+            send("change_color", { playerName: me, color: "pink" });
+        }
+
       }
       else if (m.type === "room_left") {
         currentRoomCode = "";
@@ -657,9 +658,9 @@ COLORS.forEach(([n, c]) => {
     myColor = n;
     localStorage.setItem("catanColor", n);
     send("change_color", { playerName: me, color: n });
-  };
+  }
+};
   $("colors").appendChild(b);
-}
 });
 document
   .querySelectorAll(".actions button")
