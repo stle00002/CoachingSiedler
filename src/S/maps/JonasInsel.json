@@ -1,0 +1,121 @@
+{
+    "name": "JonasInsel",
+    "tiles": [
+        {
+            "q": -1,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -2,
+            "resource": "ERZ"
+        },
+        {
+            "q": 0,
+            "r": -1,
+            "resource": "ERZ"
+        },
+        {
+            "q": 1,
+            "r": -2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -1,
+            "r": -2,
+            "resource": "WEIZEN"
+        },
+        {
+            "q": -1,
+            "r": 0,
+            "resource": "SCHAF"
+        }
+    ],
+    "harbors": [
+        {
+            "q": 0,
+            "r": -3,
+            "direction": 4,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 1,
+            "r": -3,
+            "direction": 4,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 2,
+            "r": -3,
+            "direction": 4,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": 1,
+            "r": -1,
+            "direction": 3,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": 0,
+            "r": 0,
+            "direction": 2,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -1,
+            "r": -3,
+            "direction": 5,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": -2,
+            "direction": 6,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": -1,
+            "direction": 1,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": 0,
+            "direction": 1,
+            "resource": "ERZ",
+            "ratio": 2
+        },
+        {
+            "q": -2,
+            "r": 1,
+            "direction": 1,
+            "resource": "WEIZEN",
+            "ratio": 2
+        },
+        {
+            "q": -1,
+            "r": 1,
+            "direction": 2,
+            "resource": "SCHAF",
+            "ratio": 2
+        },
+        {
+            "q": 2,
+            "r": -2,
+            "direction": 3,
+            "resource": "SCHAF",
+            "ratio": 2
+        }
+    ]
+}

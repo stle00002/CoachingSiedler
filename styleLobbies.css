@@ -1,0 +1,81 @@
+/* Kontovariante: verwendet weiterhin das bestehende Spiel-Design. */
+@import url("style.css");
+
+/* Das Login-/Registrierungsformular wird von appAccounts2.js in #join-row eingefügt. */
+#join-row {
+  display: block;
+  width: 100%;
+}
+
+#accountPanel {
+  box-sizing: border-box;
+  padding: 18px;
+  border: 1px solid rgba(255, 230, 190, 0.18);
+  border-radius: 14px;
+  background: rgba(20, 17, 14, 0.45);
+}
+
+#accountPanel label {
+  display: block;
+  margin: 2px 0 -5px;
+  color: #f7ead1;
+  font-size: 0.92rem;
+}
+
+#accountPanel input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+#accountPanel button {
+  cursor: pointer;
+}
+
+#accountPanel button:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+#accountMessage {
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+#accountStatsText {
+  line-height: 1.6;
+}
+
+@media (max-width: 520px) {
+  #accountPanel {
+    padding: 14px;
+  }
+}
+
+
+/* Mehrere private Spiel-Lobbys */
+.pre-lobby-panel { width: min(94vw, 560px); margin: 7vh auto; }
+.pre-lobby-actions { display: grid; gap: 14px; margin-top: 18px; }
+.pre-lobby-actions.hidden { display: none !important; }
+.pre-lobby-actions > button { width: 100%; min-height: 48px; font-size: 1.05rem; }
+.join-room-row { display: flex; gap: 8px; width: 100%; }
+.join-room-row input { flex: 1 1 160px; min-width: 0; }
+.join-room-row button { flex: 0 0 auto; }
+.room-hint { opacity: .78; margin: 0; font-size: .9rem; line-height: 1.45; }
+.pre-lobby-message { min-height: 1.5em; margin-top: 12px; overflow-wrap: anywhere; }
+.room-toolbar { position: fixed; z-index: 10000; top: 8px; left: 50%; transform: translateX(-50%); width: min(98vw, 1000px); box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 8px 10px; border: 1px solid #64513b; border-radius: 12px; background: rgba(29, 23, 17, .97); color: #f7ead1; box-shadow: 0 5px 22px rgba(0,0,0,.35); }
+.room-toolbar.hidden { display: none !important; }
+.room-toolbar button { white-space: nowrap; }
+.room-invite-text { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .7; font-size: .75rem; }
+#lobby:not(.hidden) { padding-top: 58px; }
+#game:not(.hidden) { padding-top: 42px; }
+@media (max-width: 600px) {
+  .pre-lobby-panel { margin: 3vh auto; padding: 18px; }
+  .join-room-row { flex-direction: column; }
+  .join-room-row button { width: 100%; }
+  .room-toolbar { top: 3px; gap: 5px; padding: 5px; }
+  .room-toolbar button { font-size: .8rem; padding: 6px 8px; }
+  .room-invite-text { display: none; }
+  #lobby:not(.hidden) { padding-top: 100px; }
+  #game:not(.hidden) { padding-top: 80px; }
+}

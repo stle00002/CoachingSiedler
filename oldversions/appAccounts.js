@@ -240,6 +240,18 @@ function renderLoggedInAccount(username, stats = accountStats) {
     localStorage.removeItem("catanName");
     me = "";
     isSpectator = false;
+    lastState = null;
+    mode = null;
+
+    // Spieloberfläche ausblenden
+    $("lobby").classList.add("hidden");
+    $("game").classList.add("hidden");
+
+    // Offene Fenster schließen
+    if ($("tradeBar")) $("tradeBar").classList.add("hidden");
+    if ($("tradeOffer")) $("tradeOffer").classList.add("hidden");
+    if ($("modal")) $("modal").classList.add("hidden");
+
     renderLoggedOutAccount("Du wurdest abgemeldet.");
   };
   $("accountStatsBtn").onclick = () => send("get_account_stats");
@@ -350,7 +362,7 @@ function connect() {
           setAccountMode("login");
           $("accountUsername").value = $("accountUsername").value.trim();
           $("accountPassword").value = "";
-          accountMessage(m.message || "Registrierung erfolgreich. Bitte E-Mail bestätigen.");
+          accountMessage(m.message || "Registrierung erfolgreich. Bitte E-Mail bestätigen. Es kann etwas dauern, bis du eine E-Mail erhälst. Guck auch im Spam-Ordner");
         } else {
           accountMessage(m.error || "Registrierung fehlgeschlagen.", true);
         }

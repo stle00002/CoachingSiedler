@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>COACHING – Konto</title>
-    <link rel="stylesheet" href="styleAccounts.css" />
+    <title>COACHING – Multiplayer</title>
+    <link rel="stylesheet" href="styleLobbies.css" />
   </head>
   <body>
     <div id="goldResourceModal" class="gold-resource-modal hidden">
@@ -24,17 +24,36 @@
 </div>
     <div id="app">
       
-<section id="lobby" class="screen">
+<div id="roomToolbar" class="room-toolbar hidden">
+  <span>Lobby-Code: <strong id="roomCodeText"></strong></span>
+  <button type="button" id="copyInviteBtn">Einladungslink kopieren</button>
+  <span id="roomInviteText" class="room-invite-text"></span>
+  <button type="button" id="backToMenuBtn">Zurück zur Übersicht</button>
+  <button type="button" id="logoutRoomBtn">Abmelden</button>
+</div>
+
+<section id="preLobby" class="screen">
+  <div class="panel lobby-panel pre-lobby-panel">
+    <h1>COACHING</h1>
+    <p class="sub">Multiplayer · Lobby auswählen</p>
+    <div id="join-row" class="join-row"></div>
+    <div id="connection" class="status">Verbinde mit Server …</div>
+    <div id="preLobbyActions" class="pre-lobby-actions hidden">
+      <button type="button" id="createRoomBtn" class="primary">Lobby erstellen</button>
+      <div class="join-room-row">
+        <input id="roomCodeInput" maxlength="8" placeholder="Einladungscode eingeben" autocomplete="off" />
+        <button type="button" id="joinRoomBtn">Lobby beitreten</button>
+      </div>
+      <p class="room-hint">Erstelle eine Lobby und teile den Code oder den Einladungslink mit deinen Freunden.</p>
+    </div>
+    <div id="preLobbyMessage" class="pre-lobby-message" role="status" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="lobby" class="screen hidden">
     <div class="panel lobby-panel">
         <h1>COACHING</h1>
-        <p class="sub">Multiplayer</p>
-
-        <div id="join-row" class="join-row">
-            <input id="name" placeholder="Dein Name" maxlength="20" />
-            <button id="joinBtn">Beitreten</button>
-        </div>
-
-        <div id="connection" class="status">Nicht verbunden</div>
+        <p class="sub">Deine Spiel-Lobby</p>
 
         <div class="lobby-content">
             <div class="lobby-players">
@@ -215,6 +234,6 @@
         <div id="modalBody"></div>
       </div>
     </div>
-    <script src="appAccounts2.js"></script>
+    <script src="appLobbies.js"></script>
   </body>
 </html>
