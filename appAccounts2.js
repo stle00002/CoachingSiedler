@@ -16,7 +16,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://bringing-eventually-talking-awards.trycloudflare.com";
+const WS_URL = "wss://try-naturals-leads-important.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
