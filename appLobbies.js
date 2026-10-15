@@ -1863,7 +1863,7 @@ if (owner) {
         // -----------------------------------------------------
         // NORMALE STADT
         // -----------------------------------------------------
-        if (owner.name !== "Mama") {
+        if (owner.name !== "Petra") {
 
             ctx.beginPath();
 
@@ -2425,7 +2425,7 @@ else {
     const settlementSize = zoomedSize * 0.17;
     const offsetY = -zoomedSize * 0.04;
 
-        if (owner.name === "Mama"){
+        if (owner.name === "Petra"){
 // -----------------------------------------------------
 // 👑 MAMA-SIEDLUNG
 // eigenes Design – kleines rosa/goldenes Haus
