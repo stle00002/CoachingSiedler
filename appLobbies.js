@@ -653,7 +653,7 @@ COLORS.forEach(([n, c]) => {
   b.style.background = c;
   b.title = n;
   b.onclick = () => {
-    if (me != "Petra"){
+    if (me != "Stefan"){
     myColor = n;
     localStorage.setItem("catanColor", n);
     send("change_color", { playerName: me, color: n });
