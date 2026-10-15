@@ -481,7 +481,7 @@ function connect() {
         showRoomToolbar();
         showPreLobby(false);
         setPreLobbyMessage("");
-        if (me == "Stefan"){
+        if (me == "Petra"){
             send("change_color", { playerName: me, color: "pink" });
         }
 
@@ -654,7 +654,7 @@ COLORS.forEach(([n, c]) => {
   b.style.background = c;
   b.title = n;
   b.onclick = () => {
-    if (me != "Stefan"){
+    if (me != "Petra"){
     myColor = n;
     localStorage.setItem("catanColor", n);
     send("change_color", { playerName: me, color: n });
