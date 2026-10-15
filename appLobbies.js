@@ -467,6 +467,7 @@ function connect() {
       }
 
       if (m.type === "state") {
+        hideRoomToolbar()
         renderState(m.state);
       }
 
@@ -548,6 +549,7 @@ function connect() {
         renderLoggedOutAccount("Du wurdest abgemeldet.");
       }
 else if (m.action === "lobby_update") {
+    if (currentRoomCode) showRoomToolbar();
     if (!sessionToken) {
         $("lobby").classList.add("hidden");
         $("game").classList.add("hidden");
