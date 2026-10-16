@@ -16,7 +16,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://ste-about-ireland-online.trycloudflare.com";
+const WS_URL = "wss://remove-moreover-belle-parameter.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
