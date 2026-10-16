@@ -79,3 +79,48 @@
   #lobby:not(.hidden) { padding-top: 100px; }
   #game:not(.hidden) { padding-top: 80px; }
 }
+/* Skin-Auswahl unter der Spielerfarbenauswahl */
+.skin-selection {
+    margin-top: 20px;
+    width: 100%;
+    min-width: 0;
+}
+
+.skin-selection > h3 {
+    margin-bottom: 12px;
+}
+
+.skin-selection-columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.skin-picker-section {
+    min-width: 0;
+}
+
+.skin-picker-section h4 {
+    margin: 0 0 6px;
+    color: #f7ead1;
+}
+
+/* Die vorhandene Map-Kartenoptik wird wiederverwendet. */
+.skin-picker-section .map-list {
+    padding-top: 8px;
+}
+
+.skin-picker-section .map-card {
+    flex-basis: 170px;
+}
+
+.skin-picker-section .map-card canvas {
+    aspect-ratio: 1.25;
+}
+
+@media (max-width: 650px) {
+    .skin-selection-columns {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}

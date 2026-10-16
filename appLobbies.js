@@ -602,6 +602,7 @@ else if (m.action === "welcome") {
     // Laufendes Spiel: Spieler oder Zuschauer
     document.getElementById("lobby-actions").style.display = "none";
     document.getElementById("colors").style.display = "none";
+    document.getElementById("skin-selection").style.display = "none";
 
     document.getElementById("lobby").classList.add("hidden");
     document.getElementById("game").classList.remove("hidden");
@@ -614,6 +615,8 @@ else if (m.action === "welcome") {
     isSpectator = false;
     document.getElementById("lobby-actions").style.display = "block";
     document.getElementById("colors").style.display = "block";
+    document.getElementById("skin-selection").style.display = "block";
+    renderSkinPicker();
   }
 
   console.log("Verbunden", {
@@ -659,6 +662,8 @@ COLORS.forEach(([n, c]) => {
     localStorage.setItem("catanColor", n);
     send("change_color", { playerName: me, color: n });
   }
+    updateSkinPreviewColors();
+
 };
   $("colors").appendChild(b);
 });
@@ -6176,6 +6181,651 @@ function renderMapPicker(maps, selectedMap) {
         container.appendChild(card);
         drawMapPreview(canvas, map.tiles, map.harbors || []);    
     }
+}
+
+// =====================================================
+// SKIN-AUSWAHL IN DER LOBBY
+// =====================================================
+
+function drawNormalSkinPreview(canvas, type) {
+    const ctx = canvas.getContext("2d");
+
+    // Canvas-Größe und Zeichenfläche
+    canvas.width = 250;
+    canvas.height = 200;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const x = canvas.width / 2;
+    const y = 120;
+
+    // Aktuelle Spielerfarbe verwenden
+    ctx.fillStyle = colorCss(myColor || "rot");
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+
+    if (type === "settlement") {
+        // Normale Siedlung wie in drawBoard()
+        const settlementSize = 27;
+        const offsetY = -6;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            y - settlementSize + offsetY
+        );
+
+        ctx.lineTo(
+            x + settlementSize,
+            y - settlementSize * 0.25 + offsetY
+        );
+
+        ctx.lineTo(
+            x + settlementSize,
+            y + settlementSize + offsetY
+        );
+
+        ctx.lineTo(
+            x - settlementSize,
+            y + settlementSize + offsetY
+        );
+
+        ctx.lineTo(
+            x - settlementSize,
+            y - settlementSize * 0.25 + offsetY
+        );
+
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+    } else if (type === "city") {
+        // Normale Stadt wie in drawBoard()
+        const buildingSize = 36;
+        const offsetY = -9;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x - buildingSize,
+            y + buildingSize + offsetY
+        );
+
+        ctx.lineTo(
+            x + buildingSize,
+            y + buildingSize + offsetY
+        );
+
+        ctx.lineTo(
+            x + buildingSize,
+            y + offsetY
+        );
+
+        ctx.lineTo(
+            x,
+            y + offsetY
+        );
+
+        ctx.lineTo(
+            x - buildingSize * 0.5,
+            y - buildingSize + offsetY
+        );
+
+        ctx.lineTo(
+            x - buildingSize,
+            y + offsetY
+        );
+
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+// =====================================================
+// SKIN-AUSWAHL
+// =====================================================
+
+const SKIN_OPTIONS = {
+    settlement: [
+        { name: "defaultSettlement", label: "Normal" },
+        { name: "PetraSettlement", label: "Petra" }
+    ],
+    city: [
+        { name: "defaultCity", label: "Normal" },
+        { name: "PetraCity", label: "Petra" }
+    ]
+};
+
+function getSelectedSkin(type) {
+    return localStorage.getItem(
+        type === "settlement"
+            ? "catanSettlementSkin"
+            : "catanCitySkin"
+    ) || (type === "settlement"
+        ? "defaultSettlement"
+        : "defaultCity");
+}
+
+function createSkinCard(container, type, skin) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "map-card";
+
+    if (getSelectedSkin(type) === skin.name) {
+        card.classList.add("selected");
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.setAttribute("aria-label", skin.label);
+
+    const name = document.createElement("span");
+    name.className = "map-card-name";
+    name.textContent = skin.label;
+
+    card.append(canvas, name);
+
+    card.addEventListener("click", () => {
+        // Auswahl lokal merken
+        localStorage.setItem(
+            type === "settlement"
+                ? "catanSettlementSkin"
+                : "catanCitySkin",
+            skin.name
+        );
+
+        // Auswahl an den Server senden
+        send("choose_skin", {
+            playerName: me,
+            skinName: skin.name
+        });
+
+        // Nur die ausgewählte Karte markieren
+        container.querySelectorAll(".map-card").forEach(c => {
+            c.classList.toggle("selected", c === card);
+        });
+    });
+
+    container.appendChild(card);
+
+    drawSkinPreview(canvas, type, skin.name);
+}
+
+function renderSkinPicker() {
+    const settlementList =
+        document.getElementById("settlement-skin-list");
+    const cityList =
+        document.getElementById("city-skin-list");
+
+    if (!settlementList || !cityList) return;
+
+    settlementList.replaceChildren();
+    cityList.replaceChildren();
+
+    for (const skin of SKIN_OPTIONS.settlement) {
+        createSkinCard(settlementList, "settlement", skin);
+    }
+
+    for (const skin of SKIN_OPTIONS.city) {
+        createSkinCard(cityList, "city", skin);
+    }
+}
+// Vorschauen neu zeichnen, beispielsweise nach einer Farbänderung
+function updateSkinPreviewColors() {
+    document
+        .querySelectorAll("#settlement-skin-list canvas")
+        .forEach(canvas => drawNormalSkinPreview(canvas, "settlement"));
+
+    document
+        .querySelectorAll("#city-skin-list canvas")
+        .forEach(canvas => drawNormalSkinPreview(canvas, "city"));
+}
+function drawSkinPreview(canvas, type, skinName) {
+    canvas.width = 250;
+    canvas.height = 200;
+
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const x = 125;
+    const zoomedSize = 48;
+    const y = type === "city" ? 120 : 130;
+
+    if (skinName === "defaultSettlement") {
+        drawDefaultSettlementPreview(ctx, x, y, zoomedSize);
+    } else if (skinName === "defaultCity") {
+        drawDefaultCityPreview(ctx, x, y, zoomedSize);
+    } else if (skinName === "PetraSettlement") {
+        drawPetraSettlementPreview(ctx, x, y, zoomedSize);
+    } else if (skinName === "PetraCity") {
+        drawPetraCityPreview(ctx, x, y, zoomedSize);
+    }
+}
+
+function drawDefaultSettlementPreview(ctx, x, y, zoomedSize) {
+    const size = zoomedSize * 0.17;
+    const offsetY = -zoomedSize * 0.04;
+
+    ctx.beginPath();
+    ctx.moveTo(x, y - size + offsetY);
+    ctx.lineTo(x + size, y - size * 0.25 + offsetY);
+    ctx.lineTo(x + size, y + size + offsetY);
+    ctx.lineTo(x - size, y + size + offsetY);
+    ctx.lineTo(x - size, y - size * 0.25 + offsetY);
+    ctx.closePath();
+
+    ctx.fillStyle = colorCss(myColor || "rot");
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = zoomedSize * 0.025;
+    ctx.stroke();
+}
+
+function drawDefaultCityPreview(ctx, x, y, zoomedSize) {
+    const size = zoomedSize * 0.24;
+    const offsetY = -zoomedSize * 0.07;
+
+    ctx.beginPath();
+    ctx.moveTo(x - size, y + size + offsetY);
+    ctx.lineTo(x + size, y + size + offsetY);
+    ctx.lineTo(x + size, y + offsetY);
+    ctx.lineTo(x, y + offsetY);
+    ctx.lineTo(x - size * 0.5, y - size + offsetY);
+    ctx.lineTo(x - size, y + offsetY);
+    ctx.closePath();
+
+    ctx.fillStyle = colorCss(myColor || "rot");
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = zoomedSize * 0.025;
+    ctx.stroke();
+}
+
+function drawPetraSettlementPreview(ctx, x, y, zoomedSize) {
+    drawSettlementPetra(ctx, x, y, zoomedSize);
+}
+
+function drawPetraCityPreview(ctx, x, y, zoomedSize) {
+    drawCityPetra(ctx, x, y, zoomedSize);
+}
+
+function drawSettlementPetra(ctx, x, y, zoomedSize) {
+    const settlementSize = zoomedSize * 0.17;
+    const offsetY = -zoomedSize * 0.04;
+
+    ctx.save();
+
+    const s = settlementSize * 2.5;
+    y += offsetY;
+
+    const pink = ctx.createLinearGradient(
+        x - s, y - s,
+        x + s, y + s
+    );
+
+    pink.addColorStop(0, "#ffb4d4");
+    pink.addColorStop(0.45, "#f45b9b");
+    pink.addColorStop(1, "#c92f70");
+
+    const roof = ctx.createLinearGradient(
+        x - s, y - s,
+        x + s, y
+    );
+
+    roof.addColorStop(0, "#fff0a0");
+    roof.addColorStop(0.35, "#ffd84a");
+    roof.addColorStop(0.65, "#f5b51b");
+    roof.addColorStop(1, "#b87500");
+
+    // Schatten
+    ctx.shadowColor = "rgba(0,0,0,0.28)";
+    ctx.shadowBlur = s * 0.20;
+    ctx.shadowOffsetY = s * 0.12;
+
+    // Hauskörper
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.68, y + s * 0.72);
+    ctx.lineTo(x + s * 0.68, y + s * 0.72);
+    ctx.lineTo(x + s * 0.68, y - s * 0.05);
+    ctx.lineTo(x - s * 0.68, y - s * 0.05);
+    ctx.closePath();
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.085;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+    // Geschwungenes goldenes Dach
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.82, y + s * 0.02);
+
+    ctx.quadraticCurveTo(
+        x - s * 0.52, y - s * 0.18,
+        x, y - s * 0.72
+    );
+
+    ctx.quadraticCurveTo(
+        x + s * 0.52, y - s * 0.18,
+        x + s * 0.82, y + s * 0.02
+    );
+
+    ctx.lineTo(x + s * 0.70, y + s * 0.15);
+
+    ctx.quadraticCurveTo(
+        x + s * 0.42, y - s * 0.02,
+        x, y - s * 0.50
+    );
+
+    ctx.quadraticCurveTo(
+        x - s * 0.42, y - s * 0.02,
+        x - s * 0.70, y + s * 0.15
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = roof;
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.045;
+    ctx.stroke();
+
+    // Fenster
+    ctx.fillStyle = "#8bd8ff";
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.055;
+
+    ctx.beginPath();
+    ctx.roundRect(
+        x - s * 0.22,
+        y + s * 0.10,
+        s * 0.44,
+        s * 0.34,
+        s * 0.06
+    );
+    ctx.fill();
+    ctx.stroke();
+
+    // Fensterkreuz
+    ctx.beginPath();
+    ctx.moveTo(x, y + s * 0.10);
+    ctx.lineTo(x, y + s * 0.44);
+    ctx.moveTo(x - s * 0.22, y + s * 0.27);
+    ctx.lineTo(x + s * 0.22, y + s * 0.27);
+    ctx.stroke();
+
+    // Tür
+    ctx.beginPath();
+    ctx.roundRect(
+        x - s * 0.16,
+        y + s * 0.42,
+        s * 0.32,
+        s * 0.30,
+        s * 0.05
+    );
+
+    ctx.fillStyle = "#a94b78";
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffd84a";
+    ctx.lineWidth = s * 0.055;
+    ctx.stroke();
+
+    // Türklinke
+    ctx.beginPath();
+    ctx.arc(
+        x + s * 0.09,
+        y + s * 0.58,
+        s * 0.025,
+        0,
+        Math.PI * 2
+    );
+    ctx.fillStyle = "#ffd84a";
+    ctx.fill();
+
+    // Krone
+    const crownY = y - s * 1.03;
+    const crownWidth = s * 0.72;
+    const crownHeight = s * 0.42;
+
+    const gold = ctx.createLinearGradient(
+        x - crownWidth / 2,
+        crownY,
+        x + crownWidth / 2,
+        crownY + crownHeight
+    );
+
+    gold.addColorStop(0, "#fff0a0");
+    gold.addColorStop(0.5, "#ffd84a");
+    gold.addColorStop(1, "#b87500");
+
+    ctx.beginPath();
+    ctx.moveTo(x - crownWidth / 2, crownY + crownHeight);
+    ctx.lineTo(
+        x - crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+    ctx.lineTo(
+        x - crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+    ctx.lineTo(x, crownY);
+    ctx.lineTo(
+        x + crownWidth * 0.25,
+        crownY + crownHeight * 0.70
+    );
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight * 0.35
+    );
+    ctx.lineTo(
+        x + crownWidth / 2,
+        crownY + crownHeight
+    );
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+
+    ctx.strokeStyle = "#9c6500";
+    ctx.lineWidth = s * 0.045;
+    ctx.stroke();
+
+    // Kronenjuwelen
+    ctx.fillStyle = "#fff5b5";
+
+    for (const dx of [
+        -crownWidth * 0.32,
+        0,
+        crownWidth * 0.32
+    ]) {
+        ctx.beginPath();
+        ctx.arc(
+            x + dx,
+            crownY + crownHeight * 0.65,
+            s * 0.035,
+            0,
+            Math.PI * 2
+        );
+        ctx.fill();
+    }
+
+    ctx.restore();
+}
+
+function drawCityPetra(ctx, x, y, zoomedSize) {
+    const buildingSize = zoomedSize * 0.24;
+    const offsetY = -zoomedSize * 0.07;
+
+    ctx.save();
+
+    const s = buildingSize * 1.75;
+    y += offsetY;
+
+    const pink = ctx.createLinearGradient(
+        x - s, y - s,
+        x + s, y + s
+    );
+    pink.addColorStop(0, "#ff9fc8");
+    pink.addColorStop(0.45, "#f45b9b");
+    pink.addColorStop(1, "#c92f70");
+
+    const gold = ctx.createLinearGradient(
+        x - s, y,
+        x + s, y
+    );
+    gold.addColorStop(0, "#a96b00");
+    gold.addColorStop(0.3, "#ffd84a");
+    gold.addColorStop(0.5, "#fff2a0");
+    gold.addColorStop(0.7, "#ffd84a");
+    gold.addColorStop(1, "#a96b00");
+
+    ctx.shadowColor = "rgba(0,0,0,0.28)";
+    ctx.shadowBlur = s * 0.18;
+    ctx.shadowOffsetY = s * 0.10;
+
+    // Hauptgebäude
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.78, y + s);
+    ctx.lineTo(x + s * 0.78, y + s);
+    ctx.lineTo(x + s * 0.78, y - s * 0.05);
+    ctx.lineTo(x + s * 0.42, y - s * 0.05);
+    ctx.lineTo(x, y - s * 0.62);
+    ctx.lineTo(x - s * 0.42, y - s * 0.05);
+    ctx.lineTo(x - s * 0.78, y - s * 0.05);
+    ctx.closePath();
+
+    ctx.fillStyle = pink;
+    ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = s * 0.11;
+    ctx.lineJoin = "round";
+    ctx.stroke();
+
+    // Goldener Dachrand
+    ctx.beginPath();
+    ctx.moveTo(x - s * 0.43, y - s * 0.04);
+    ctx.lineTo(x, y - s * 0.62);
+    ctx.lineTo(x + s * 0.43, y - s * 0.04);
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = s * 0.075;
+    ctx.stroke();
+
+    // Türme
+    for (const side of [-1, 1]) {
+        const tx = x + side * s * 0.81;
+
+        ctx.beginPath();
+        ctx.roundRect(
+            tx - s * 0.215,
+            y - s * 0.38,
+            s * 0.43,
+            s * 1.38,
+            s * 0.08
+        );
+        ctx.fillStyle = pink;
+        ctx.fill();
+
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = s * 0.08;
+        ctx.stroke();
+
+        // Turmdach
+        ctx.beginPath();
+        ctx.moveTo(tx - s * 0.30, y - s * 0.36);
+        ctx.lineTo(tx, y - s * 0.88);
+        ctx.lineTo(tx + s * 0.30, y - s * 0.36);
+        ctx.closePath();
+        ctx.fillStyle = gold;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = s * 0.045;
+        ctx.stroke();
+
+        // Turmfenster
+        ctx.beginPath();
+        ctx.roundRect(
+            tx - s * 0.09,
+            y + s * 0.05,
+            s * 0.18,
+            s * 0.30,
+            s * 0.08
+        );
+        ctx.fillStyle = "#68406d";
+        ctx.fill();
+        ctx.strokeStyle = gold;
+        ctx.lineWidth = s * 0.045;
+        ctx.stroke();
+    }
+
+    // Eingang
+    ctx.beginPath();
+    ctx.roundRect(
+        x - s * 0.19,
+        y + s * 0.40,
+        s * 0.38,
+        s * 0.60,
+        s * 0.17
+    );
+    ctx.fillStyle = "#8e3b68";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = s * 0.075;
+    ctx.stroke();
+
+    // Zentrales Fenster
+    ctx.beginPath();
+    ctx.roundRect(
+        x - s * 0.13,
+        y - s * 0.20,
+        s * 0.26,
+        s * 0.32,
+        s * 0.08
+    );
+    ctx.fillStyle = "#8bd8ff";
+    ctx.fill();
+    ctx.strokeStyle = gold;
+    ctx.lineWidth = s * 0.05;
+    ctx.stroke();
+
+    // Krone über der Burg
+    const crownY = y - s * 1.05;
+    const cw = s * 0.64;
+    const ch = s * 0.36;
+
+    ctx.beginPath();
+    ctx.moveTo(x - cw / 2, crownY + ch);
+    ctx.lineTo(x - cw / 2, crownY + ch * 0.30);
+    ctx.lineTo(x - cw * 0.25, crownY + ch * 0.62);
+    ctx.lineTo(x, crownY);
+    ctx.lineTo(x + cw * 0.25, crownY + ch * 0.62);
+    ctx.lineTo(x + cw / 2, crownY + ch * 0.30);
+    ctx.lineTo(x + cw / 2, crownY + ch);
+    ctx.closePath();
+
+    ctx.fillStyle = gold;
+    ctx.fill();
+    ctx.strokeStyle = "#9c6500";
+    ctx.lineWidth = s * 0.045;
+    ctx.stroke();
+
+    ctx.restore();
 }
 
 // Button hinzufügen, sobald das Script ausgeführt wird.
