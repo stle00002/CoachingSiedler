@@ -1555,6 +1555,16 @@ if (s.setupPhase) {
 
     for (const other of connectedEdges) {
         if (other.owner === mep.id) {
+            const ov1 = vertices.find(v => v.id === other.vertex1);
+            const ov2 = vertices.find(v => v.id === other.vertex2);
+
+            let owner = ov1?.owner ?? ov2?.owner;
+            let sameOwner = v1?.owner ?? v2?.owner;
+
+            if (owner !== null && owner !== undefined && owner === sameOwner) {
+                continue;
+            }
+
             return false;
         }
     }
