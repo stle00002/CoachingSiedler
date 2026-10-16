@@ -667,11 +667,7 @@ COLORS.forEach(([n, c]) => {
   b.style.background = c;
   b.title = n;
   b.onclick = () => {
-    if (me != "Petra"){
-    myColor = n;
-    localStorage.setItem("catanColor", n);
     send("change_color", { playerName: me, color: n });
-  }
 };
   $("colors").appendChild(b);
 });
@@ -758,6 +754,12 @@ function renderLobby(players, loading) {
 
   $("lobby-actions").style.display = "";
   $("colors").style.display = "";
+     for (const playerdata of players){
+        if (playerdata.name === me){
+            myColor = playerdata.color;
+            localStorage.setItem("catanColor", playerdata.color);
+        }
+    }
 
   $("players").innerHTML = players
     .map(
@@ -1902,7 +1904,7 @@ if (owner) {
 // 👑 MAMA-SCHLOSS
 // -----------------------------------------------------
 else {
-    drawCityPetra(ctx, p.x, p.y, zoomedSize)
+    drawCityPetra(ctx, p.x, p.y, zoomedSize, owner.color)
 }
 
     }
@@ -1923,7 +1925,7 @@ else {
         // 👑 MAMA-SIEDLUNG
         // -----------------------------------------------------
         else {
-            drawSettlementPetra(ctx, p.x, p.y, zoomedSize)
+            drawSettlementPetra(ctx, p.x, p.y, zoomedSize, owner.color)
         }
     }
 }
@@ -5390,14 +5392,14 @@ function drawDefaultCityPreview(ctx, x, y, zoomedSize, color) {
 }
 
 function drawPetraSettlementPreview(ctx, x, y, zoomedSize) {
-    drawSettlementPetra(ctx, x, y, zoomedSize);
+    drawSettlementPetra(ctx, x, y, zoomedSize, myColor);
 }
 
 function drawPetraCityPreview(ctx, x, y, zoomedSize) {
-    drawCityPetra(ctx, x, y, zoomedSize);
+    drawCityPetra(ctx, x, y, zoomedSize, myColor);
 }
 
-function drawSettlementPetra(ctx, x, y, zoomedSize) {
+function drawSettlementPetra(ctx, x, y, zoomedSize, color) {
     const settlementSize = zoomedSize * 0.17;
     const offsetY = -zoomedSize * 0.04;
 
@@ -5441,7 +5443,11 @@ function drawSettlementPetra(ctx, x, y, zoomedSize) {
     ctx.lineTo(x - s * 0.68, y - s * 0.05);
 
     ctx.closePath();
-    ctx.fillStyle = pink;
+    if (color == "pink"){
+        ctx.fillStyle = pink;
+    } else{
+        ctx.fillStyle = colorCss(color || "rot");
+    }
     ctx.fill();
 
     // SCHATTEN AUSSCHALTEN
@@ -5661,7 +5667,7 @@ function drawSettlementPetra(ctx, x, y, zoomedSize) {
     ctx.restore();
 }
 
-function drawCityPetra(ctx, x, y, zoomedSize) {
+function drawCityPetra(ctx, x, y, zoomedSize, color) {
     const buildingSize = zoomedSize * 0.24;
     const offsetY = -zoomedSize * 0.07;
 
@@ -5710,7 +5716,11 @@ function drawCityPetra(ctx, x, y, zoomedSize) {
 
     ctx.closePath();
 
-    ctx.fillStyle = pink;
+    if (color == "pink"){
+        ctx.fillStyle = pink;
+    } else{
+        ctx.fillStyle = colorCss(color || "rot");
+    }
     ctx.fill();
 
     ctx.shadowColor = "transparent";
@@ -5747,7 +5757,11 @@ function drawCityPetra(ctx, x, y, zoomedSize) {
             s * 0.08
         );
 
-        ctx.fillStyle = pink;
+        if (color == "pink"){
+            ctx.fillStyle = pink;
+        } else{
+            ctx.fillStyle = colorCss(color || "rot");
+        }
         ctx.fill();
 
         ctx.strokeStyle = "#ffffff";

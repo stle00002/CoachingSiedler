@@ -28,7 +28,17 @@ body {
   padding: 32px;
 }
 .lobby-panel {
-  width: min(760px, 92vw);
+    width: min(1400px, 96vw);
+    max-height: 92dvh;
+
+    padding: 24px;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+
+    transform: none;
+    box-sizing: border-box;
 }
 h1 {
   text-align: center;
@@ -1914,4 +1924,11 @@ button[data-action="roll_dice"] {
 }
 .development-card-boxes:empty {
     display: none;
+}
+#lobby.screen {
+    min-height: 0;
+    height: 100dvh;
+    padding: 2dvh 0;
+    box-sizing: border-box;
+    overflow: hidden;
 }
