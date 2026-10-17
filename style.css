@@ -28,8 +28,8 @@ body {
   padding: 32px;
 }
 .lobby-panel {
-    width: min(1400px, 96vw);
-    max-height: 92dvh;
+    width: min(1400px, 70vw);
+    max-height: 80dvh;
 
     padding: 24px;
 
@@ -1931,4 +1931,78 @@ button[data-action="roll_dice"] {
     padding: 2dvh 0;
     box-sizing: border-box;
     overflow: hidden;
+}
+
+
+/* Kompakte Darstellung für Android und andere schmale Displays */
+@media (max-width: 800px) {
+    .layout {
+        grid-template-columns: 145px minmax(0, 1fr) 165px;
+    }
+
+    .sidebar {
+        padding: 8px;
+    }
+
+    .player-card {
+        padding: 6px;
+        margin-bottom: 5px;
+        font-size: 12px;
+    }
+
+    .resources {
+        gap: 4px;
+        margin-bottom: 8px;
+    }
+
+    .resources .res {
+        padding: 5px 2px;
+        font-size: 11px;
+    }
+
+    .actions {
+        gap: 4px;
+    }
+
+    .actions button {
+        padding: 7px 5px;
+        font-size: 12px;
+    }
+
+    .trade-bar {
+        width: min(250px, 30%);
+        padding: 6px;
+    }
+
+    .trade-resource {
+        width: 38px;
+        height: 38px;
+    }
+
+    .resource-square {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+
+    .trade-offer {
+        width: 140px !important;
+        padding: 8px !important;
+        top: 8px !important;
+        right: 8px !important;
+    }
+
+    .trade-title {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .trade-label {
+        font-size: 10px;
+    }
+
+    .trade-buttons button {
+        padding: 6px;
+        font-size: 11px;
+    }
 }
