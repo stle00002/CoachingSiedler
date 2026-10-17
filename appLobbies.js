@@ -1338,6 +1338,15 @@ if (!row) {
     playerList.appendChild(row);
 }
 
+    const hasRaisedHand = !!s.raisedHands?.[String(p.id)];
+
+    row.classList.toggle(
+        "current",
+        s.buildPhase
+            ? hasRaisedHand
+            : isCurrent(p)
+    );
+
     const name = row.querySelector(".player-name");
     name.style.color = colorCss(p.color);
 
@@ -1604,6 +1613,7 @@ if (s.setupPhase) {
 // GEMEINSAME FELD-DARSTELLUNG
 // Wird von drawBoard() und drawMapPreview() verwendet
 // =========================================================
+
 
 function drawMapTiles(ctx, tiles, pos, size) {
     for (const t of tiles) {
