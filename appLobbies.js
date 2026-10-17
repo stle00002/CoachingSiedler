@@ -16,7 +16,7 @@ const TILE_IMAGES = {
   GOLD: new Image(),
 };
 
-const WS_URL = "wss://remove-moreover-belle-parameter.trycloudflare.com";
+const WS_URL = "wss://heart-adapters-writes-bestsellers.trycloudflare.com";
 
 let isSpectator = false;
 const IS_IPHONE = /iPhone/i.test(navigator.userAgent);
@@ -481,9 +481,6 @@ function connect() {
         showRoomToolbar();
         showPreLobby(false);
         setPreLobbyMessage("");
-        if (me == "Petra"){
-            send("change_color", { playerName: me, color: "pink" });
-        }
 
       }
       else if (m.type === "room_left") {
